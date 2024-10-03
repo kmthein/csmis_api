@@ -24,8 +24,8 @@ public class User {
     @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
 
-    @Column(name = "is_vegan", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean isVegan = true;
+    @Column(name = "is_vegan", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isVegan = false;
 
     @Column(name = "role")
     private String role;
