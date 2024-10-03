@@ -1,0 +1,25 @@
+package com.team2.csmis_api.entity;
+
+import jakarta.persistence.*;
+
+import java.time.LocalDate;
+
+@Table(name = "holiday")
+@Entity
+public class Holiday extends Base{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "date")
+    private LocalDate date;
+
+    @ManyToOne
+    @JoinColumn(name="admin_id")
+    private User admin_id;
+
+}
