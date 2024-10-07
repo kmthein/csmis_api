@@ -1,15 +1,16 @@
 package com.team2.csmis_api.dto;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.team2.csmis_api.entity.Role;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
-    private Integer id;
-    private String staff_id;
-    private String door_log_no;
-    private Boolean isActive;
-    private Boolean isVegan;
-    private String role;
-    private String email;
-
+    private int id;
+    private String name;
+    private String staffId;
+    private Role role;
 }
