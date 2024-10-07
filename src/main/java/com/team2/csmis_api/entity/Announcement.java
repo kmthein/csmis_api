@@ -1,5 +1,6 @@
 package com.team2.csmis_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -26,7 +27,7 @@ public class Announcement extends Base{
 
     @ManyToOne
     @JoinColumn(name="admin_id")
-    private User admin_id;
+    private User user;
 
     @ManyToMany
     @JoinTable(

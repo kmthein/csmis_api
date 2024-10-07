@@ -45,17 +45,17 @@ public class User implements UserDetails {
 
     @ManyToOne
     @JoinColumn(name="division_id")
-    private Division divisionId;
+    private Division division;
 
     @ManyToOne
     @JoinColumn(name="department_id")
-    private Department departmentId;
+    private Department department;
 
     @ManyToOne
     @JoinColumn(name="team_id")
-    private Team teamId;
+    private Team team;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_avoid_meat",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -63,7 +63,7 @@ public class User implements UserDetails {
     )
     private List<Meat> meats;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_has_notification",
             joinColumns = @JoinColumn(name = "user_id"),

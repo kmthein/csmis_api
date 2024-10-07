@@ -1,9 +1,14 @@
 package com.team2.csmis_api.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
+
+@Data
 @Table(name = "holiday")
 @Entity
 public class Holiday extends Base{
@@ -20,6 +25,6 @@ public class Holiday extends Base{
 
     @ManyToOne
     @JoinColumn(name="admin_id")
-    private User admin_id;
+    private User user;
 
 }

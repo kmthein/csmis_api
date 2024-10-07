@@ -21,16 +21,16 @@ public class Lunch extends Base{
     private String price;
 
     @Column(name = "company_rate")
-    private String company_rate;
+    private String companyRate;
 
     @Column(name = "date")
     private LocalDate date;
 
     @ManyToOne
     @JoinColumn(name="admin_id")
-    private User admin_id;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name="restaurant_id")
-    private Restaurant restaurant_id;
+    private Restaurant restaurant;
 }

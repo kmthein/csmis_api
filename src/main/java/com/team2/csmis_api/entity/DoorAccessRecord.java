@@ -18,10 +18,10 @@ public class DoorAccessRecord extends Base{
 
     @ManyToOne
     @JoinColumn(name="location_id")
-    private Location location_id ;
+    private Location location;
 
     @ManyToOne
     @JoinColumn(name="user_id")
-    private User user_id ;
+    private User user;
 
 }

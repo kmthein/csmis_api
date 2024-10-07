@@ -26,7 +26,7 @@ public class Comment extends Base{
 
     @ManyToOne
     @JoinColumn(name="user_id")
-    private User user_id;
+    private User user;
 
     @ManyToMany(mappedBy = "comments")
     private List<Announcement> announcements;
