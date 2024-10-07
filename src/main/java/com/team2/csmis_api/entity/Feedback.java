@@ -24,6 +24,6 @@ public class Feedback extends Base{
 
     @ManyToOne
     @JoinColumn(name="user_id")
-    private User user_id;
+    private User user;
 
 }

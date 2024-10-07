@@ -19,13 +19,13 @@ public class User {
     private String staff_id;
 
     @Column(name = "door_log_no")
-    private String door_log_no;
+    private String doorLogNo;
 
     @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
 
     @Column(name = "is_vegan", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
-    private Boolean isVegan = true;
+    private Boolean isVegan = false;
 
     @Column(name = "role")
     private String role;
@@ -38,17 +38,17 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name="division_id")
-    private Division division_id;
+    private Division division;
 
     @ManyToOne
     @JoinColumn(name="department_id")
-    private Department department_id;
+    private Department department;
 
     @ManyToOne
     @JoinColumn(name="team_id")
-    private Team team_id;
+    private Team team;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_avoid_meat",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -56,7 +56,7 @@ public class User {
     )
     private List<Meat> meats;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_has_notification",
             joinColumns = @JoinColumn(name = "user_id"),

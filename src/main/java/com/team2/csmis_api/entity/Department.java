@@ -17,6 +17,6 @@ public class Department extends Base{
 
     @ManyToOne
     @JoinColumn(name="division_id")
-    private Division division_id;
+    private Division division;
 
 }

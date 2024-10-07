@@ -13,13 +13,13 @@ public class UserHasLunch extends Base{
     private Integer id;
 
     @Column(name = "user_cost")
-    private double user_cost;
+    private double userCost;
 
     @ManyToOne
     @JoinColumn(name="user_id")
-    private User user_id;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name="lunch_id")
-    private Lunch lunch_id;
+    private Lunch lunch;
 }

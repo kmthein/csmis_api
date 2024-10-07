@@ -17,5 +17,5 @@ public class Team extends Base{
 
     @ManyToOne
     @JoinColumn(name="department_id")
-    private Department department_id;
+    private Department department;
 }
