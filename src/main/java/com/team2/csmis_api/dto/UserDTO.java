@@ -13,4 +13,6 @@ public class UserDTO {
     private String name;
     private String staffId;
     private Role role;
+    private String doorLogNo;
+    private Boolean isVegan;
 }
