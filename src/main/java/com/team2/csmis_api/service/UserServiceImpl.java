@@ -6,12 +6,18 @@ import com.team2.csmis_api.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
+    @Override
+    public void saveUserToDatabase(MultipartFile file, Integer adminId) {
+
+    }
+
     @Autowired
     private UserRepository userRepo;
 
