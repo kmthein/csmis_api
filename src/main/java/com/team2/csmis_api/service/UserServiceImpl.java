@@ -80,9 +80,15 @@ public class UserServiceImpl implements UserService {
 
     public UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setDivision(user.getDivision().getName());
-        userDTO.setDepartment(user.getDepartment().getName());
-        userDTO.setTeam(user.getTeam().getName());
+        if(user.getDivision() != null) {
+            userDTO.setDivision(user.getDivision().getName());
+        }
+        if(user.getDepartment() != null) {
+            userDTO.setDepartment(user.getDepartment().getName());
+        }
+        if(user.getTeam() != null) {
+            userDTO.setTeam(user.getTeam().getName());
+        }
         if(user.getIsActive() == true) {
             userDTO.setStatus(Status.Active);
         } else {

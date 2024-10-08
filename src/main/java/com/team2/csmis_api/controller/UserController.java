@@ -33,11 +33,11 @@ public class UserController {
         if(users.size() > 0) {
             return ResponseEntity
                     .status(HttpStatus.CREATED)
-                    .body(Map.of("Message", "Employee data uploaded and saved to database successfully"));
+                    .body(Map.of("message", "Employee data updated successfully"));
         } else {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("Message", "Something went wrong"));
+                    .body(Map.of("error", "Something went wrong"));
         }
     }
 
