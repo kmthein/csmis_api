@@ -37,9 +37,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults()) // Enable CORS
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        // Allow all requests initially
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // Only allow ADMIN role for admin endpoints
+                        .requestMatchers("/api/restaurants/**").authenticated() // Require authentication for restaurant endpoints
+                        .requestMatchers("/api/lunches/**").authenticated()
+                        .anyRequest().permitAll() // Authenticate any other request
                 )
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -16,7 +16,7 @@ public class Restaurant extends Base{
     private String name;
 
     @Column(name = "address")
-    private String price;
+    private String address;
 
     @Column(name = "contact")
     private String contact;
