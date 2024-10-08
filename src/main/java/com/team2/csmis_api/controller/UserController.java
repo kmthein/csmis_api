@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,14 +23,22 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("")
-    public ResponseEntity<?> uploadStaffData(@RequestParam("file") MultipartFile file,
-                                                @RequestParam("adminId") Integer adminId) {
-        System.out.println(file);
-        System.out.println(adminId);
-        userService.saveUserToDatabase(file, adminId);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(Map.of("Message", "Employee data uploaded and saved to database successfully"));
+    public ResponseEntity<?> uploadStaffData(
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "adminId", required = false) Integer adminId) throws IOException {
+
+        System.out.println("File received: " + file.getOriginalFilename());
+        System.out.println("Admin ID: " + adminId);
+        List<User> users = userService.saveUserToDatabase(file, adminId);
+        if(users.size() > 0) {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(Map.of("Message", "Employee data uploaded and saved to database successfully"));
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("Message", "Something went wrong"));
+        }
     }
 
     @GetMapping("")
