@@ -38,6 +38,11 @@ public class UserController {
         }
     }
 
+    @PutMapping("{id}")
+    public ResponseDTO updateUserById(@PathVariable("id") Integer id, @ModelAttribute UserDTO userDTO) {
+        return userService.updateUserById(userDTO, id);
+    }
+
     @GetMapping("")
     public List<UserDTO> getAllActiveUsers() {
         return userService.getAllActiveUsers();
@@ -46,10 +51,5 @@ public class UserController {
     @GetMapping("{id}")
     public UserDTO getUserById(@PathVariable("id") Integer id) {
         return userService.getUserById(id);
-    }
-
-    @PutMapping("{id}")
-    public ResponseDTO updateUserById(UserDTO userDTO, @PathVariable("id") Integer id) {
-        return null;
     }
 }

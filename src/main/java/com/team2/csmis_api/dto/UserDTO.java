@@ -20,5 +20,5 @@ public class UserDTO {
     private String division;
     private String department;
     private String team;
-    private Status status;
+    private String status;
 }

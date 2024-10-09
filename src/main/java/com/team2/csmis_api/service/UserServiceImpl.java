@@ -83,6 +83,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseDTO updateUserById(UserDTO userDTO, int id) {
         User tempUser = userRepo.findById(id).get();
+        ResponseDTO res = new ResponseDTO();
         if(tempUser == null) {
             throw new ResourceNotFoundException("Staff not existed with this id.");
         }
@@ -90,7 +91,38 @@ public class UserServiceImpl implements UserService {
         tempUser.setStaffId(userDTO.getStaffId());
         tempUser.setDoorLogNo(Integer.valueOf(userDTO.getDoorLogNo()));
         tempUser.setEmail(userDTO.getEmail());
-        return null;
+        if(tempUser.getIsActive() == userDTO.getStatus().equals("Active")) {
+            tempUser.setIsActive(true);
+        } else {
+            tempUser.setIsActive(false);
+        }
+        if(tempUser.getIsVegan() != userDTO.getIsVegan()) {
+            tempUser.setIsVegan(userDTO.getIsVegan());
+        }
+        if(!tempUser.getRole().toString().equals(userDTO.getRole().toString())) {
+            tempUser.setRole(userDTO.getRole());
+        };
+        Division tempDivision = divisionRepo.findDivisionByName(userDTO.getDivision());
+        if(tempDivision != null && !tempDivision.getName().equals(userDTO.getDivision())) {
+            tempUser.setDivision(tempDivision);
+        }
+        Department tempDepart = departmentRepo.findDepartmentByName(userDTO.getDepartment());
+        if(tempDepart != null && !tempDepart.getName().equals(userDTO.getDepartment())) {
+            tempUser.setDepartment(tempDepart);
+        }
+        Team tempTeam = teamRepo.findTeamByName(userDTO.getTeam());
+        if(tempTeam != null && !tempTeam.getName().equals(userDTO.getTeam())) {
+            tempUser.setTeam(tempTeam);
+        }
+        User userSave = userRepo.save(tempUser);
+        if(userSave != null) {
+            res.setStatus("200");
+            res.setMessage("Staff data updated successfully.");
+        } else {
+            res.setStatus("403");
+            res.setMessage("Staff data update failed.");
+        }
+        return res;
     }
 
     public UserDTO mapUserToDTO(User user) {
@@ -105,9 +137,9 @@ public class UserServiceImpl implements UserService {
             userDTO.setTeam(user.getTeam().getName());
         }
         if(user.getIsActive() == true) {
-            userDTO.setStatus(Status.Active);
+            userDTO.setStatus(Status.Active.toString());
         } else {
-            userDTO.setStatus(Status.InActive);
+            userDTO.setStatus(Status.InActive.toString());
         }
         return userDTO;
     }
