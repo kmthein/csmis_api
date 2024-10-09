@@ -26,9 +26,6 @@ public class UserController {
     public ResponseEntity<?> uploadStaffData(
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "adminId", required = false) Integer adminId) throws IOException {
-
-        System.out.println("File received: " + file.getOriginalFilename());
-        System.out.println("Admin ID: " + adminId);
         List<User> users = userService.saveUserToDatabase(file, adminId);
         if(users.size() > 0) {
             return ResponseEntity
@@ -49,5 +46,10 @@ public class UserController {
     @GetMapping("{id}")
     public UserDTO getUserById(@PathVariable("id") Integer id) {
         return userService.getUserById(id);
+    }
+
+    @PutMapping("{id}")
+    public ResponseDTO updateUserById(UserDTO userDTO, @PathVariable("id") Integer id) {
+        return null;
     }
 }

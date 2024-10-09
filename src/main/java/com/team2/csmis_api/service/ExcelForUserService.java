@@ -63,12 +63,11 @@ public class ExcelForUserService {
                 }
                 Iterator<Cell> cellIterator = row.iterator();
                 int cellIndex = 0;
-
+                Division division = null;
+                Department department = null;
+                Team team = null;
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
-                    Division division = null;
-                    Department department = null;
-                    Team team = null;
                     switch (cellIndex) {
                         case 1:
                             division = divisionRepo.findDivisionByName(cell.getStringCellValue());

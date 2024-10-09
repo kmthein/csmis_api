@@ -1,7 +1,9 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.*;
+import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.DepartmentRepository;
 import com.team2.csmis_api.repository.DivisionRepository;
 import com.team2.csmis_api.repository.TeamRepository;
@@ -76,6 +78,19 @@ public class UserServiceImpl implements UserService {
         }
         userRepo.saveAll(users);
         return users;
+    }
+
+    @Override
+    public ResponseDTO updateUserById(UserDTO userDTO, int id) {
+        User tempUser = userRepo.findById(id).get();
+        if(tempUser == null) {
+            throw new ResourceNotFoundException("Staff not existed with this id.");
+        }
+        tempUser.setName(userDTO.getName());
+        tempUser.setStaffId(userDTO.getStaffId());
+        tempUser.setDoorLogNo(Integer.valueOf(userDTO.getDoorLogNo()));
+        tempUser.setEmail(userDTO.getEmail());
+        return null;
     }
 
     public UserDTO mapUserToDTO(User user) {

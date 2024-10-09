@@ -1,5 +1,6 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.User;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,4 +14,6 @@ public interface UserService {
     UserDTO getUserById(int id);
 
     List<User> saveUserToDatabase(MultipartFile file, Integer adminId) throws IOException;
+
+    ResponseDTO updateUserById(UserDTO userDTO, int id);
 }
