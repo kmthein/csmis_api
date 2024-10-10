@@ -49,13 +49,13 @@ public class JwtService {
 
     public String generateToken(User user){
         String token = Jwts.builder()
-                .subject(user.getStaffId())
+                .setSubject(user.getStaffId())
+                .claim("role", user.getRole().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
                 .signWith(getSigninKey())
                 .compact();
         return token;
-
     }
     public SecretKey getSigninKey(){
         byte[] keyByte = Decoders.BASE64URL.decode(SECRECT_KEY);
