@@ -24,13 +24,21 @@ public class FeedbackService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private NotificationService notificationService;
+
     public FeedbackDTO createFeedback(FeedbackDTO feedbackDTO) {
         Feedback feedback = modelMapper.map(feedbackDTO, Feedback.class);
         User user = userRepository.findById(feedbackDTO.getUserId()).orElse(null);
         feedback.setUser(user);
         Feedback savedFeedback = feedbackRepository.save(feedback);
+
+        // Send notification to admin
+        notificationService.sendFeedbackNotification("New feedback received" + feedback.getTitle());
+
         return modelMapper.map(savedFeedback, FeedbackDTO.class);
     }
+
 
     public List<FeedbackDTO> getAllFeedbacks() {
         return feedbackRepository.findAll().stream()
