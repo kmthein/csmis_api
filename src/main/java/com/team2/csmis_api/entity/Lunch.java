@@ -4,18 +4,20 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.List;
+
 @Data
 @Table(name = "lunch")
 @Entity
-public class Lunch extends Base{
+public class Lunch extends Base {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
 
+    @ElementCollection
     @Column(name = "menu")
-    private String menu;
+    private List<String> menu;
 
     @Column(name = "price")
     private String price;
@@ -27,10 +29,10 @@ public class Lunch extends Base{
     private LocalDate date;
 
     @ManyToOne
-    @JoinColumn(name="admin_id")
+    @JoinColumn(name = "admin_id")
     private User user;
 
     @ManyToOne
-    @JoinColumn(name="restaurant_id")
+    @JoinColumn(name = "restaurant_id")
     private Restaurant restaurant;
 }
