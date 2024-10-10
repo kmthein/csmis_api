@@ -102,7 +102,6 @@ public class ExcelForUserService {
                                 department = new Department();
                                 department.setName(cell.getStringCellValue());
                             }
-                            department.setDivision(division);
                             departmentRepo.save(department);
                             user.setDepartment(department);
                             break;
@@ -116,7 +115,6 @@ public class ExcelForUserService {
                                 team = new Team();
                                 team.setName(cell.getStringCellValue());
                             }
-                            team.setDepartment(department);
                             teamRepo.save(team);
                             user.setTeam(team);
                             break;

@@ -11,6 +11,8 @@ import java.util.List;
 public interface UserService {
     List<UserDTO> getAllActiveUsers();
 
+    ResponseDTO addNewUser(UserDTO userDTO);
+
     UserDTO getUserById(int id);
 
     List<User> saveUserToDatabase(MultipartFile file, Integer adminId) throws IOException;

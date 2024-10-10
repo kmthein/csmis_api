@@ -27,6 +27,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -99,19 +100,34 @@ public class UserServiceImpl implements UserService {
         if(tempUser.getIsVegan() != userDTO.getIsVegan()) {
             tempUser.setIsVegan(userDTO.getIsVegan());
         }
-        if(!tempUser.getRole().toString().equals(userDTO.getRole().toString())) {
+        if(!Objects.equals(tempUser.getRole().toString(), userDTO.getRole().toString())) {
             tempUser.setRole(userDTO.getRole());
         };
         Division tempDivision = divisionRepo.findDivisionByName(userDTO.getDivision());
-        if(tempDivision != null && !tempDivision.getName().equals(userDTO.getDivision())) {
+        if(tempDivision != null && Objects.equals(tempDivision.getName(), userDTO.getDivision())) {
+            tempUser.setDivision(tempDivision);
+        } else if(tempDivision == null) {
+            tempDivision = new Division();
+            tempDivision.setName(userDTO.getDivision());
+            divisionRepo.save(tempDivision);
             tempUser.setDivision(tempDivision);
         }
         Department tempDepart = departmentRepo.findDepartmentByName(userDTO.getDepartment());
-        if(tempDepart != null && !tempDepart.getName().equals(userDTO.getDepartment())) {
+        if(tempDepart != null && Objects.equals(tempDepart.getName(), userDTO.getDepartment())) {
+            tempUser.setDepartment(tempDepart);
+        } else if(tempDepart == null) {
+            tempDepart = new Department();
+            tempDepart.setName(userDTO.getDepartment());
+            departmentRepo.save(tempDepart);
             tempUser.setDepartment(tempDepart);
         }
         Team tempTeam = teamRepo.findTeamByName(userDTO.getTeam());
-        if(tempTeam != null && !tempTeam.getName().equals(userDTO.getTeam())) {
+        if(tempTeam != null && Objects.equals(tempTeam.getName(), userDTO.getTeam())) {
+            tempUser.setTeam(tempTeam);
+        } else if(tempTeam == null) {
+            tempTeam = new Team();
+            tempTeam.setName(userDTO.getTeam());
+            teamRepo.save(tempTeam);
             tempUser.setTeam(tempTeam);
         }
         User userSave = userRepo.save(tempUser);
@@ -154,6 +170,60 @@ public class UserServiceImpl implements UserService {
             userDTOList.add(userDTO);
         }
         return userDTOList;
+    }
+
+    @Override
+    public ResponseDTO addNewUser(UserDTO userDTO) {
+        ResponseDTO res = new ResponseDTO();
+        User staffExist = userRepo.findByStaffId(userDTO.getStaffId());
+        if(staffExist != null) {
+            res.setStatus("409");
+            res.setMessage("Staff already existed with this id.");
+            return res;
+        }
+        User tempUser = mapper.map(userDTO, User.class);
+        Division tempDivision = divisionRepo.findDivisionByName(userDTO.getDivision());
+        if(tempDivision != null && Objects.equals(tempDivision.getName(), userDTO.getDivision())) {
+            tempUser.setDivision(tempDivision);
+        } else if(tempDivision == null) {
+            tempDivision = new Division();
+            tempDivision.setName(userDTO.getDivision());
+            divisionRepo.save(tempDivision);
+            tempUser.setDivision(tempDivision);
+        }
+        Department tempDepart = departmentRepo.findDepartmentByName(userDTO.getDepartment());
+        if(tempDepart != null && Objects.equals(tempDepart.getName(), userDTO.getDepartment())) {
+            tempUser.setDepartment(tempDepart);
+        } else if(tempDepart == null) {
+            tempDepart = new Department();
+            tempDepart.setName(userDTO.getDepartment());
+            departmentRepo.save(tempDepart);
+            tempUser.setDepartment(tempDepart);
+        }
+        Team tempTeam = teamRepo.findTeamByName(userDTO.getTeam());
+        if(tempTeam != null && Objects.equals(tempTeam.getName(), userDTO.getTeam())) {
+            tempUser.setTeam(tempTeam);
+        } else if(tempTeam == null) {
+            tempTeam = new Team();
+            tempTeam.setName(userDTO.getTeam());
+            teamRepo.save(tempTeam);
+            tempUser.setTeam(tempTeam);
+        }
+        if(userDTO.getStatus().equals("Active")) {
+            tempUser.setIsActive(true);
+        } else {
+            tempUser.setIsActive(false);
+        }
+        tempUser.setIsVegan(false);
+        User userSave = userRepo.save(tempUser);
+        if(userSave != null) {
+            res.setStatus("200");
+            res.setMessage("Staff data insert successfully.");
+        } else {
+            res.setStatus("403");
+            res.setMessage("Staff data insert failed.");
+        }
+        return res;
     }
 
     @Override

@@ -22,7 +22,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("")
+    @PostMapping("excel")
     public ResponseEntity<?> uploadStaffData(
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "adminId", required = false) Integer adminId) throws IOException {
@@ -36,6 +36,11 @@ public class UserController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Something went wrong"));
         }
+    }
+
+    @PostMapping("")
+    public ResponseDTO addNewUser(@ModelAttribute UserDTO userDTO) {
+        return userService.addNewUser(userDTO);
     }
 
     @PutMapping("{id}")
