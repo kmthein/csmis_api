@@ -34,14 +34,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(Customizer.withDefaults()) // Enable CORS
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                        // Allow all requests initially
-                        .requestMatchers("/admin/**").hasRole("ADMIN") // Only allow ADMIN role for admin endpoints
-                        .requestMatchers("/api/restaurants/**").authenticated() // Require authentication for restaurant endpoints
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/restaurants/**").authenticated()
                         .requestMatchers("/api/lunches/**").authenticated()
-                        .anyRequest().permitAll() // Authenticate any other request
+                        .anyRequest().permitAll()
                 )
                 .userDetailsService(userDetailsService)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -25,12 +25,12 @@ public class User implements UserDetails {
     private String staffId;
 
     @Column(name = "door_log_no")
-    private String doorLogNo;
+    private Integer doorLogNo;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
 
-    @Column(name = "is_vegan", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(name = "is_vegan", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isVegan = false;
 
     @Enumerated(EnumType.STRING)
