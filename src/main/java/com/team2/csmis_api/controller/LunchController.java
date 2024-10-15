@@ -17,34 +17,32 @@ public class LunchController {
     @Autowired
     private LunchService lunchService;
 
-    @GetMapping
-    public ResponseEntity<List<Lunch>> getAllLunches() {
-        List<Lunch> lunches = lunchService.getAllLunches();
-        return new ResponseEntity<>(lunches, HttpStatus.OK);
+    @GetMapping("")
+    public ResponseEntity<List<LunchDTO>> getAllLunches() {
+        try {
+            List<LunchDTO> lunches = lunchService.findAll();
+            return ResponseEntity.ok(lunches);
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception for debugging
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Lunch> getLunchById(@PathVariable Integer id) {
-        return lunchService.getLunchById(id)
-                .map(lunch -> new ResponseEntity<>(lunch, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-    }
-
-    @PostMapping
-    public ResponseEntity<Lunch> createLunch(@RequestBody LunchDTO lunchDTO) {
-        Lunch createdLunch = lunchService.createLunch(lunchDTO);
-        return new ResponseEntity<>(createdLunch, HttpStatus.CREATED);
+    @PostMapping("")
+    public ResponseEntity<LunchDTO> createLunch(@RequestBody LunchDTO lunchDTO) {
+        LunchDTO createdLunchDTO = lunchService.save(lunchDTO);
+        return ResponseEntity.ok(createdLunchDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Lunch> updateLunch(@PathVariable Integer id, @RequestBody LunchDTO lunchDTO) {
-        Lunch updatedLunch = lunchService.updateLunch(id, lunchDTO);
-        return new ResponseEntity<>(updatedLunch, HttpStatus.OK);
+    public ResponseEntity<LunchDTO> updateLunch(@PathVariable Integer id, @RequestBody LunchDTO lunchDTO) {
+        LunchDTO updatedLunch = lunchService.updateLunch(id, lunchDTO);
+        return ResponseEntity.ok(updatedLunch);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLunch(@PathVariable Integer id) {
         lunchService.deleteLunch(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build(); // Returns 204 No Content
     }
 }
