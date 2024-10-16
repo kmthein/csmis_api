@@ -1,6 +1,5 @@
 package com.team2.csmis_api.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,12 +28,12 @@ public class Announcement extends Base{
     @JoinColumn(name="admin_id")
     private User user;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "announcement_has_comment",
+            name = "announcement_has_file",
             joinColumns = @JoinColumn(name = "announcement_id"),
-            inverseJoinColumns = @JoinColumn(name = "comment_id")
+            inverseJoinColumns = @JoinColumn(name = "file_id")
     )
-    private List<Comment> comments;
+    private List<FileData> fileData;
 
 }
