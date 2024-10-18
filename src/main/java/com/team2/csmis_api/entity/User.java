@@ -43,14 +43,17 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-    @Column(name = "division")
-    private String division;
+    @ManyToOne
+    @JoinColumn(name="division_id")
+    private Division division;
 
-    @Column(name = "department")
-    private String department;
+    @ManyToOne
+    @JoinColumn(name="department_id")
+    private Department department;
 
-    @Column(name = "team")
-    private String team;
+    @ManyToOne
+    @JoinColumn(name="team_id")
+    private Team team;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
