@@ -41,7 +41,6 @@ public class AnnouncementService {
     public AnnouncementDTO addAnnouncement(Announcement announce, MultipartFile[] files) throws IOException {
         User adminId = userRepo.findById(announce.getUser().getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
         announce.setUser(adminId);
         announce.setDate(LocalDate.now());
 

@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
 
-    @Query("SELECT a FROM Announcement a JOIN FETCH a.fileData WHERE a.isDeleted <> true")
+    @Query("SELECT a FROM Announcement a WHERE a.isDeleted <> true")
     public List<Announcement> getAllAnnouncementsWithFiles();
 
     @Modifying
