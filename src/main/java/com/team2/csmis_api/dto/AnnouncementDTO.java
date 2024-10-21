@@ -13,5 +13,5 @@ public class AnnouncementDTO {
     private String content;
     private Integer adminId;
     private List<Integer> fileIds;
-
+    private List<FileDTO> files;
 }

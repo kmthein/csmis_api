@@ -21,7 +21,7 @@ public class Announcement extends Base{
     @Column(name = "date")
     private LocalDate date;
 
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne

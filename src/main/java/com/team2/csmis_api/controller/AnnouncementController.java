@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -25,16 +26,19 @@ public class AnnouncementController {
     public ResponseEntity<?> saveAnnouncement(@ModelAttribute Announcement announcement,
                                               @RequestParam(value = "files", required = false) MultipartFile[] files) {
         try {
-            announcementService.addAnnouncement(announcement, files);
-            return ResponseEntity.ok("Announcement added successfully!");
+            AnnouncementDTO announcementDTO = announcementService.addAnnouncement(announcement, files);
+            if(announcementDTO != null) {
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .body(Map.of("message", "Announcement added successfully!"));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Announcement can't be added!");
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-
 
     @GetMapping("")
     public List<AnnouncementDTO> showAllAnnouncements() {

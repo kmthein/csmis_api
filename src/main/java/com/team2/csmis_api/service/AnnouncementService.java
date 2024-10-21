@@ -41,7 +41,6 @@ public class AnnouncementService {
     public AnnouncementDTO addAnnouncement(Announcement announce, MultipartFile[] files) throws IOException {
         User adminId = userRepo.findById(announce.getUser().getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
         announce.setUser(adminId);
         announce.setDate(LocalDate.now());
 
@@ -87,10 +86,15 @@ public class AnnouncementService {
             AnnouncementDTO dto = convertToAnnouncementDto(announcement);
 
             List<Integer> fileIds = new ArrayList<>();
+            List<FileDTO> fileDTOS = new ArrayList<>();
             for (FileData file : announcement.getFileData()) {
-                fileIds.add(file.getId());
+                FileDTO fileDTO = new FileDTO();
+                fileDTO.setFilePath(file.getFilePath());
+                fileDTO.setType(file.getFileType());
+                fileDTO.setId(file.getId());
+                fileDTOS.add(fileDTO);
             }
-            dto.setFileIds(fileIds);
+            dto.setFiles(fileDTOS);
             announcementDTOs.add(dto);
         }
 
