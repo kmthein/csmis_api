@@ -3,6 +3,7 @@ package com.team2.csmis_api.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -27,10 +28,10 @@ public class User implements UserDetails {
     @Column(name = "door_log_no")
     private Integer doorLogNo;
 
-    @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
 
-    @Column(name = "is_vegan", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Column(name = "is_vegan", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean isVegan = false;
 
     @Enumerated(EnumType.STRING)
@@ -73,12 +74,12 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
     public String getUsername() {
-        return null;
+        return staffId;
     }
 
     @Override

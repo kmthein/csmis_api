@@ -9,8 +9,9 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
-    @Query("SELECT u FROM User u WHERE u.isActive = true")
+    @Query("SELECT u FROM User u")
     public List<User> getAllActiveUsers();
     public User findByStaffId(String staffId);
+    User findByName(String username);
     public User getUserById(int id);
 }

@@ -14,9 +14,4 @@ public class Department extends Base{
 
     @Column(name = "name")
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name="division_id")
-    private Division division;
-
 }
