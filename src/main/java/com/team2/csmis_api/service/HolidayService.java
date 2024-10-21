@@ -27,16 +27,17 @@ public class HolidayService {
 
     @Autowired
     private ModelMapper modelMapper;
-    public void saveHolidayToDatabase(MultipartFile file,Holiday holiday){
+    public void saveHolidayToDatabase(MultipartFile file,int adminId){
+        Holiday holiday = new Holiday();
         if(ExcelForHolidayService.isValidExcelFile(file)){
             try {
                 List<Holiday> holidays = ExcelForHolidayService.getHolidaysDataFromExcel(file.getInputStream());
-                User adminId = userRepository.findById(holiday.getUser().getId()).orElseThrow(() ->
+                User admin = userRepository.findById(adminId).orElseThrow(() ->
                         new IllegalArgumentException("Admin not found")
                 );
 
                 for (Holiday h : holidays) {
-                    h.setUser(adminId);
+                    h.setUser(admin);
                 }
 
                 this.holidayRepository.saveAll(holidays);

@@ -86,10 +86,15 @@ public class AnnouncementService {
             AnnouncementDTO dto = convertToAnnouncementDto(announcement);
 
             List<Integer> fileIds = new ArrayList<>();
+            List<FileDTO> fileDTOS = new ArrayList<>();
             for (FileData file : announcement.getFileData()) {
-                fileIds.add(file.getId());
+                FileDTO fileDTO = new FileDTO();
+                fileDTO.setFilePath(file.getFilePath());
+                fileDTO.setType(file.getFileType());
+                fileDTO.setId(file.getId());
+                fileDTOS.add(fileDTO);
             }
-            dto.setFileIds(fileIds);
+            dto.setFiles(fileDTOS);
             announcementDTOs.add(dto);
         }
 

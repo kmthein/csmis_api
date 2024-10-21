@@ -29,7 +29,7 @@ public class AnnouncementController {
             AnnouncementDTO announcementDTO = announcementService.addAnnouncement(announcement, files);
             if(announcementDTO != null) {
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body(Map.of("Message", "Announcement added successfully!"));
+                        .body(Map.of("message", "Announcement added successfully!"));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Announcement can't be added!");
             }
