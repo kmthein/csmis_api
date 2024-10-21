@@ -41,23 +41,18 @@ public class AnnouncementController {
         return announcementService.getAllAnnouncementsWithFiles();
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<AnnouncementDTO> showById(@PathVariable("id") Integer id) {
-        return announcementService.showByAnnouncementId(id)
-                .map(AnnouncementDTO -> ResponseEntity.ok(AnnouncementDTO))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<String> updateAnnouncement(
             @PathVariable("id") Integer id,
             @ModelAttribute AnnouncementDTO announcementDTO,
-            @RequestParam(value = "files", required = false) MultipartFile[] files) throws IOException {
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
+            @RequestParam(value = "deleteFileIds", required = false) List<Integer> deleteFileIds) throws IOException {
 
-        AnnouncementDTO updatedAnnouncementDTO = announcementService.updateAnnouncement(id, announcementDTO, files);
+         announcementService.updateAnnouncement(id, announcementDTO, files, deleteFileIds);
         String successMessage = String.format("Announcement with ID %d updated successfully!", id);
         return ResponseEntity.ok(successMessage);
     }
+
 
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable("id") Integer id) {
