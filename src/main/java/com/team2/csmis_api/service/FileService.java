@@ -29,6 +29,7 @@ public class FileService {
 
     @Transactional
     public FileDTO uploadFile(FileData fileData, MultipartFile file) throws IOException {
+        System.out.println(file.getOriginalFilename());
         String fileName = "";
         if (file != null && !file.isEmpty()) {
             fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
@@ -38,11 +39,11 @@ public class FileService {
                 uploadDir.mkdirs();
             }
 
-            Path path = Paths.get(UPLOAD_DIR + "/" + fileName);
-            Files.write(path, file.getBytes());
-            fileData.setFilePath("uploads\\" + fileName);
+//            Path path = Paths.get(UPLOAD_DIR + "/" + fileName);
+//            Files.write(path, file.getBytes());
+            fileData.setFilePath(file.getOriginalFilename());
             fileData.setFileType(file.getContentType());
-            System.out.println("File saved at: " + path.toString());
+//            System.out.println("File saved at: " + path.toString());
         }
 
         FileData savedFile = fileRepo.save(fileData);
