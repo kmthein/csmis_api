@@ -28,10 +28,21 @@ public class LunchController {
         }
     }
 
+//    @PostMapping("")
+//    public ResponseEntity<LunchDTO> createLunch(@RequestBody LunchDTO lunchDTO) {
+//        LunchDTO createdLunchDTO = lunchService.save(lunchDTO);
+//        return ResponseEntity.ok(createdLunchDTO);
+//    }
+
     @PostMapping("")
     public ResponseEntity<LunchDTO> createLunch(@RequestBody LunchDTO lunchDTO) {
-        LunchDTO createdLunchDTO = lunchService.save(lunchDTO);
-        return ResponseEntity.ok(createdLunchDTO);
+        try {
+            LunchDTO createdLunchDTO = lunchService.save(lunchDTO);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdLunchDTO); // Return 201 Created
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PutMapping("/{id}")
