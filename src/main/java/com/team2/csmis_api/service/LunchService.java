@@ -2,47 +2,119 @@ package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.LunchDTO;
 import com.team2.csmis_api.entity.Lunch;
+import com.team2.csmis_api.entity.Restaurant;
+import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.repository.LunchRepository;
+import com.team2.csmis_api.repository.RestaurantRepository;
+import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LunchService {
 
     @Autowired
+    private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private LunchRepository lunchRepository;
 
-    public List<Lunch> getAllLunches() {
-        return lunchRepository.findAll();
+    // Method to find all lunches and return as DTOs
+    public List<LunchDTO> findAll() {
+        List<Lunch> lunches = lunchRepository.findAll();
+        System.out.println("Retrieved lunches: " + lunches); // Debugging line
+        return lunches.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Lunch> getLunchById(Integer id) {
-        return lunchRepository.findById(id);
+    // Method to save a lunch and return as DTO
+    public LunchDTO save(LunchDTO lunchDTO) {
+        Lunch lunch = convertToEntity(lunchDTO);
+        Lunch savedLunch = lunchRepository.save(lunch);
+        return convertToDTO(savedLunch);
     }
 
-    public Lunch createLunch(LunchDTO lunchDTO) {
+    // Mapping entity to DTO
+    private LunchDTO convertToDTO(Lunch lunch) {
+        LunchDTO dto = new LunchDTO();
+        dto.setId(lunch.getId());
+        dto.setMenu(lunch.getMenu());
+        dto.setPrice(lunch.getPrice());
+        dto.setCompanyRate(lunch.getCompanyRate());
+        dto.setDate(lunch.getDate());
+
+        if (lunch.getUser() != null) {
+            dto.setAdminId(lunch.getUser().getId());
+        } else {
+            dto.setAdminId(null); // or handle accordingly
+        }
+
+        if (lunch.getRestaurant() != null) {
+            dto.setRestaurantId(lunch.getRestaurant().getId());
+        } else {
+            dto.setRestaurantId(null); // or handle accordingly
+        }
+
+        return dto;
+    }
+
+    // Mapping DTO to entity
+    private Lunch convertToEntity(LunchDTO dto) {
         Lunch lunch = new Lunch();
-        lunch.setMenu(lunchDTO.getMenu());
-        lunch.setPrice(lunchDTO.getPrice());
-        lunch.setCompanyRate(lunchDTO.getCompanyRate());
-        lunch.setDate(lunchDTO.getDate());
-        // Set the user and restaurant based on IDs (fetch them using respective services if necessary)
-        // lunch.setUser(userService.findById(lunchDTO.getAdminId()).orElse(null));
-        // lunch.setRestaurant(restaurantService.findById(lunchDTO.getRestaurantId()).orElse(null));
-        return lunchRepository.save(lunch);
+        lunch.setId(dto.getId());
+        lunch.setMenu(dto.getMenu());
+        lunch.setPrice(dto.getPrice());
+        lunch.setCompanyRate(dto.getCompanyRate());
+        lunch.setDate(dto.getDate());
+
+        // Set User and Restaurant based on IDs
+        if (dto.getAdminId() != null) {
+            User user = userRepository.findById(dto.getAdminId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            lunch.setUser(user);
+        }
+
+        if (dto.getRestaurantId() != null) {
+            Restaurant restaurant = restaurantRepository.findById(dto.getRestaurantId())
+                    .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+            lunch.setRestaurant(restaurant);
+        }
+
+        return lunch;
     }
 
-    public Lunch updateLunch(Integer id, LunchDTO lunchDTO) {
-        Lunch lunch = lunchRepository.findById(id).orElseThrow(() -> new RuntimeException("Lunch not found"));
-        lunch.setMenu(lunchDTO.getMenu());
-        lunch.setPrice(lunchDTO.getPrice());
-        lunch.setCompanyRate(lunchDTO.getCompanyRate());
-        lunch.setDate(lunchDTO.getDate());
-        // Update user and restaurant if needed
-        return lunchRepository.save(lunch);
+    public LunchDTO updateLunch(Integer id, LunchDTO lunchDTO) {
+        Lunch existingLunch = lunchRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Lunch not found"));
+
+        // Update fields
+        existingLunch.setMenu(lunchDTO.getMenu());
+        existingLunch.setPrice(lunchDTO.getPrice());
+        existingLunch.setCompanyRate(lunchDTO.getCompanyRate());
+        existingLunch.setDate(lunchDTO.getDate());
+
+        // Optionally update User and Restaurant if IDs are provided
+        if (lunchDTO.getAdminId() != null) {
+            User user = userRepository.findById(lunchDTO.getAdminId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            existingLunch.setUser(user);
+        }
+
+        if (lunchDTO.getRestaurantId() != null) {
+            Restaurant restaurant = restaurantRepository.findById(lunchDTO.getRestaurantId())
+                    .orElseThrow(() -> new RuntimeException("Restaurant not found"));
+            existingLunch.setRestaurant(restaurant);
+        }
+
+        Lunch updatedLunch = lunchRepository.save(existingLunch);
+        return convertToDTO(updatedLunch);
     }
 
     public void deleteLunch(Integer id) {
