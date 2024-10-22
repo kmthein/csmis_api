@@ -79,22 +79,23 @@ public class AnnouncementService {
 
     public List<AnnouncementDTO> getAllAnnouncementsWithFiles() {
         List<Announcement> announcements = announcementRepo.getAllAnnouncementsWithFiles();
-
         List<AnnouncementDTO> announcementDTOs = new ArrayList<>();
 
         for (Announcement announcement : announcements) {
             AnnouncementDTO dto = convertToAnnouncementDto(announcement);
 
-            List<Integer> fileIds = new ArrayList<>();
-            List<FileDTO> fileDTOS = new ArrayList<>();
+            List<FileDTO> files = new ArrayList<>();
             for (FileData file : announcement.getFileData()) {
-                FileDTO fileDTO = new FileDTO();
-                fileDTO.setFilePath(file.getFilePath());
-                fileDTO.setType(file.getFileType());
-                fileDTO.setId(file.getId());
-                fileDTOS.add(fileDTO);
+                if (!file.getIsDeleted()) {
+                    FileDTO fileDTO = new FileDTO();
+                    fileDTO.setId(file.getId());
+                    fileDTO.setFilePath(file.getFilePath());
+                    fileDTO.setFiletype(file.getFileType());
+                    fileDTO.setIsDeleted(file.getIsDeleted());
+                    files.add(fileDTO);
+                }
             }
-            dto.setFiles(fileDTOS);
+            dto.setFiles(files);
             announcementDTOs.add(dto);
         }
 
@@ -103,24 +104,9 @@ public class AnnouncementService {
 
 
 
-    public Optional<AnnouncementDTO> showByAnnouncementId(Integer id) {
-        return announcementRepo.findById(id)
-                .map(announcement -> {
-                    AnnouncementDTO dto = convertToAnnouncementDto(announcement);
-
-                    List<Integer> fileIds = new ArrayList<>();
-                    for (FileData file : announcement.getFileData()) {
-                        fileIds.add(file.getId());
-                    }
-                    dto.setFileIds(fileIds);
-
-                    return dto;
-                });
-    }
-
-
     @Transactional
-    public AnnouncementDTO updateAnnouncement(Integer id, AnnouncementDTO announcementDTO, MultipartFile[] files) throws IOException {
+    public AnnouncementDTO updateAnnouncement(Integer id, AnnouncementDTO announcementDTO, MultipartFile[] files, List<Integer> filesToDelete) throws IOException {
+
         Announcement existingAnnouncement = announcementRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Announcement not found with ID: " + id));
 
@@ -128,11 +114,15 @@ public class AnnouncementService {
 
         List<FileData> existingFiles = existingAnnouncement.getFileData();
 
-        if (files != null && files.length > 0) {
+        if (filesToDelete != null && !filesToDelete.isEmpty()) {
             for (FileData file : existingFiles) {
-                file.setIsDeleted(true);
+                if (filesToDelete.contains(file.getId())) {
+                    file.setIsDeleted(true);
+                }
             }
+        }
 
+        if (files != null && files.length > 0) {
             List<FileData> newFileDataList = new ArrayList<>();
             for (MultipartFile file : files) {
                 if (file != null && !file.isEmpty()) {
@@ -140,19 +130,17 @@ public class AnnouncementService {
                     newFileDataList.add(modelMapper.map(savedFileDTO, FileData.class));
                 }
             }
-
-            existingAnnouncement.setFileData(newFileDataList);
-            existingAnnouncement.setDate(LocalDate.now());
-        } else {
-            for (FileData file : existingFiles) {
-                file.setIsDeleted(true);
-            }
+            existingFiles.addAll(newFileDataList);
         }
+
+        existingAnnouncement.setDate(LocalDate.now());
 
         Announcement updatedAnnouncement = announcementRepo.save(existingAnnouncement);
 
         return modelMapper.map(updatedAnnouncement, AnnouncementDTO.class);
     }
+
+
 
 
     public void deleteAnnouncement(Integer id) {

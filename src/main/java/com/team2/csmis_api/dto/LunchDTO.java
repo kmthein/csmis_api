@@ -8,12 +8,11 @@ import java.util.List;
 @Data
 public class LunchDTO {
     private Integer id;
-    private List<String> menu; // Updated to match the List<String> type
-    private String price;
-    private String companyRate;
+    private String[] menu;
+    private double price;
+    private double companyRate;
     private LocalDate date;
-    private Integer adminId; // Assuming User ID is needed
-    private Integer restaurantId; // Assuming Restaurant ID is needed
+    private Integer adminId;
+    private Integer restaurantId;
 
-    // Getters and Setters are provided by @Data annotation
 }

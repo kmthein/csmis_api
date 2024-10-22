@@ -6,8 +6,10 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class FileDTO extends Base {
+public class FileDTO {
     private Integer id;
     private String filePath;
-    private String type;
+    private String filetype;
+    private Boolean isDeleted;
+
 }

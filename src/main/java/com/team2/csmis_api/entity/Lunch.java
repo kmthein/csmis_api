@@ -1,5 +1,6 @@
 package com.team2.csmis_api.entity;
 
+import com.team2.csmis_api.converter.StringArrayConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,15 +16,15 @@ public class Lunch extends Base {
     @Column(name = "id")
     private Integer id;
 
-    @ElementCollection
+    @Convert(converter = StringArrayConverter.class)
     @Column(name = "menu")
-    private List<String> menu;
+    private String[] menu;
 
     @Column(name = "price")
-    private String price;
+    private double price;
 
     @Column(name = "company_rate")
-    private String companyRate;
+    private double companyRate;
 
     @Column(name = "date")
     private LocalDate date;
