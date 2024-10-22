@@ -19,7 +19,7 @@ import java.util.Map;
 @RestController
 @CrossOrigin
 @RequestMapping("/admin/api/users")
-@PreAuthorize("hasAuthority('ADMIN')")
+//@PreAuthorize("hasAuthority('ADMIN')")
 public class UserController {
     @Autowired
     private UserService userService;

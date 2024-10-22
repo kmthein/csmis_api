@@ -73,7 +73,7 @@ public class AnnouncementService {
     public AnnouncementDTO convertToAnnouncementDto(Announcement announce) {
         AnnouncementDTO announcementDTO=modelMapper.map(announce, AnnouncementDTO.class);
         announcementDTO.setAdminId(announce.getUser().getId());
-        announcementDTO.setDate(LocalDate.now());
+        announcementDTO.setDate(announce.getDate());
         return announcementDTO;
     }
 
