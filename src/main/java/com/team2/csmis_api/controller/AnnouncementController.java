@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
@@ -25,8 +26,13 @@ public class AnnouncementController {
     public ResponseEntity<?> saveAnnouncement(@ModelAttribute Announcement announcement,
                                               @RequestParam(value = "files", required = false) MultipartFile[] files) {
         try {
-            announcementService.addAnnouncement(announcement, files);
-            return ResponseEntity.ok("Announcement added successfully!");
+            AnnouncementDTO announcementDTO = announcementService.addAnnouncement(announcement, files);
+            if(announcementDTO != null) {
+                return ResponseEntity.status(HttpStatus.CREATED)
+                        .body(Map.of("message", "Announcement added successfully!"));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Announcement can't be added!");
+            }
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (IOException e) {
@@ -34,30 +40,23 @@ public class AnnouncementController {
         }
     }
 
-
-
     @GetMapping("")
     public List<AnnouncementDTO> showAllAnnouncements() {
         return announcementService.getAllAnnouncementsWithFiles();
-    }
-
-    @GetMapping("{id}")
-    public ResponseEntity<AnnouncementDTO> showById(@PathVariable("id") Integer id) {
-        return announcementService.showByAnnouncementId(id)
-                .map(AnnouncementDTO -> ResponseEntity.ok(AnnouncementDTO))
-                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<String> updateAnnouncement(
             @PathVariable("id") Integer id,
             @ModelAttribute AnnouncementDTO announcementDTO,
-            @RequestParam(value = "files", required = false) MultipartFile[] files) throws IOException {
+            @RequestParam(value = "files", required = false) MultipartFile[] files,
+            @RequestParam(value = "deleteFileIds", required = false) List<Integer> deleteFileIds) throws IOException {
 
-        AnnouncementDTO updatedAnnouncementDTO = announcementService.updateAnnouncement(id, announcementDTO, files);
+         announcementService.updateAnnouncement(id, announcementDTO, files, deleteFileIds);
         String successMessage = String.format("Announcement with ID %d updated successfully!", id);
         return ResponseEntity.ok(successMessage);
     }
+
 
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteAnnouncement(@PathVariable("id") Integer id) {

@@ -61,5 +61,14 @@ public class JwtService {
         byte[] keyByte = Decoders.BASE64URL.decode(SECRECT_KEY);
         return Keys.hmacShaKeyFor(keyByte);
     }
+
+    public String extractRole(String token) {
+        return Jwts.parser()
+                .setSigningKey(getSigninKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class); // Extract role claim
+    }
 }
 
