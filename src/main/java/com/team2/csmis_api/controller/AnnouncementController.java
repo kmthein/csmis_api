@@ -25,6 +25,12 @@ public class AnnouncementController {
     @PostMapping("")
     public ResponseEntity<?> saveAnnouncement(@ModelAttribute Announcement announcement,
                                               @RequestParam(value = "files", required = false) MultipartFile[] files) {
+        if (files != null && files.length > 0) {
+            for (MultipartFile file : files) {
+                String fileName = file.getOriginalFilename();
+                System.out.println("Uploaded file: " + fileName);
+            }
+        }
         try {
             AnnouncementDTO announcementDTO = announcementService.addAnnouncement(announcement, files);
             if(announcementDTO != null) {
@@ -51,7 +57,6 @@ public class AnnouncementController {
             @ModelAttribute AnnouncementDTO announcementDTO,
             @RequestParam(value = "files", required = false) MultipartFile[] files,
             @RequestParam(value = "deleteFileIds", required = false) List<Integer> deleteFileIds) throws IOException {
-
          announcementService.updateAnnouncement(id, announcementDTO, files, deleteFileIds);
         String successMessage = String.format("Announcement with ID %d updated successfully!", id);
         return ResponseEntity.ok(successMessage);
