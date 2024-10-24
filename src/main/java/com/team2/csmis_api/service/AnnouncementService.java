@@ -5,6 +5,7 @@ import com.team2.csmis_api.dto.FileDTO;
 import com.team2.csmis_api.entity.Announcement;
 import com.team2.csmis_api.entity.FileData;
 import com.team2.csmis_api.entity.User;
+import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.AnnouncementRepository;
 import com.team2.csmis_api.repository.FileRepository;
 import com.team2.csmis_api.repository.UserRepository;
@@ -132,7 +133,12 @@ public class AnnouncementService {
             }
             existingFiles.addAll(newFileDataList);
         }
-
+        Optional<User> optAdmin = userRepo.findById(announcementDTO.getAdminId());
+        if(optAdmin.isEmpty()) {
+            throw new ResourceNotFoundException("Admin not found with this ID.");
+        } else {
+            existingAnnouncement.setUser(optAdmin.get());
+        }
         existingAnnouncement.setDate(LocalDate.now());
 
         Announcement updatedAnnouncement = announcementRepo.save(existingAnnouncement);
