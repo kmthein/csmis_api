@@ -149,7 +149,7 @@ public class AnnouncementService {
 
 
 
-    public void deleteAnnouncement(Integer id) {
+    public Announcement deleteAnnouncement(Integer id) {
         Announcement announcement = announcementRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Announcement not found with ID: " + id));
 
@@ -161,6 +161,8 @@ public class AnnouncementService {
         }
 
         fileRepo.saveAll(announcement.getFileData());
+
+        return announcement;
     }
 
 }

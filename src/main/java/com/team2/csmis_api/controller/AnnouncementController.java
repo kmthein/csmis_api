@@ -62,8 +62,13 @@ public class AnnouncementController {
 
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteAnnouncement(@PathVariable("id") Integer id) {
-        announcementService.deleteAnnouncement(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteAnnouncement(@PathVariable("id") Integer id) {
+        Announcement announcement = announcementService.deleteAnnouncement(id);
+        if(announcement != null) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("message", "Announcement delete successfully!"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Announcement can't be deleted!");
+        }
     }
 }

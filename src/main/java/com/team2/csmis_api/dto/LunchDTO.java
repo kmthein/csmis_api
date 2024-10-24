@@ -14,5 +14,4 @@ public class LunchDTO {
     private LocalDate date;
     private Integer adminId;
     private Integer restaurantId;
-
 }
