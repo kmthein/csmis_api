@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Integer> {
+    public Optional<Restaurant> findByName(String name);
 
     @Query("SELECT r FROM Restaurant r WHERE r.isDeleted = false")
     public List<Restaurant> getAllRestaurants();

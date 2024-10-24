@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class LunchDTO {
     private Integer id;
-    private String[] menu;
+    private String menu;
     private double price;
     private double companyRate;
     private LocalDate date;

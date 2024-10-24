@@ -16,9 +16,8 @@ public class Lunch extends Base {
     @Column(name = "id")
     private Integer id;
 
-    @Convert(converter = StringArrayConverter.class)
-    @Column(name = "menu")
-    private String[] menu;
+    @Column(name = "menu", columnDefinition = "TEXT")
+    private String menu;
 
     @Column(name = "price")
     private double price;

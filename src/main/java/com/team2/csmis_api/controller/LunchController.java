@@ -1,6 +1,9 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.LunchDTO;
+import com.team2.csmis_api.dto.MenuDTO;
+import com.team2.csmis_api.dto.ResponseDTO;
+import com.team2.csmis_api.dto.WeeklyMenuDTO;
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.service.LunchService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,17 @@ public class LunchController {
 //        LunchDTO createdLunchDTO = lunchService.save(lunchDTO);
 //        return ResponseEntity.ok(createdLunchDTO);
 //    }
+
+    @PostMapping("weekly")
+    public ResponseDTO addWeeklyLunch(@RequestBody WeeklyMenuDTO weeklyMenuDTO) {
+        ResponseDTO res = new ResponseDTO();
+        try {
+            res = lunchService.addWeeklyMenu(weeklyMenuDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
 
     @PostMapping("")
     public ResponseEntity<LunchDTO> createLunch(@RequestBody LunchDTO lunchDTO) {

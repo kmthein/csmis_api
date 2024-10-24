@@ -1,6 +1,9 @@
 package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.LunchDTO;
+import com.team2.csmis_api.dto.MenuDTO;
+import com.team2.csmis_api.dto.ResponseDTO;
+import com.team2.csmis_api.dto.WeeklyMenuDTO;
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.entity.User;
@@ -10,7 +13,9 @@ import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +37,32 @@ public class LunchService {
         return lunches.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public ResponseDTO addWeeklyMenu(WeeklyMenuDTO weeklyMenuDTO) {
+        ResponseDTO res = new ResponseDTO();
+        List<Lunch> lunchList = new ArrayList<>();
+        for(MenuDTO menuDTO : weeklyMenuDTO.getMenuList()) {
+            Lunch lunch = new Lunch();
+            lunch.setMenu(menuDTO.getMenu());
+            lunch.setDate(menuDTO.getDate());
+            lunch.setPrice(weeklyMenuDTO.getPrice());
+            lunch.setCompanyRate(weeklyMenuDTO.getRate());
+            Optional<Restaurant> optRestaurant = restaurantRepository.findByName(weeklyMenuDTO.getRestaurant());
+            Optional<User> optAdmin = userRepository.findById(weeklyMenuDTO.getAdminId());
+            optRestaurant.ifPresent(lunch::setRestaurant);
+            optAdmin.ifPresent(lunch::setUser);
+            lunchRepository.save(lunch);
+            lunchList.add(lunch);
+        }
+        if(lunchList.size() > 0) {
+            res.setMessage("Lunch added successfully");
+            res.setStatus("201");
+        } else {
+            res.setMessage("Lunch can't added");
+            res.setStatus("401");
+        }
+        return res;
     }
 
     // Method to save a lunch and return as DTO
