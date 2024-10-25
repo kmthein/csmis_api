@@ -39,6 +39,17 @@ public class LunchService {
                 .collect(Collectors.toList());
     }
 
+    public List<LunchDTO> getCurrentWeekMenu() {
+        List<Lunch> lunchList = lunchRepository.getCurrentWeekMenu();
+        if(lunchList.size() > 0) {
+            return lunchList.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
+
     public ResponseDTO addWeeklyMenu(WeeklyMenuDTO weeklyMenuDTO) {
         ResponseDTO res = new ResponseDTO();
         List<Lunch> lunchList = new ArrayList<>();
@@ -80,7 +91,6 @@ public class LunchService {
         dto.setPrice(lunch.getPrice());
         dto.setCompanyRate(lunch.getCompanyRate());
         dto.setDate(lunch.getDate());
-
         if (lunch.getUser() != null) {
             dto.setAdminId(lunch.getUser().getId());
         } else {
@@ -89,10 +99,10 @@ public class LunchService {
 
         if (lunch.getRestaurant() != null) {
             dto.setRestaurantId(lunch.getRestaurant().getId());
+            dto.setRestaurantName(lunch.getRestaurant().getName());
         } else {
             dto.setRestaurantId(null); // or handle accordingly
         }
-
         return dto;
     }
 
@@ -121,6 +131,16 @@ public class LunchService {
         return lunch;
     }
 
+    public LunchDTO getLunchById(int id) {
+        Optional<Lunch> optionalLunch = lunchRepository.findById(id);
+        LunchDTO lunchDTO = new LunchDTO();
+        if(optionalLunch.isPresent()) {
+            Lunch lunch = optionalLunch.get();
+            lunchDTO = convertToDTO(lunch);
+        }
+        return lunchDTO;
+    }
+
     public LunchDTO updateLunch(Integer id, LunchDTO lunchDTO) {
         Lunch existingLunch = lunchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lunch not found"));
@@ -129,8 +149,9 @@ public class LunchService {
         existingLunch.setMenu(lunchDTO.getMenu());
         existingLunch.setPrice(lunchDTO.getPrice());
         existingLunch.setCompanyRate(lunchDTO.getCompanyRate());
-        existingLunch.setDate(lunchDTO.getDate());
-
+        if(lunchDTO.getDate() != null) {
+            existingLunch.setDate(lunchDTO.getDate());
+        }
         // Optionally update User and Restaurant if IDs are provided
         if (lunchDTO.getAdminId() != null) {
             User user = userRepository.findById(lunchDTO.getAdminId())

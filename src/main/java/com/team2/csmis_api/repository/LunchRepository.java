@@ -15,6 +15,19 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
     @Query("SELECT l FROM Lunch l WHERE l.isDeleted = false")
     public List<Lunch> findAll();
 
+    @Query(value = "SELECT * FROM lunch l WHERE " +
+            "WEEKDAY(CURDATE()) BETWEEN 0 AND 4 " +
+            "AND l.date BETWEEN " +
+            "DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY) " +
+            "AND DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 6 DAY) " +
+            "OR (" +
+            "WEEKDAY(CURDATE()) IN (5, 6) " +
+            "AND l.date BETWEEN " +
+            "DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY) " +
+            "AND DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 13 DAY)" +
+            ")", nativeQuery = true)
+    public List<Lunch> getCurrentWeekMenu();
+
     @Modifying
     @Transactional
     @Query("UPDATE Lunch l SET l.isDeleted=true WHERE l.id=?1")

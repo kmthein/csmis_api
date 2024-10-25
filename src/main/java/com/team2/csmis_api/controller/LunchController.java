@@ -20,6 +20,16 @@ public class LunchController {
     @Autowired
     private LunchService lunchService;
 
+    @GetMapping("weekly")
+    public List<LunchDTO> getCurrentWeekMenu() {
+        return lunchService.getCurrentWeekMenu();
+    }
+
+    @GetMapping("{id}")
+    public LunchDTO getLunchById(@PathVariable("id") Integer id) {
+        return lunchService.getLunchById(id);
+    }
+
     @GetMapping("")
     public ResponseEntity<List<LunchDTO>> getAllLunches() {
         try {
