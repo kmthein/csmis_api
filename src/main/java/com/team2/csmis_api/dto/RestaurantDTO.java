@@ -9,4 +9,6 @@ public class RestaurantDTO {
     private String address;
     private String contact;
     private String email;
+    private Integer adminId;
+    private String status;
 }

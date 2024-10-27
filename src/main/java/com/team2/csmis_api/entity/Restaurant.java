@@ -24,6 +24,10 @@ public class Restaurant extends Base{
     @Column(name = "email")
     private String email;
 
+    @ManyToOne
+    @JoinColumn(name="admin_id")
+    private User user;
+
     @Column(name = "is_active", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
 
