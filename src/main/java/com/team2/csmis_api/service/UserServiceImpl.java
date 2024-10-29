@@ -24,10 +24,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -83,63 +80,68 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseDTO updateUserById(UserDTO userDTO, int id) {
-        User tempUser = userRepo.findById(id).get();
-        ResponseDTO res = new ResponseDTO();
-        if(tempUser == null) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        if (optionalUser.isEmpty()) {
             throw new ResourceNotFoundException("Staff not existed with this id.");
         }
+
+        User tempUser = optionalUser.get();
+        ResponseDTO res = new ResponseDTO();
+
+        // Update basic fields
         tempUser.setName(userDTO.getName());
         tempUser.setStaffId(userDTO.getStaffId());
         tempUser.setDoorLogNo(Integer.valueOf(userDTO.getDoorLogNo()));
         tempUser.setEmail(userDTO.getEmail());
-        if(tempUser.getIsActive() == userDTO.getStatus().equals("Active")) {
-            tempUser.setIsActive(true);
-        } else {
-            tempUser.setIsActive(false);
-        }
-        if(tempUser.getIsVegan() != userDTO.getIsVegan()) {
-            tempUser.setIsVegan(userDTO.getIsVegan());
-        }
-        if(!Objects.equals(tempUser.getRole().toString(), userDTO.getRole().toString())) {
+        tempUser.setIsActive("Active".equalsIgnoreCase(userDTO.getStatus()));
+        tempUser.setIsVegan(userDTO.getIsVegan());
+
+        if (!Objects.equals(tempUser.getRole(), userDTO.getRole())) {
             tempUser.setRole(userDTO.getRole());
-        };
+        }
+
+        // Find or create Division
         Division tempDivision = divisionRepo.findDivisionByName(userDTO.getDivision());
-        if(tempDivision != null && Objects.equals(tempDivision.getName(), userDTO.getDivision())) {
-            tempUser.setDivision(tempDivision);
-        } else if(tempDivision == null) {
+        if (tempDivision == null) {
             tempDivision = new Division();
             tempDivision.setName(userDTO.getDivision());
             divisionRepo.save(tempDivision);
-            tempUser.setDivision(tempDivision);
         }
-        Department tempDepart = departmentRepo.findDepartmentByName(userDTO.getDepartment());
-        if(tempDepart != null && Objects.equals(tempDepart.getName(), userDTO.getDepartment())) {
-            tempUser.setDepartment(tempDepart);
-        } else if(tempDepart == null) {
+        tempUser.setDivision(tempDivision);
+
+        // Find or create Department within the Division
+        Department tempDepart = departmentRepo.findByNameAndDivision(userDTO.getDepartment(), tempDivision);
+        if (tempDepart == null) {
             tempDepart = new Department();
             tempDepart.setName(userDTO.getDepartment());
+            tempDepart.setDivision(tempDivision);
             departmentRepo.save(tempDepart);
-            tempUser.setDepartment(tempDepart);
         }
-        Team tempTeam = teamRepo.findTeamByName(userDTO.getTeam());
-        if(tempTeam != null && Objects.equals(tempTeam.getName(), userDTO.getTeam())) {
-            tempUser.setTeam(tempTeam);
-        } else if(tempTeam == null) {
+        tempUser.setDepartment(tempDepart);
+
+        // Find or create Team within the Department
+        Team tempTeam = teamRepo.findByNameAndDepartment(userDTO.getTeam(), tempDepart);
+        if (tempTeam == null) {
             tempTeam = new Team();
             tempTeam.setName(userDTO.getTeam());
+            tempTeam.setDepartment(tempDepart);
             teamRepo.save(tempTeam);
-            tempUser.setTeam(tempTeam);
         }
+        tempUser.setTeam(tempTeam);
+
+        // Save the updated user
         User userSave = userRepo.save(tempUser);
-        if(userSave != null) {
+        if (userSave != null) {
             res.setStatus("200");
             res.setMessage("Staff data updated successfully.");
         } else {
             res.setStatus("403");
             res.setMessage("Staff data update failed.");
         }
+
         return res;
     }
+
 
     public UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
@@ -175,58 +177,67 @@ public class UserServiceImpl implements UserService {
     @Override
     public ResponseDTO addNewUser(UserDTO userDTO) {
         ResponseDTO res = new ResponseDTO();
+
+        // Check if staff with the given ID already exists
         User staffExist = userRepo.findByStaffId(userDTO.getStaffId());
-        if(staffExist != null) {
+        if (staffExist != null) {
             res.setStatus("409");
             res.setMessage("Staff already existed with this id.");
             return res;
         }
+
         User tempUser = mapper.map(userDTO, User.class);
+
+        // Find or create Division
         Division tempDivision = divisionRepo.findDivisionByName(userDTO.getDivision());
-        if(tempDivision != null && Objects.equals(tempDivision.getName(), userDTO.getDivision())) {
-            tempUser.setDivision(tempDivision);
-        } else if(tempDivision == null) {
+        if (tempDivision == null) {
             tempDivision = new Division();
             tempDivision.setName(userDTO.getDivision());
             divisionRepo.save(tempDivision);
-            tempUser.setDivision(tempDivision);
         }
-        Department tempDepart = departmentRepo.findDepartmentByName(userDTO.getDepartment());
-        if(tempDepart != null && Objects.equals(tempDepart.getName(), userDTO.getDepartment())) {
-            tempUser.setDepartment(tempDepart);
-        } else if(tempDepart == null) {
+        // Set the found or new Division to the User (assuming User has a division field)
+        tempUser.setDivision(tempDivision);
+
+        // Find or create Department
+        Department tempDepart = departmentRepo.findByNameAndDivision(userDTO.getDepartment(), tempDivision);
+        if (tempDepart == null) {
             tempDepart = new Department();
             tempDepart.setName(userDTO.getDepartment());
+            tempDepart.setDivision(tempDivision);
             departmentRepo.save(tempDepart);
-            tempUser.setDepartment(tempDepart);
         }
-        Team tempTeam = teamRepo.findTeamByName(userDTO.getTeam());
-        if(tempTeam != null && Objects.equals(tempTeam.getName(), userDTO.getTeam())) {
-            tempUser.setTeam(tempTeam);
-        } else if(tempTeam == null) {
+        // Set the found or new Department to the User (assuming User has a department field)
+        tempUser.setDepartment(tempDepart);
+
+        // Find or create Team
+        Team tempTeam = teamRepo.findByNameAndDepartment(userDTO.getTeam(), tempDepart);
+        if (tempTeam == null) {
             tempTeam = new Team();
             tempTeam.setName(userDTO.getTeam());
+            tempTeam.setDepartment(tempDepart);
             teamRepo.save(tempTeam);
-            tempUser.setTeam(tempTeam);
         }
-        if(userDTO.getStatus().equals("Active")) {
-            tempUser.setIsActive(true);
-        } else {
-            tempUser.setIsActive(false);
-        }
+        tempUser.setTeam(tempTeam);  // Set the found or new Team to the User
+
+        // Set user status and default password
+        tempUser.setIsActive("Active".equalsIgnoreCase(userDTO.getStatus()));
         tempUser.setIsVegan(false);
         String defaultPassword = getDefaultPassword();
         tempUser.setPassword(passwordEncoder.encode(defaultPassword));
+
+        // Save the user
         User userSave = userRepo.save(tempUser);
-        if(userSave != null) {
+        if (userSave != null) {
             res.setStatus("200");
-            res.setMessage("Staff data insert successfully.");
+            res.setMessage("Staff data inserted successfully.");
         } else {
             res.setStatus("403");
             res.setMessage("Staff data insert failed.");
         }
+
         return res;
     }
+
 
     @Override
     public UserDTO getUserById(int id) {

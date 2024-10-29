@@ -11,4 +11,6 @@ import org.springframework.stereotype.Repository;
 public interface TeamRepository extends JpaRepository<Team, Integer> {
     @Query("SELECT d FROM Team d WHERE d.name = :name")
     Team findTeamByName(@Param("name") String name);
+
+    Team findByNameAndDepartment(String name, Department department);
 }

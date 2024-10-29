@@ -18,10 +18,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class ExcelForUserService {
@@ -55,79 +52,75 @@ public class ExcelForUserService {
                     continue;
                 }
 
-                User user = null; // Create a new Holiday object
-                user = userRepo.findByStaffId(row.getCell(2).getStringCellValue());
-                System.out.println(user);
-                if(user == null) {
+                User user = userRepo.findByStaffId(row.getCell(2).getStringCellValue());
+                if (user == null) {
                     user = new User();
                 }
+
                 Iterator<Cell> cellIterator = row.iterator();
                 int cellIndex = 0;
                 Division division = null;
                 Department department = null;
                 Team team = null;
+
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
                     switch (cellIndex) {
-                        case 1:
-                            division = divisionRepo.findDivisionByName(cell.getStringCellValue());
-                            if(division != null) {
-                                if(!division.getName().equals(cell.getStringCellValue())) {
-                                    division.setName(cell.getStringCellValue());
-                                }
-                            } else {
+                        case 1: // Division
+                            String divisionName = cell.getStringCellValue();
+                            division = divisionRepo.findDivisionByName(divisionName);
+                            if (division == null) {
                                 division = new Division();
-                                division.setName(cell.getStringCellValue());
+                                division.setName(divisionName);
+                                divisionRepo.save(division);
                             }
-                            divisionRepo.save(division);
                             user.setDivision(division);
-//                            user.setName(cell.getStringCellValue());
                             break;
-                        case 2:
+
+                        case 2: // Staff ID
                             user.setStaffId(cell.getStringCellValue());
                             break;
-                        case 3:
+
+                        case 3: // Name
                             user.setName(cell.getStringCellValue());
                             break;
-                        case 4:
+
+                        case 4: // Door Log No
                             user.setDoorLogNo((int) cell.getNumericCellValue());
                             break;
-                        case 5:
-                            department = departmentRepo.findDepartmentByName(cell.getStringCellValue());
-                            if(department != null) {
-                                if(!department.getName().equals(cell.getStringCellValue())) {
-                                    department.setName(cell.getStringCellValue());
-                                }
-                            } else {
+
+                        case 5: // Department
+                            String departmentName = cell.getStringCellValue();
+                            department = departmentRepo.findByNameAndDivision(departmentName, division);
+                            if (department == null) {
                                 department = new Department();
-                                department.setName(cell.getStringCellValue());
+                                department.setName(departmentName);
+                                department.setDivision(division);
+                                departmentRepo.save(department);
                             }
-                            departmentRepo.save(department);
                             user.setDepartment(department);
                             break;
-                        case 6:
-                            team = teamRepo.findTeamByName(cell.getStringCellValue());
-                            if(team != null) {
-                                if(!team.getName().equals(cell.getStringCellValue())) {
-                                    team.setName(cell.getStringCellValue());
-                                }
-                            } else {
+
+                        case 6: // Team
+                            String teamName = cell.getStringCellValue();
+                            team = teamRepo.findByNameAndDepartment(teamName, department);
+                            if (team == null) {
                                 team = new Team();
-                                team.setName(cell.getStringCellValue());
+                                team.setName(teamName);
+                                team.setDepartment(department);
+                                teamRepo.save(team);
                             }
-                            teamRepo.save(team);
                             user.setTeam(team);
                             break;
-                        case 7:
-                            if(cell.getStringCellValue().equals("Active")) {
-                                user.setIsActive(true);
-                            } else {
-                                user.setIsActive(false);
-                            }
+
+                        case 7: // Is Active
+                            user.setIsActive("Active".equals(cell.getStringCellValue()));
                             break;
-                        case 8:
+
+                        case 8: // Email
                             user.setEmail(cell.getStringCellValue());
                             break;
+
                         default:
                             break;
                     }
