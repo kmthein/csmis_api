@@ -1,6 +1,7 @@
 package com.team2.csmis_api.repository;
 
 import com.team2.csmis_api.entity.Restaurant;
+import com.team2.csmis_api.entity.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,5 +20,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
     @Transactional
     @Query("UPDATE Restaurant r SET r.isDeleted=true WHERE r.id=?1")
     public void deleteRestaurant(Integer id);
+
+    public Restaurant getRestaurantById(int id);
 
 }
