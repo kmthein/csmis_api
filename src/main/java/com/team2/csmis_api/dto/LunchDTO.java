@@ -3,6 +3,7 @@ package com.team2.csmis_api.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class LunchDTO {
@@ -14,5 +15,4 @@ public class LunchDTO {
     private Integer adminId;
     private Integer restaurantId;
     private String restaurantName;
-
 }

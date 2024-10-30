@@ -1,6 +1,5 @@
 package com.team2.csmis_api.controller;
 
-import com.team2.csmis_api.dto.LunchDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.WeeklyMenuDTO;
 import com.team2.csmis_api.service.LunchService;
