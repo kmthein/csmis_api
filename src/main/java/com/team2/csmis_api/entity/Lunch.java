@@ -18,10 +18,10 @@ public class Lunch extends Base{
     private String menu;
 
     @Column(name = "price")
-    private String price;
+    private Double price;
 
     @Column(name = "company_rate")
-    private String companyRate;
+    private Double companyRate;
 
     @Column(name = "date")
     private LocalDate date;

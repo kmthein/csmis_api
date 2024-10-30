@@ -8,11 +8,11 @@ import java.time.LocalDate;
 public class LunchDTO {
     private Integer id;
     private String menu;
-    private String price;
-    private String companyRate;
+    private double price;
+    private double companyRate;
     private LocalDate date;
-    private Integer adminId; // Assuming User ID is needed
-    private Integer restaurantId; // Assuming Restaurant ID is needed
+    private Integer adminId;
+    private Integer restaurantId;
+    private String restaurantName;
 
-    // Getters and Setters
 }
