@@ -49,17 +49,26 @@ public class JwtService {
 
     public String generateToken(User user){
         String token = Jwts.builder()
-                .subject(user.getStaffId())
+                .setSubject(user.getStaffId())
+                .claim("role", user.getRole().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
                 .signWith(getSigninKey())
                 .compact();
         return token;
-
     }
     public SecretKey getSigninKey(){
         byte[] keyByte = Decoders.BASE64URL.decode(SECRECT_KEY);
         return Keys.hmacShaKeyFor(keyByte);
+    }
+
+    public String extractRole(String token) {
+        return Jwts.parser()
+                .setSigningKey(getSigninKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class); // Extract role claim
     }
 }
 

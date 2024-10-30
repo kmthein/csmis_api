@@ -8,6 +8,7 @@ import com.team2.csmis_api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,18 +18,16 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/users")
+@RequestMapping("/admin/api/users")
+//@PreAuthorize("hasAuthority('ADMIN')")
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("")
+    @PostMapping("excel")
     public ResponseEntity<?> uploadStaffData(
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "adminId", required = false) Integer adminId) throws IOException {
-
-        System.out.println("File received: " + file.getOriginalFilename());
-        System.out.println("Admin ID: " + adminId);
         List<User> users = userService.saveUserToDatabase(file, adminId);
         if(users.size() > 0) {
             return ResponseEntity
@@ -39,6 +38,16 @@ public class UserController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Something went wrong"));
         }
+    }
+
+    @PostMapping("")
+    public ResponseDTO addNewUser(@ModelAttribute UserDTO userDTO) {
+        return userService.addNewUser(userDTO);
+    }
+
+    @PutMapping("{id}")
+    public ResponseDTO updateUserById(@PathVariable("id") Integer id, @ModelAttribute UserDTO userDTO) {
+        return userService.updateUserById(userDTO, id);
     }
 
     @GetMapping("")

@@ -5,6 +5,8 @@ import com.team2.csmis_api.entity.Holiday;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.repository.HolidayRepository;
 import com.team2.csmis_api.repository.UserRepository;
+import com.team2.csmis_api.util.ExcelOfHolidayExportUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,16 +27,17 @@ public class HolidayService {
 
     @Autowired
     private ModelMapper modelMapper;
-    public void saveHolidayToDatabase(MultipartFile file,Holiday holiday){
+    public void saveHolidayToDatabase(MultipartFile file,int adminId){
+        Holiday holiday = new Holiday();
         if(ExcelForHolidayService.isValidExcelFile(file)){
             try {
                 List<Holiday> holidays = ExcelForHolidayService.getHolidaysDataFromExcel(file.getInputStream());
-                User adminId = userRepository.findById(holiday.getUser().getId()).orElseThrow(() ->
+                User admin = userRepository.findById(adminId).orElseThrow(() ->
                         new IllegalArgumentException("Admin not found")
                 );
 
                 for (Holiday h : holidays) {
-                    h.setUser(adminId);
+                    h.setUser(admin);
                 }
 
                 this.holidayRepository.saveAll(holidays);
@@ -73,6 +76,14 @@ public class HolidayService {
 
     public void deleteHoliday(Integer id){
         holidayRepository.deleteHoliday(id);
+    }
+
+
+    public List<Holiday> exportHolidayToExcel(HttpServletResponse response) throws IOException {
+        List<Holiday> holidays = holidayRepository.findAll();
+        ExcelOfHolidayExportUtils exportUtils = new ExcelOfHolidayExportUtils(holidays);
+        exportUtils.exportDataToExcel(response);
+        return holidays;
     }
 
 }

@@ -21,15 +21,13 @@ public class HolidayController {
     @Autowired
     private HolidayService holidayService;
 
-    @PostMapping("")
+    @PostMapping("excel")
     public ResponseEntity<?> uploadHolidaysData(@RequestParam("file") MultipartFile file,
                                                 @RequestParam("adminId") User adminId) {
-        Holiday holiday = new Holiday();
-        holiday.setUser(adminId);
-        holidayService.saveHolidayToDatabase(file, holiday);
+        holidayService.saveHolidayToDatabase(file, adminId.getId());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(Map.of("Message", "Holidays data uploaded and saved to database successfully"));
+                .body(Map.of("message", "Holidays data uploaded and saved to database successfully"));
     }
 
     @GetMapping("")
