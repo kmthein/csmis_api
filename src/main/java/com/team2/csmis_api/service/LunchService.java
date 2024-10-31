@@ -58,7 +58,7 @@ public class LunchService {
             lunch.setMenu(menuDTO.getMenu());
             lunch.setDate(menuDTO.getDate());
             lunch.setPrice(weeklyMenuDTO.getPrice());
-            lunch.setCompanyRate(weeklyMenuDTO.getRate());
+            lunch.setCompanyRate((double) weeklyMenuDTO.getRate());
             Optional<Restaurant> optRestaurant = restaurantRepository.findByName(weeklyMenuDTO.getRestaurant());
             Optional<User> optAdmin = userRepository.findById(weeklyMenuDTO.getAdminId());
             optRestaurant.ifPresent(lunch::setRestaurant);
