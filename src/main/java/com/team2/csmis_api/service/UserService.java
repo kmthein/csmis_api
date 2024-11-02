@@ -18,4 +18,5 @@ public interface UserService {
     List<User> saveUserToDatabase(MultipartFile file, Integer adminId) throws IOException;
 
     ResponseDTO updateUserById(UserDTO userDTO, int id);
+    UserDTO mapUserToDTO(User user);
 }

@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     public User getUserById(int id);
     User findById(Long userId);
     Optional<User> findByEmail(String email);
+//    SELECT id, name, door_log_no, email FROM user WHERE received_mail = true;
+    @Query("SELECT u FROM User u WHERE u.receivedMail = true AND u.isActive = true AND u.isDeleted = false")
+    List<User> getMailNotiOnUsers();
 }
