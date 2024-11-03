@@ -93,23 +93,4 @@ public class JasperReportService {
     public List<Restaurant> fetchData(int month, int year) {
         return restaurantRepository.getAllRestaurants();
     }
-
-    public byte[] generateReport(String reportName, List<?> data, Map<String, Object> parameters, String format) throws Exception {
-        // Load the Jasper report from resources folder
-        InputStream reportStream = new ClassPathResource("reports/" + reportName + ".jasper").getInputStream();
-        JasperReport jasperReport = (JasperReport) JRLoader.loadObject(reportStream);
-
-        // Fill the report with data
-        JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(data);
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource);
-
-        // Export the report
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        if (format.equalsIgnoreCase("pdf")) {
-            JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
-        }
-        // Add additional format handling here (e.g., XLSX)
-
-        return outputStream.toByteArray();
-    }
 }

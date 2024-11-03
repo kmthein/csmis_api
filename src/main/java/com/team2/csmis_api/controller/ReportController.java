@@ -1,9 +1,7 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.UserDTO;
-import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.service.JasperReportService;
-import com.team2.csmis_api.service.ReportService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
