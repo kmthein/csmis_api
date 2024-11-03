@@ -204,34 +204,41 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="74" splitType="Stretch">
+		<band height="81" splitType="Stretch">
 			<image>
-				<reportElement x="5" y="0" width="100" height="69" uuid="e6fc596e-6652-4c59-89b9-b22093fbbf2c"/>
+				<reportElement x="0" y="31" width="69" height="49" uuid="e6fc596e-6652-4c59-89b9-b22093fbbf2c"/>
 				<imageExpression><![CDATA["C:/Users/K M THEIN/Downloads/DAT Logo.png"]]></imageExpression>
 			</image>
 			<staticText>
-				<reportElement x="395" y="0" width="160" height="24" uuid="e886a13e-ab3b-4b15-8d99-cbdd575c7d3a"/>
-				<textElement textAlignment="Right">
-					<font size="14" isBold="true"/>
-				</textElement>
-				<text><![CDATA[CSMIS Report]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="385" y="24" width="170" height="20" uuid="7edfdd7f-24f6-43ba-b02a-79dd16c96a67"/>
-				<textElement textAlignment="Right">
-					<font size="12" isBold="false"/>
+				<reportElement x="439" y="40" width="254" height="20" uuid="7edfdd7f-24f6-43ba-b02a-79dd16c96a67"/>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="false"/>
 				</textElement>
 				<text><![CDATA[Mail Notification On Users]]></text>
 			</staticText>
 			<textField pattern="MMMMM dd, yyyy">
-				<reportElement x="455" y="44" width="100" height="15" uuid="036d7c76-bc84-4145-bbf0-cccd16427eb4"/>
-				<textElement textAlignment="Right"/>
+				<reportElement x="440" y="60" width="100" height="20" uuid="036d7c76-bc84-4145-bbf0-cccd16427eb4"/>
+				<textElement textAlignment="Left"/>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
+			<staticText>
+				<reportElement x="355" y="40" width="100" height="20" uuid="887fbabd-9a7e-42dc-82bc-7ce501978fb2"/>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Report Name :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="355" y="60" width="84" height="20" uuid="2de3bdc0-4063-4079-a2f0-c2e27b52e40e"/>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Report Date   :]]></text>
+			</staticText>
 		</band>
 	</title>
 	<pageHeader>
-		<band height="5" splitType="Stretch"/>
+		<band splitType="Stretch"/>
 	</pageHeader>
 	<columnHeader>
 		<band height="37" splitType="Stretch">

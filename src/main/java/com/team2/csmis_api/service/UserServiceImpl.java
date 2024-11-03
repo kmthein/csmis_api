@@ -67,8 +67,7 @@ public class UserServiceImpl implements UserService {
                 users = excelForUserService.getUsersDataFromExcel(file.getInputStream());
                 String defaultPassword = getDefaultPassword();
                 for(User user: users) {
-                    user.setRole(Role.OPERATOR);
-                    user.setPassword(passwordEncoder.encode(defaultPassword));
+
                 }
             } catch (IOException e) {
                 throw new IllegalArgumentException("The file is not a valid excel file");
