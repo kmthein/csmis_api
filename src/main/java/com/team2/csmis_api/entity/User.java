@@ -67,14 +67,6 @@ public class User extends Base implements UserDetails {
     )
     private List<Meat> meats;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_has_notification",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "notification_id")
-    )
-    private List<Notification> notifications;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

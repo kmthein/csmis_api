@@ -3,6 +3,8 @@ package com.team2.csmis_api.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalTime;
+
 @Entity
 @Data
 public class Settings extends Base {
@@ -18,10 +20,13 @@ public class Settings extends Base {
     private String lastRegisterTime;
 
     @Column(name = "company_rate")
-    private Double compnayRate;
+    private Double companyRate;
 
     @Column(name = "current_lunch_price")
     private Double currentLunchPrice;
+
+    @Column(name = "lunchReminderTime")
+    private LocalTime lunchReminderTime;
 
     @ManyToOne
     @JoinColumn(name = "admin_id")
