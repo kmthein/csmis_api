@@ -207,7 +207,7 @@
 		<band height="81" splitType="Stretch">
 			<image>
 				<reportElement x="0" y="31" width="69" height="49" uuid="e6fc596e-6652-4c59-89b9-b22093fbbf2c"/>
-				<imageExpression><![CDATA["C:/Users/K M THEIN/Downloads/DAT Logo.png"]]></imageExpression>
+				<imageExpression><![CDATA[net.sf.jasperreports.engine.util.JRLoader.loadBytes(getClass().getResource("/images/DAT Logo.png"))]]></imageExpression>
 			</image>
 			<staticText>
 				<reportElement x="439" y="40" width="254" height="20" uuid="7edfdd7f-24f6-43ba-b02a-79dd16c96a67"/>

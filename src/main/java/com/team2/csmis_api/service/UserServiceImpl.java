@@ -162,6 +162,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ResponseDTO toggleMail(int id, boolean mailOn) {
+        Optional<User> optionalUser = userRepo.findById(id);
+        ResponseDTO res = new ResponseDTO();
+        if(optionalUser.isEmpty()) {
+            throw new ResourceNotFoundException("User not found");
+        } else {
+            User tempUser = optionalUser.get();
+            tempUser.setReceivedMail(mailOn);
+            User user = userRepo.save(tempUser);
+            if(user == null) {
+                res.setStatus("401");
+                res.setMessage("Something went wrong");
+            } else {
+                res.setStatus("200");
+                res.setMessage("Mail notifiication updated");
+            }
+        }
+        return res;
+    }
+
+    @Override
     public List<UserDTO> getAllActiveUsers() {
         List<User> users = userRepo.getAllActiveUsers();
         List<UserDTO> userDTOList = new ArrayList<>();

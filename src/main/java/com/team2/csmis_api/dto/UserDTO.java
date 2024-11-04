@@ -21,4 +21,5 @@ public class UserDTO {
     private String department;
     private String team;
     private String status;
+    private Boolean receivedMail;
 }

@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface LunchRepository extends JpaRepository<Lunch, Integer> {
-    @Query("SELECT l FROM Lunch l WHERE l.isDeleted = false")
+    @Query("SELECT l FROM Lunch l WHERE l.isDeleted = false ORDER BY l.date DESC")
     public List<Lunch> findAll();
 
     @Query(value = "SELECT * FROM lunch l WHERE " +
