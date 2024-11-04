@@ -1,6 +1,6 @@
 package com.team2.csmis_api.controller;
 
-import com.team2.csmis_api.entity.Restaurant;
+import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.service.JasperReportService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +44,11 @@ public class ReportController {
 //            return ResponseEntity.status(500).build();
 //        }
 //    }
+
+    @GetMapping("mail-on")
+    public List<UserDTO> getMailOnUsers() {
+        return reportService.getMailNotiOnUsers();
+    }
 
     @GetMapping("/generate")
     public ResponseEntity<byte[]> generateReport(

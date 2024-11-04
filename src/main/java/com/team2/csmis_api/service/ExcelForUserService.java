@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,12 +35,22 @@ public class ExcelForUserService {
     @Autowired
     private TeamRepository teamRepo;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    private static final String DEFAULT_PASSWORD = "DAT110ct2";
+
+    public static String getDefaultPassword() {
+        return DEFAULT_PASSWORD;
+    }
+
     public static boolean isValidExcelFile(MultipartFile file) {
         return Objects.equals(file.getContentType(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
     }
 
     public List<User> getUsersDataFromExcel(InputStream inputStream) {
         List<User> users = new ArrayList<>();
+        Set<String> processedStaffIds = new HashSet<>();
         try {
             XSSFWorkbook workbook = new XSSFWorkbook(inputStream);
             XSSFSheet sheet = workbook.getSheet("Employee_Data");
@@ -52,10 +63,17 @@ public class ExcelForUserService {
                     continue;
                 }
 
+                String staffId = row.getCell(2).getStringCellValue();
                 User user = userRepo.findByStaffId(row.getCell(2).getStringCellValue());
+
                 if (user == null) {
                     user = new User();
+                    String defaultPassword = getDefaultPassword();
+                    user.setRole(Role.OPERATOR);
+                    user.setPassword(passwordEncoder.encode(defaultPassword));
                 }
+
+                processedStaffIds.add(staffId);
 
                 Iterator<Cell> cellIterator = row.iterator();
                 int cellIndex = 0;
@@ -133,6 +151,17 @@ public class ExcelForUserService {
             e.printStackTrace();
         }
 
+        deactivateUsersNotInExcel(processedStaffIds);
         return users;
+    }
+
+    private void deactivateUsersNotInExcel(Set<String> processedStaffIds) {
+        List<User> allUsers = userRepo.findAll();
+        for (User user : allUsers) {
+            if (!processedStaffIds.contains(user.getStaffId())) {
+                user.setIsActive(false);
+            }
+        }
+        userRepo.saveAll(allUsers);
     }
 }

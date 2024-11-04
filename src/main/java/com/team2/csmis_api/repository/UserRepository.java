@@ -23,4 +23,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query("SELECT d FROM User d WHERE d.doorLogNo = :doorLogNo")
     User findByDoorLogNo(@Param("doorLogNo") int doorLogNo);
 
+    @Query("SELECT u FROM User u WHERE u.receivedMail = true AND u.isActive = true AND u.isDeleted = false")
+    List<User> getMailNotiOnUsers();
 }

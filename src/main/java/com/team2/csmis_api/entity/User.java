@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @Table(name = "user")
 @Entity
-public class User implements UserDetails {
+public class User extends Base implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,14 +66,6 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "meat_id")
     )
     private List<Meat> meats;
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_has_notification",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "notification_id")
-    )
-    private List<Notification> notifications;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
