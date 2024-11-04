@@ -1,5 +1,7 @@
 package com.team2.csmis_api.controller;
 
+import com.team2.csmis_api.dto.ResponseDTO;
+import com.team2.csmis_api.dto.WeeklyMenuDTO;
 import com.team2.csmis_api.dto.LunchDTO;
 import com.team2.csmis_api.dto.MenuDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
@@ -70,9 +72,9 @@ public class LunchController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LunchDTO> updateLunch(@PathVariable Integer id, @RequestBody LunchDTO lunchDTO) {
-        LunchDTO updatedLunch = lunchService.updateLunch(id, lunchDTO);
-        return ResponseEntity.ok(updatedLunch);
+    public ResponseDTO updateLunch(@PathVariable Integer id, @RequestBody LunchDTO lunchDTO) {
+        ResponseDTO res = lunchService.updateLunch(id, lunchDTO);
+        return res;
     }
 
     @DeleteMapping("/{id}")

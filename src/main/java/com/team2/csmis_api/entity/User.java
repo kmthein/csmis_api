@@ -28,6 +28,9 @@ public class User implements UserDetails {
     @Column(name = "door_log_no")
     private Integer doorLogNo;
 
+    @Column(name = "received_mail", columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean receivedMail = false;
+
     @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT TRUE")
     private Boolean isActive = true;
 

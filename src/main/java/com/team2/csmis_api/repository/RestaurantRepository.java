@@ -22,5 +22,4 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
     public void deleteRestaurant(Integer id);
 
     public Restaurant getRestaurantById(int id);
-
 }

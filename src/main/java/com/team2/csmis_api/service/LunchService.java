@@ -58,7 +58,7 @@ public class LunchService {
             lunch.setMenu(menuDTO.getMenu());
             lunch.setDate(menuDTO.getDate());
             lunch.setPrice(weeklyMenuDTO.getPrice());
-            lunch.setCompanyRate(weeklyMenuDTO.getRate());
+            lunch.setCompanyRate((double) weeklyMenuDTO.getRate());
             Optional<Restaurant> optRestaurant = restaurantRepository.findByName(weeklyMenuDTO.getRestaurant());
             Optional<User> optAdmin = userRepository.findById(weeklyMenuDTO.getAdminId());
             optRestaurant.ifPresent(lunch::setRestaurant);
@@ -141,10 +141,10 @@ public class LunchService {
         return lunchDTO;
     }
 
-    public LunchDTO updateLunch(Integer id, LunchDTO lunchDTO) {
+    public ResponseDTO updateLunch(Integer id, LunchDTO lunchDTO) {
         Lunch existingLunch = lunchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Lunch not found"));
-
+        ResponseDTO res = new ResponseDTO();
         // Update fields
         existingLunch.setMenu(lunchDTO.getMenu());
         existingLunch.setPrice(lunchDTO.getPrice());
@@ -166,7 +166,14 @@ public class LunchService {
         }
 
         Lunch updatedLunch = lunchRepository.save(existingLunch);
-        return convertToDTO(updatedLunch);
+        if(updatedLunch != null) {
+            res.setMessage("Lunch updated successfully");
+            res.setStatus("200");
+        } else {
+            res.setMessage("Lunch update failed");
+            res.setStatus("401");
+        }
+        return res;
     }
 
     public void deleteLunch(Integer id) {

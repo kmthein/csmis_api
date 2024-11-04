@@ -14,4 +14,8 @@ public class Team extends Base{
 
     @Column(name = "name")
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "department_id")
+    private Department department;
 }
