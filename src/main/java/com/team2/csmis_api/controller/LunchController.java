@@ -72,9 +72,9 @@ public class LunchController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<LunchDTO> updateLunch(@PathVariable Integer id, @RequestBody LunchDTO lunchDTO) {
-        LunchDTO updatedLunch = lunchService.updateLunch(id, lunchDTO);
-        return ResponseEntity.ok(updatedLunch);
+    public ResponseDTO updateLunch(@PathVariable Integer id, @RequestBody LunchDTO lunchDTO) {
+        ResponseDTO res = lunchService.updateLunch(id, lunchDTO);
+        return res;
     }
 
     @DeleteMapping("/{id}")

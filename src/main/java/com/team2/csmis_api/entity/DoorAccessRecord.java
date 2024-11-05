@@ -16,12 +16,21 @@ public class DoorAccessRecord extends Base{
     @Column(name = "date")
     private LocalDateTime date;
 
+    @Column(name = "department")
+    private String department;
+
+    @Column(name = "door_log_no")
+    private Integer doorLogNo;
+
     @ManyToOne
     @JoinColumn(name="location_id")
     private Location location;
 
     @ManyToOne
+    @JoinColumn(name="admin_id")
+    private User admin;
+
+    @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
-
 }

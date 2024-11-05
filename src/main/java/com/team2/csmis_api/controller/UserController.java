@@ -50,6 +50,11 @@ public class UserController {
         return userService.updateUserById(userDTO, id);
     }
 
+    @PutMapping("{id}/toggle-mail")
+    public ResponseDTO toggleMail(@PathVariable("id") Integer id, @RequestParam(value = "bool") Boolean bool) {
+        return userService.toggleMail(id, bool);
+    }
+
     @GetMapping("")
     public List<UserDTO> getAllActiveUsers() {
         return userService.getAllActiveUsers();
