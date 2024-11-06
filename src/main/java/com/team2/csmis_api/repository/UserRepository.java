@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 //    SELECT id, name, door_log_no, email FROM user WHERE received_mail = true;
     @Query("SELECT u FROM User u WHERE u.receivedMail = true AND u.isActive = true AND u.isDeleted = false")
     List<User> getMailNotiOnUsers();
+
+    boolean existsByStaffId(String staffId);
 }

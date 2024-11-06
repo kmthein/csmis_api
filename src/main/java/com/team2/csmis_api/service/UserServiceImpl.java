@@ -8,6 +8,8 @@ import com.team2.csmis_api.repository.DepartmentRepository;
 import com.team2.csmis_api.repository.DivisionRepository;
 import com.team2.csmis_api.repository.TeamRepository;
 import com.team2.csmis_api.repository.UserRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -52,6 +54,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private EmailService emailService;
+
     private static final String DEFAULT_PASSWORD = "DAT110ct2";
 
     public static String getDefaultPassword() {
@@ -66,11 +71,23 @@ public class UserServiceImpl implements UserService {
             try {
                 users = excelForUserService.getUsersDataFromExcel(file.getInputStream());
                 String defaultPassword = getDefaultPassword();
+                String subject = "Welcome to the CSMIS!";
                 for(User user: users) {
+                    boolean userExists = userRepo.existsByStaffId(user.getStaffId()); // Replace with appropriate check (email, etc.)
 
+                    if(!userExists) {
+                        String body = "<p>Hello, " + user.getName() + "!</p>" +
+                                "<p>Your account has been created.</p>" +
+                                "<p>Login with your staff ID: <strong>" + user.getStaffId() + "</strong> and the default password: <strong>" + defaultPassword + "</strong>.</p>" +
+                                "<p>Please change your password after logging in.</p>";
+
+                        emailService.sendEmail(user.getEmail(), subject, body);
+                    }
                 }
             } catch (IOException e) {
                 throw new IllegalArgumentException("The file is not a valid excel file");
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
             }
         }
         userRepo.saveAll(users);
