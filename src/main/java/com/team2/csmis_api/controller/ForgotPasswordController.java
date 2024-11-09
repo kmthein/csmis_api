@@ -1,13 +1,16 @@
 package com.team2.csmis_api.controller;
 
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.repository.UserRepository;
 import com.team2.csmis_api.service.EmailService;
 import com.team2.csmis_api.service.OTPService;
+import com.team2.csmis_api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.SecureRandom;
@@ -18,7 +21,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin
 public class ForgotPasswordController {
 
     @Autowired
@@ -28,9 +31,14 @@ public class ForgotPasswordController {
     private EmailService emailService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
@@ -47,6 +55,18 @@ public class ForgotPasswordController {
         emailService.sendSimpleMessage(email, subject, message);
 
         return ResponseEntity.ok("OTP sent successfully");
+    }
+
+    @PutMapping("password-change")
+    public ResponseDTO forcePasswordChange(@RequestParam(value = "id") String id, @RequestParam(value = "newPassword") String newPassword) {
+        ResponseDTO res = new ResponseDTO();
+        if(newPassword.length() < 6 || newPassword.length() > 20) {
+            res.setMessage("Password must have between 6 and 20 characters");
+            res.setStatus("401");
+            return res;
+        }
+        res = userService.forcePasswordChange(Integer.parseInt(id), newPassword);
+        return res;
     }
 
     @PostMapping("/validate-otp")
@@ -82,6 +102,7 @@ public class ForgotPasswordController {
 
         // Encode and update the new password
         user.setPassword(passwordEncoder.encode(newPassword));
+        user.setHasDefaultPassword(false);
         userRepository.save(user);
         System.out.println("Password updated for user: " + user.getName());
 

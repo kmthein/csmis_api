@@ -2,6 +2,7 @@ package com.team2.csmis_api.repository;
 
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.entity.Restaurant;
+import com.team2.csmis_api.entity.UserHasLunch;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -14,6 +15,9 @@ import java.util.List;
 public interface LunchRepository extends JpaRepository<Lunch, Integer> {
     @Query("SELECT l FROM Lunch l WHERE l.isDeleted = false ORDER BY l.date DESC")
     public List<Lunch> findAll();
+
+    @Query("SELECT l FROM Lunch l WHERE DATE(l.date) = CURDATE()")
+    Lunch findLunchByCurrentDate();
 
     @Query(value = "SELECT * FROM lunch l WHERE " +
             "WEEKDAY(CURDATE()) BETWEEN 0 AND 4 " +

@@ -12,19 +12,13 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Integer> {
-
-
-
     List<UserHasLunch> findByUserId(Integer userId);
-
-
 
     @Query("SELECT u.dt FROM UserHasLunch u WHERE u.user.id = :userId")
     List<Date> findDtByUserId(@Param("userId") int userId);
 
     Optional<UserHasLunch> findByUserIdAndDt(Long userId, Date dt);
 
-
-
-
+    @Query("SELECT uhl FROM UserHasLunch uhl WHERE DATE(uhl.dt) = CURDATE()")
+    List<UserHasLunch> findByCurrentDate();
 }

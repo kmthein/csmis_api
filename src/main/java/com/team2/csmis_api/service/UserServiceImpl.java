@@ -16,10 +16,12 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,8 +61,31 @@ public class UserServiceImpl implements UserService {
 
     private static final String DEFAULT_PASSWORD = "DAT110ct2";
 
+    @Value("${app.base-url}")
+    private String baseUrl;
+
     public static String getDefaultPassword() {
         return DEFAULT_PASSWORD;
+    }
+
+    @Override
+    public ResponseDTO forcePasswordChange(int id, String newPassword) {
+        User user = userRepo.getUserById(id);
+        ResponseDTO res = new ResponseDTO();
+        if(user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setHasDefaultPassword(false);
+        User updateUser = userRepo.save(user);
+        if(updateUser != null) {
+            res.setStatus("200");
+            res.setMessage("Password changed successfully");
+        } else {
+            res.setStatus("403");
+            res.setMessage("Password can't be changed");
+        }
+        return res;
     }
 
     @Transactional
@@ -73,14 +98,17 @@ public class UserServiceImpl implements UserService {
                 String defaultPassword = getDefaultPassword();
                 String subject = "Welcome to the CSMIS!";
                 for(User user: users) {
+                    String loginUrl = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                            .path("/login")
+                            .toUriString();
                     boolean userExists = userRepo.existsByStaffId(user.getStaffId()); // Replace with appropriate check (email, etc.)
 
                     if(!userExists) {
-                        String body = "<p>Hello, " + user.getName() + "!</p>" +
+                        String body = "<p>Dear, " + user.getName() + "</p>" +
                                 "<p>Your account has been created.</p>" +
                                 "<p>Login with your staff ID: <strong>" + user.getStaffId() + "</strong> and the default password: <strong>" + defaultPassword + "</strong>.</p>" +
-                                "<p>Please change your password after logging in.</p>";
-
+                                "<p>Please change your password after logging in.</p>"+
+                                "<p>You can log in here: <a href='" + loginUrl + "'>Login to CSMIS</a></p>";
                         emailService.sendEmail(user.getEmail(), subject, body);
                     }
                 }
