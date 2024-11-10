@@ -13,6 +13,10 @@ public class NotificationService {
     }
 
     public void sendFeedbackNotification(String message) {
-        messagingTemplate.convertAndSend("/topic/notifications", message);
+        messagingTemplate.convertAndSend("/topic/feedbacks", message);
+    }
+
+    public void sendSuggestionNotification(String message) {
+        messagingTemplate.convertAndSend("/topic/suggestions", message);
     }
 }
