@@ -5,10 +5,13 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class FeedbackDTO {
+public class SuggestionDTO {
+
     private Integer id;
-    private String title;
     private LocalDate date;
     private String content;
     private Integer userId;
+    private boolean isSeen;
+    private String username;
+
 }

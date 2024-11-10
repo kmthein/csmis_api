@@ -8,6 +8,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -24,6 +25,7 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -37,9 +39,9 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-//                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+//                       .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/restaurants/**", "/api/users/**").authenticated()
-                        .requestMatchers("/api/lunches/**").authenticated()
+                        .requestMatchers("/api/lunches/**", "/api/suggestions/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .userDetailsService(userDetailsService)

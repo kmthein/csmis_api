@@ -4,17 +4,16 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+
 @Data
-@Table(name = "feedback")
+@Table(name = "suggestion")
 @Entity
-public class Feedback extends Base{
+public class Suggestion extends Base{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
-
-    @Column(name = "title")
-    private String title;
 
     @Column(name = "date")
     private LocalDate date;
