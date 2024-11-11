@@ -303,7 +303,6 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
-
     @Override
     public UserDTO getUserById(int id) {
         User user = userRepo.getUserById(id);

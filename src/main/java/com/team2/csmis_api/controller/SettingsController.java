@@ -1,6 +1,7 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.ResponseDTO;
+import com.team2.csmis_api.dto.SettingsDTO;
 import com.team2.csmis_api.entity.Settings;
 import com.team2.csmis_api.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,12 @@ public class SettingsController {
     @GetMapping("")
     public Settings getSettings() {
         return settingService.getSettings();
+    }
+
+    @PutMapping("")
+    public ResponseDTO updateSettings(@ModelAttribute SettingsDTO settingsDTO) {
+        System.out.println(settingsDTO);
+        return null;
     }
 
     @PutMapping("last-register")

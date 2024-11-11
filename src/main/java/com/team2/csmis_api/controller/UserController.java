@@ -24,7 +24,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("excel")
+    @PostMapping("/excel")
     public ResponseEntity<?> uploadStaffData(
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "adminId", required = false) Integer adminId) throws IOException {
