@@ -1,5 +1,6 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.DietaryPreferenceDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.User;
@@ -18,4 +19,6 @@ public interface UserService {
     List<User> saveUserToDatabase(MultipartFile file, Integer adminId) throws IOException;
 
     ResponseDTO updateUserById(UserDTO userDTO, int id);
+
+    void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO);
 }
