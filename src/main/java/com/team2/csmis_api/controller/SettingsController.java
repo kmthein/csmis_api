@@ -21,8 +21,7 @@ public class SettingsController {
 
     @PutMapping("")
     public ResponseDTO updateSettings(@ModelAttribute SettingsDTO settingsDTO) {
-        System.out.println(settingsDTO);
-        return null;
+        return settingService.updateSettings(settingsDTO);
     }
 
     @PutMapping("last-register")

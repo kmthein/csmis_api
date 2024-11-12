@@ -41,7 +41,7 @@ public class ExcelForDoorLogService {
             int rowIndex = 0;
 
             for (Row row : sheet) {
-                if (rowIndex < 3) {
+                if (rowIndex < 1) {
                     rowIndex++;
                     continue;
                 }

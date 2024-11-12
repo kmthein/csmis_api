@@ -1,8 +1,12 @@
 package com.team2.csmis_api.controller;
 
+import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.dto.UserDTO;
+import com.team2.csmis_api.repository.UserHasLunchRepository;
 import com.team2.csmis_api.service.JasperReportService;
 import jakarta.servlet.http.HttpServletResponse;
+import net.sf.jasperreports.engine.JasperExportManager;
+import net.sf.jasperreports.engine.JasperPrint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,6 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +55,34 @@ public class ReportController {
     @GetMapping("mail-on")
     public List<UserDTO> getMailOnUsers() {
         return reportService.getMailNotiOnUsers();
+    }
+
+    @PutMapping("lunch-summary")
+    public LunchSummaryDTO getSummaryByInterval(@RequestParam(value = "date") String targetDate) {
+        return reportService.getDailyLunchSummary(LocalDate.parse(targetDate));
+    }
+
+    @GetMapping("monthly-summary")
+    public LunchSummaryDTO getSummaryMonthly() {
+        return reportService.getMonthlyLunchSummary();
+    }
+
+    @PutMapping("summary-between")
+    public LunchSummaryDTO getSummaryBetween(@RequestParam(value = "startDate") String startDate, @RequestParam(value = "endDate") String endDate) {
+        return reportService.getSummaryBetween(startDate, endDate);
+    }
+
+    @GetMapping("lunch-summary/generate")
+    public void generateReport(@RequestParam("date") String date, HttpServletResponse response) throws Exception {
+        // Parse the dynamic date (e.g., from query parameters or request body)
+        Date dynamicDate = new SimpleDateFormat("yyyy-MM-dd").parse(date);
+
+        // Generate the report
+        JasperPrint jasperPrint = reportService.generateLunchSummary(dynamicDate);
+
+        // Export the report to a PDF file
+        response.setContentType("application/pdf");
+        JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
     }
 
     @GetMapping("/generate")
