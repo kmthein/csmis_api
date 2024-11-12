@@ -2,12 +2,15 @@ package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.AnnouncementDTO;
 import com.team2.csmis_api.dto.FileDTO;
+import com.team2.csmis_api.dto.SuggestionDTO;
 import com.team2.csmis_api.entity.Announcement;
 import com.team2.csmis_api.entity.FileData;
 import com.team2.csmis_api.entity.User;
+import com.team2.csmis_api.entity.UserHasAnnouncement;
 import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.AnnouncementRepository;
 import com.team2.csmis_api.repository.FileRepository;
+import com.team2.csmis_api.repository.UserHasAnnouncementRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
@@ -28,6 +31,9 @@ public class AnnouncementService {
     private UserRepository userRepo;
 
     @Autowired
+    private UserHasAnnouncementRepository userHasAnnouncementRepository;
+
+    @Autowired
     private AnnouncementRepository announcementRepo;
 
     @Autowired
@@ -38,6 +44,9 @@ public class AnnouncementService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public AnnouncementDTO addAnnouncement(Announcement announce, MultipartFile[] files) throws IOException {
         User adminId = userRepo.findById(announce.getUser().getId())
@@ -65,6 +74,17 @@ public class AnnouncementService {
         Announcement savedAnnouncement = announcementRepo.save(announce);
         AnnouncementDTO announcementDTO = modelMapper.map(savedAnnouncement, AnnouncementDTO.class);
         announcementDTO.setAdminId(savedAnnouncement.getUser().getId());
+
+        List<User> users = userRepo.getAllActiveUsers();
+        for (User user : users) {
+
+            UserHasAnnouncement userHasAnnouncement = new UserHasAnnouncement();
+            userHasAnnouncement.setUser(user);
+            userHasAnnouncement.setAnnouncement(savedAnnouncement);  // Associate the announcement with the user
+            userHasAnnouncementRepository.save(userHasAnnouncement);  // Save the UserHasAnnouncement entry
+        }
+
+        notificationService.sendAnnouncementNotification("{\"message\": \"New announ received\"}");
 
         return announcementDTO;
     }
