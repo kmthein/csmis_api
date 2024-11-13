@@ -1,13 +1,11 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.DietaryPreferenceDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.*;
 import com.team2.csmis_api.exception.ResourceNotFoundException;
-import com.team2.csmis_api.repository.DepartmentRepository;
-import com.team2.csmis_api.repository.DivisionRepository;
-import com.team2.csmis_api.repository.TeamRepository;
-import com.team2.csmis_api.repository.UserRepository;
+import com.team2.csmis_api.repository.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -25,6 +23,11 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -51,6 +54,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MeatRepository meatRepository;
 
     private static final String DEFAULT_PASSWORD = "DAT110ct2";
 
@@ -141,6 +147,26 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
+    public void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO) {
+        User user = userRepo.findById(preferenceDTO.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Update the user's vegan status
+        user.setIsVegan(preferenceDTO.getIsVegan());
+
+        // Update the user's meat preferences
+        List<Meat> meats = preferenceDTO.getMeatIds().stream()
+                .map(meatId -> {
+                    // Assuming you have a method to find a Meat by its ID
+                    return meatRepository.findById(meatId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Meat not found"));
+                })
+                .collect(Collectors.toList());
+
+        user.setMeats(meats);
+
+        userRepo.save(user); // Save the user with updated preferences
+    }
 
     public UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
@@ -258,11 +284,12 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
-
     @Override
     public UserDTO getUserById(int id) {
         User user = userRepo.getUserById(id);
         UserDTO userDTO = mapUserToDTO(user);
         return userDTO;
     }
+
+
 }
