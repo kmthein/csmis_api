@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
@@ -58,11 +59,11 @@ public class ReportController {
     }
 
     @PutMapping("lunch-summary")
-    public LunchSummaryDTO getSummaryByInterval(@RequestParam(value = "date") String targetDate) {
+    public LunchSummaryDTO getSummaryByInterval(@RequestParam(value = "date") String targetDate) throws Exception {
         return reportService.getDailyLunchSummary(LocalDate.parse(targetDate));
     }
 
-    @GetMapping("monthly-summary")
+    @PutMapping("monthly-summary")
     public LunchSummaryDTO getSummaryMonthly() {
         return reportService.getMonthlyLunchSummary();
     }
@@ -89,10 +90,30 @@ public class ReportController {
     public ResponseEntity<byte[]> generateReport(
             @RequestParam String templatePath,
             @RequestParam String fileType,
-            @RequestParam(defaultValue = "report") String fileName) {
+            @RequestParam(defaultValue = "report") String fileName,
+            @RequestParam Map<String, ?> allParams) {
         try {
             Map<String, Object> parameters = new HashMap<>();  // Add parameters as needed
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // Define date format
 
+            for (String key : allParams.keySet()) {
+                Object value = allParams.get(key);
+
+                // Check if the value is a date string and convert it
+                if (value instanceof String) {
+                    String stringValue = (String) value;
+                    try {
+                        // Attempt to parse as date
+                        Date dateValue = dateFormat.parse(stringValue);
+                        parameters.put(key, dateValue);  // Store Date object
+                    } catch (ParseException e) {
+                        // Not a date, store the original string
+                        parameters.put(key, stringValue);
+                    }
+                } else {
+                    parameters.put(key, value);  // Store non-string values as-is
+                }
+            }
             byte[] reportData = reportService.generateReport(templatePath, fileType, parameters);
 
             String headerValue = (fileType.equalsIgnoreCase("pdf") ? "inline" : "attachment") + "; filename=" + fileName + "." + fileType;

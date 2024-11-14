@@ -42,36 +42,39 @@
 	<subDataset name="Dataset1" uuid="64f17e3a-1524-47cc-a2f7-444bb56a1db7">
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="New Data Adapter"/>
-		<parameter name="reportDate" class="java.util.Date">
-			<property name="com.jaspersoft.studio.field.name" value="reportDate"/>
+		<parameter name="startDate" class="java.util.Date">
+			<property name="com.jaspersoft.studio.field.name" value="startDate"/>
+		</parameter>
+		<parameter name="endDate" class="java.util.Date">
+			<property name="com.jaspersoft.studio.field.name" value="endDate"/>
 		</parameter>
 		<queryString language="SQL">
 			<![CDATA[SELECT 
-        SUM(register_and_eat) AS register_and_eat,
-        SUM(register_not_eat) AS register_not_eat,
-        SUM(unregister_but_eat) AS unregister_but_eat
-    FROM (
-        SELECT 
-            SUM(CASE WHEN d.user_id IS NOT NULL THEN 1 ELSE 0 END) AS register_and_eat,
-            SUM(CASE WHEN d.user_id IS NULL THEN 1 ELSE 0 END) AS register_not_eat,
-            0 AS unregister_but_eat
-        FROM user_has_lunch u
-        LEFT JOIN door_access_record d 
-            ON u.user_id = d.user_id AND DATE(u.dt) = DATE(d.date)
-        WHERE DATE(u.dt) = $P{reportDate}  -- Use the dynamic parameter
-        
-        UNION ALL
-        
-        SELECT 
-            0 AS register_and_eat,
-            0 AS register_not_eat,
-            SUM(CASE WHEN u.user_id IS NULL THEN 1 ELSE 0 END) AS unregister_but_eat
-        FROM door_access_record d
-        LEFT JOIN user_has_lunch u 
-            ON d.user_id = u.user_id AND DATE(d.date) = DATE(u.dt)
-        WHERE u.user_id IS NULL
-        AND DATE(d.date) = $P{reportDate}  -- Use the dynamic parameter
-    ) AS combined;]]>
+    SUM(register_and_eat) AS register_and_eat,
+    SUM(register_not_eat) AS register_not_eat,
+    SUM(unregister_but_eat) AS unregister_but_eat
+FROM (
+    SELECT 
+        SUM(CASE WHEN d.user_id IS NOT NULL THEN 1 ELSE 0 END) AS register_and_eat,
+        SUM(CASE WHEN d.user_id IS NULL THEN 1 ELSE 0 END) AS register_not_eat,
+        0 AS unregister_but_eat
+    FROM user_has_lunch u
+    LEFT JOIN door_access_record d 
+        ON u.user_id = d.user_id AND DATE(u.dt) = DATE(d.date)
+    WHERE DATE(u.dt) BETWEEN $P{startDate} AND $P{endDate}  -- Filter for the specific day
+    
+    UNION ALL
+    
+    SELECT 
+        0 AS register_and_eat,
+        0 AS register_not_eat,
+        SUM(CASE WHEN u.user_id IS NULL THEN 1 ELSE 0 END) AS unregister_but_eat
+    FROM door_access_record d
+    LEFT JOIN user_has_lunch u 
+        ON d.user_id = u.user_id AND DATE(d.date) = DATE(u.dt)
+    WHERE u.user_id IS NULL
+    AND DATE(d.date) BETWEEN $P{startDate} AND $P{endDate}  -- Filter for the specific day
+) AS combined;]]>
 		</queryString>
 		<field name="register_and_eat" class="java.math.BigDecimal">
 			<property name="com.jaspersoft.studio.field.name" value="register_and_eat"/>
@@ -86,36 +89,39 @@
 			<property name="com.jaspersoft.studio.field.label" value="unregister_but_eat"/>
 		</field>
 	</subDataset>
-	<parameter name="reportDate" class="java.util.Date">
-		<property name="com.jaspersoft.studio.field.name" value="reportDate"/>
+	<parameter name="startDate" class="java.util.Date">
+		<property name="com.jaspersoft.studio.field.name" value="startDate"/>
+	</parameter>
+	<parameter name="endDate" class="java.util.Date">
+		<property name="com.jaspersoft.studio.field.name" value="endDate"/>
 	</parameter>
 	<queryString language="SQL">
 		<![CDATA[SELECT 
-        SUM(register_and_eat) AS register_and_eat,
-        SUM(register_not_eat) AS register_not_eat,
-        SUM(unregister_but_eat) AS unregister_but_eat
-    FROM (
-        SELECT 
-            SUM(CASE WHEN d.user_id IS NOT NULL THEN 1 ELSE 0 END) AS register_and_eat,
-            SUM(CASE WHEN d.user_id IS NULL THEN 1 ELSE 0 END) AS register_not_eat,
-            0 AS unregister_but_eat
-        FROM user_has_lunch u
-        LEFT JOIN door_access_record d 
-            ON u.user_id = d.user_id AND DATE(u.dt) = DATE(d.date)
-        WHERE DATE(u.dt) = $P{reportDate}  -- Use the dynamic parameter
-        
-        UNION ALL
-        
-        SELECT 
-            0 AS register_and_eat,
-            0 AS register_not_eat,
-            SUM(CASE WHEN u.user_id IS NULL THEN 1 ELSE 0 END) AS unregister_but_eat
-        FROM door_access_record d
-        LEFT JOIN user_has_lunch u 
-            ON d.user_id = u.user_id AND DATE(d.date) = DATE(u.dt)
-        WHERE u.user_id IS NULL
-        AND DATE(d.date) = $P{reportDate}  -- Use the dynamic parameter
-    ) AS combined;]]>
+    SUM(register_and_eat) AS register_and_eat,
+    SUM(register_not_eat) AS register_not_eat,
+    SUM(unregister_but_eat) AS unregister_but_eat
+FROM (
+    SELECT 
+        SUM(CASE WHEN d.user_id IS NOT NULL THEN 1 ELSE 0 END) AS register_and_eat,
+        SUM(CASE WHEN d.user_id IS NULL THEN 1 ELSE 0 END) AS register_not_eat,
+        0 AS unregister_but_eat
+    FROM user_has_lunch u
+    LEFT JOIN door_access_record d 
+        ON u.user_id = d.user_id AND DATE(u.dt) = DATE(d.date)
+    WHERE DATE(u.dt) BETWEEN $P{startDate} AND $P{endDate}  -- Filter for the specific day
+    
+    UNION ALL
+    
+    SELECT 
+        0 AS register_and_eat,
+        0 AS register_not_eat,
+        SUM(CASE WHEN u.user_id IS NULL THEN 1 ELSE 0 END) AS unregister_but_eat
+    FROM door_access_record d
+    LEFT JOIN user_has_lunch u 
+        ON d.user_id = u.user_id AND DATE(d.date) = DATE(u.dt)
+    WHERE u.user_id IS NULL
+    AND DATE(d.date) BETWEEN $P{startDate} AND $P{endDate}  -- Filter for the specific day
+) AS combined;]]>
 	</queryString>
 	<field name="register_and_eat" class="java.math.BigDecimal">
 		<property name="com.jaspersoft.studio.field.name" value="register_and_eat"/>
@@ -136,7 +142,7 @@
 		<band height="555" splitType="Stretch">
 			<pieChart>
 				<chart evaluationTime="Report">
-					<reportElement x="10" y="100" width="764" height="431" uuid="1e2ae503-7eb2-4f1e-b0bd-a4cdce8bcdcf"/>
+					<reportElement x="10" y="120" width="764" height="431" uuid="1e2ae503-7eb2-4f1e-b0bd-a4cdce8bcdcf"/>
 					<chartTitle/>
 					<chartSubtitle/>
 					<chartLegend/>
@@ -163,11 +169,6 @@
 					<itemLabel/>
 				</piePlot>
 			</pieChart>
-			<textField>
-				<reportElement x="620" y="40" width="165" height="30" uuid="e0b5f817-6a58-4d31-8874-948b36cfd97e"/>
-				<textElement textAlignment="Right"/>
-				<textFieldExpression><![CDATA[$P{reportDate}]]></textFieldExpression>
-			</textField>
 			<staticText>
 				<reportElement x="570" y="40" width="100" height="30" uuid="c9f863d2-38ef-41da-8b3c-3a314fe6c114"/>
 				<text><![CDATA[Report Date     :]]></text>
@@ -185,6 +186,19 @@
 				<reportElement x="10" y="0" width="99" height="70" uuid="8159f83c-4fec-40e2-a929-fa5d16a3f0b8"/>
 				<imageExpression><![CDATA["C:/Users/kmthein/Downloads/DAT Logo.png"]]></imageExpression>
 			</image>
+			<textField pattern="MMMMM dd, yyyy">
+				<reportElement x="684" y="40" width="100" height="30" uuid="25221aa9-cfa0-410c-a056-75a611e20855"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="80" width="450" height="30" uuid="a2187152-e68d-4a18-a84b-8c00f1cf940c"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Lunch summary between " + new java.text.SimpleDateFormat("dd-MM-yyyy").format($P{startDate}) + " and " + new java.text.SimpleDateFormat("dd-MM-yyyy").format($P{endDate})
+]]></textFieldExpression>
+			</textField>
 		</band>
 	</detail>
 </jasperReport>
