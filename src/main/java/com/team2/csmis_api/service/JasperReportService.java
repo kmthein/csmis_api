@@ -1,14 +1,17 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.UserActionDTO;
 import com.team2.csmis_api.dto.UserDTO;
+import com.team2.csmis_api.entity.DoorAccessRecord;
 import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.entity.User;
+import com.team2.csmis_api.entity.UserHasLunch;
+import com.team2.csmis_api.repository.DoorLogRepository;
 import com.team2.csmis_api.repository.RestaurantRepository;
+import com.team2.csmis_api.repository.UserHasLunchRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
-import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +21,10 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.temporal.TemporalAccessor;
+import java.util.*;
 
 @Service
 public class JasperReportService {
@@ -37,6 +40,13 @@ public class JasperReportService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private DoorLogRepository doorLogRepo;
+
+    @Autowired
+    private UserHasLunchRepository userHasLunchRepo;
+
 
     public List<UserDTO> getMailNotiOnUsers() {
         List<User> tempUserList = userRepository.getMailNotiOnUsers();
@@ -92,5 +102,75 @@ public class JasperReportService {
 
     public List<Restaurant> fetchData(int month, int year) {
         return restaurantRepository.getAllRestaurants();
+    }
+
+    public byte[] generateDailyReport(LocalDate date, String fileType) throws Exception {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("reportDate", java.sql.Date.valueOf(date));
+        return generateReport("dailyReport", fileType, parameters);
+    }
+
+    public byte[] generateWeeklyReport(LocalDate startDate, LocalDate endDate, String fileType) throws Exception {
+        Map<String, Object> parameters = new HashMap<>();
+        Date reportStartDate = java.sql.Date.valueOf(startDate);
+        Date reportEndDate = java.sql.Date.valueOf(endDate);
+        parameters.put("startDate", reportStartDate);
+        parameters.put("endDate", reportEndDate);
+        return generateReport("weeklyReport", fileType, parameters);
+    }
+
+    public byte[] generateMonthlyReport(int month, int year, String fileType) throws Exception {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("month", month);
+        parameters.put("year", year);
+
+        return generateReport("monthlyReport", fileType, parameters);
+    }
+
+    public byte[] generateYearlyReport(int year, String fileType) throws Exception {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("year", year);
+        return generateReport("yearlyReport", fileType, parameters);
+    }
+
+    public List<UserActionDTO> getRegisteredAteByDate(LocalDate date) {
+        List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByDate(date);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getRegisteredAteByWeek(LocalDate startDate, LocalDate endDate) {
+        List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByWeek(startDate, endDate);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getRegisteredAteByMonth(YearMonth date) {
+        List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByMonth(date);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+
+    public List<UserActionDTO> getRegisteredAteByYear(int year) {
+        List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByYear(year);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+    private void processLogs(List<DoorAccessRecord> logs, List<UserActionDTO> reportData) {
+        for (DoorAccessRecord record : logs) {
+            UserActionDTO dto = new UserActionDTO();
+            dto.setName(record.getUser().getName());
+            dto.setDoorLogNo(record.getDoorLogNo());
+            dto.setDate(record.getDate().toLocalDate());
+            dto.setUserId(record.getUser().getId());
+            dto.setId(record.getId());
+            reportData.add(dto);
+        }
     }
 }

@@ -13,6 +13,7 @@ public class UserHasLunch extends Base{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
+
     @Column(name = "dt")
     private Date dt;
 
