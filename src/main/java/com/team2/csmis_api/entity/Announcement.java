@@ -10,6 +10,7 @@ import java.util.List;
 @Table(name = "announcement")
 @Entity
 public class Announcement extends Base{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
