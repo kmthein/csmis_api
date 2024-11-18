@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/doorLogs")
+@RequestMapping("/admin/api/doorLogs")
 public class DoorLogController {
 
     @Autowired

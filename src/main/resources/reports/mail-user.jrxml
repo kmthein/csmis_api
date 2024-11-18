@@ -275,22 +275,6 @@
 				<text><![CDATA[Email]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="222" y="7" width="111" height="30" forecolor="#FFFFFF" backcolor="#336699" uuid="d8a43591-88c1-41a2-bb56-1b12712f7ad4">
-					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="64a70699-8d1d-43b9-a531-b2557e16dcf9"/>
-				</reportElement>
-				<box leftPadding="1" rightPadding="1">
-					<pen lineWidth="0.5"/>
-					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
-				</box>
-				<textElement textAlignment="Left" verticalAlignment="Middle">
-					<font isBold="true"/>
-				</textElement>
-				<text><![CDATA[Division]]></text>
-			</staticText>
-			<staticText>
 				<reportElement mode="Opaque" x="333" y="7" width="111" height="30" forecolor="#FFFFFF" backcolor="#336699" uuid="984a68cc-1964-4747-a19f-b9aead507eb8">
 					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="9250e958-d981-49fe-a6aa-3cb0fcc849cc"/>
 				</reportElement>
@@ -321,6 +305,22 @@
 					<font isBold="true"/>
 				</textElement>
 				<text><![CDATA[Team]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="222" y="7" width="111" height="30" forecolor="#FFFFFF" backcolor="#336699" uuid="d8a43591-88c1-41a2-bb56-1b12712f7ad4">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="64a70699-8d1d-43b9-a531-b2557e16dcf9"/>
+				</reportElement>
+				<box leftPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Division]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
