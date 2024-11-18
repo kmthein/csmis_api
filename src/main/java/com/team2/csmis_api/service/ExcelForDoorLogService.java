@@ -41,7 +41,7 @@ public class ExcelForDoorLogService {
             int rowIndex = 0;
 
             for (Row row : sheet) {
-                if (rowIndex < 3) {
+                if (rowIndex < 1) {
                     rowIndex++;
                     continue;
                 }
@@ -87,8 +87,7 @@ public class ExcelForDoorLogService {
                             if (cell.getCellType() == CellType.STRING) {
                                 int locationId = Integer.parseInt(cell.getStringCellValue());
                                 location = locationRepo.findById(locationId);
-                                if (location != null) {
-                                    doorAccessRecord.setLocation(location);
+                                if (location != null) {doorAccessRecord.setLocation(location);
                                 }
                             }else if (cell.getCellType() == CellType.NUMERIC) {
                                 int locationId = (int) cell.getNumericCellValue();

@@ -11,4 +11,6 @@ public class DoorAccessRecordDTO {
     private String location;
     private LocalDateTime dateTime;
     private String status;
+
+
 }

@@ -10,5 +10,10 @@ public class LunchRegistrationDTO {
     private Integer userId;
     private List<Date> selectedDates;
 
+    public LunchRegistrationDTO(Integer userId, List<Date> selectedDates) {
+        this.userId = userId;
+        this.selectedDates = selectedDates;
+    }
+
 }
 
