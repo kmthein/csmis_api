@@ -14,7 +14,6 @@ import java.util.List;
 
 @Repository
 public interface DoorLogRepository extends JpaRepository<DoorAccessRecord,Integer> {
-
     @Query("SELECT d FROM DoorAccessRecord d")
     public List<DoorAccessRecord> getAllDoorAccessRecords();
 
@@ -51,7 +50,4 @@ public interface DoorLogRepository extends JpaRepository<DoorAccessRecord,Intege
             "WHERE d.user.id = ul.user.id " +
             "AND FUNCTION('YEAR', d.date) = :year")
     List<DoorAccessRecord> findRegisteredAteByYear(@Param("year") int year);
-
-
-
 }

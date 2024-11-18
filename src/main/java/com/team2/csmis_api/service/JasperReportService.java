@@ -1,6 +1,7 @@
 package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.UserActionDTO;
+import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.DoorAccessRecord;
 import com.team2.csmis_api.entity.Restaurant;
@@ -15,7 +16,9 @@ import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
@@ -47,6 +50,23 @@ public class JasperReportService {
     @Autowired
     private UserHasLunchRepository userHasLunchRepo;
 
+    @Value("classpath:/reports/lunch-summary-daily.jasper")  // Path to your precompiled .jasper report
+    private Resource reportResource;
+
+    public JasperPrint generateLunchSummary(Date targetDate) throws Exception {
+        // Load the Jasper report
+        InputStream reportStream = reportResource.getInputStream();
+
+        // Parameters for the report
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("reportDate", targetDate);
+
+
+        // Fill the report with data and parameters
+        JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameters, dataSource.getConnection());
+
+        return jasperPrint;
+    }
 
     public List<UserDTO> getMailNotiOnUsers() {
         List<User> tempUserList = userRepository.getMailNotiOnUsers();
@@ -56,6 +76,18 @@ public class JasperReportService {
             userDTOList.add(userDTO);
         }
         return userDTOList;
+    }
+
+    public LunchSummaryDTO getDailyLunchSummary(LocalDate targetDate) {
+        return userHasLunchRepo.getDailyData(targetDate.toString());
+    }
+
+    public LunchSummaryDTO getMonthlyLunchSummary() {
+        return userHasLunchRepo.getLunchSummaryBetweenTwo(LocalDate.now().withDayOfMonth(1).toString(), LocalDate.now().toString());
+    }
+
+    public LunchSummaryDTO getSummaryBetween(String startDate, String endDate) {
+        return userHasLunchRepo.getLunchSummaryBetweenTwo(startDate, endDate);
     }
 
     public byte[] generateReport(String reportTemplatePath, String fileType, Map<String, Object> parameters) throws Exception {

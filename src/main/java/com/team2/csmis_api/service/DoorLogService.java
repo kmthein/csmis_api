@@ -1,10 +1,12 @@
 package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.DoorAccessRecordDTO;
+import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.entity.DoorAccessRecord;
 import com.team2.csmis_api.entity.Status;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.repository.DoorLogRepository;
+import com.team2.csmis_api.repository.UserHasLunchRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +30,9 @@ public class DoorLogService {
 
     @Autowired
     private DoorLogRepository doorLogRepo;
+
+    @Autowired
+    private UserHasLunchRepository userHasLunchRepo;
 
     @Autowired
     private ModelMapper mapper;
