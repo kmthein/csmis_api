@@ -1,5 +1,6 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.DietaryPreferenceDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.User;
@@ -21,4 +22,6 @@ public interface UserService {
     UserDTO mapUserToDTO(User user);
 
     ResponseDTO toggleMail(int id, boolean mailOn);
+
+    void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO);
 }

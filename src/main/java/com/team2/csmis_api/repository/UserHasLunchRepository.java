@@ -14,9 +14,7 @@ import java.util.Optional;
 public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Integer> {
 
 
-
     List<UserHasLunch> findByUserId(Integer userId);
-
 
 
     @Query("SELECT u.dt FROM UserHasLunch u WHERE u.user.id = :userId")

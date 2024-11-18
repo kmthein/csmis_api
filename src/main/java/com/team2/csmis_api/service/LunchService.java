@@ -13,6 +13,7 @@ import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,13 @@ public class LunchService {
     @Autowired
     private LunchRepository lunchRepository;
 
+    public LunchDTO getMenuByDate(LocalDate date) {
+        Lunch lunch = lunchRepository.findByDate(date)
+                .orElseThrow(() -> new RuntimeException("No lunch found for date: " + date));
+        return convertToDTO(lunch);
+    }
+
+
     // Method to find all lunches and return as DTOs
     public List<LunchDTO> findAll() {
         List<Lunch> lunches = lunchRepository.findAll();
@@ -37,6 +45,11 @@ public class LunchService {
         return lunches.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Lunch findLunchByDate(LocalDate date) {
+        return lunchRepository.findByDate(date)
+                .orElseThrow(() -> new RuntimeException("No lunch found for date: " + date));
     }
 
     public List<LunchDTO> getCurrentWeekMenu() {

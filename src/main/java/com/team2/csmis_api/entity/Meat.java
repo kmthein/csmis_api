@@ -1,5 +1,6 @@
 package com.team2.csmis_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class Meat extends Base{
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "meats")
+    @ManyToMany(mappedBy = "meats",fetch = FetchType.EAGER)
+    @JsonIgnore
     private List<User> users;
 }

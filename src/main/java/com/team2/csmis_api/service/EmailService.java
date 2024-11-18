@@ -20,8 +20,4 @@ public class EmailService {
         emailSender.send(message);
     }
 
-    public void sendOTP(String email, String otp) {
-        String subject = "Your OTP for Password Reset";
-        String message = "Your OTP for password reset is: " + otp;
-        sendSimpleMessage(email, subject, message);
-    }}
+   }

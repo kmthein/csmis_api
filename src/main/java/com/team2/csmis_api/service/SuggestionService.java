@@ -2,10 +2,7 @@ package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.SuggestionDTO;
 import com.team2.csmis_api.dto.SuggestionNotificationDTO;
-import com.team2.csmis_api.entity.Role;
-import com.team2.csmis_api.entity.Suggestion;
-import com.team2.csmis_api.entity.User;
-import com.team2.csmis_api.entity.UserHasSuggestion;
+import com.team2.csmis_api.entity.*;
 import com.team2.csmis_api.repository.SuggestionRepository;
 import com.team2.csmis_api.repository.UserHasSuggestionRepository;
 import com.team2.csmis_api.repository.UserRepository;
@@ -99,6 +96,10 @@ public class SuggestionService {
     }
 
     public void deleteSuggestion(Integer id) {
-        suggestionRepository.deleteById(id);
+
+        Suggestion suggestion = suggestionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Suggestion not found"));
+        suggestion.setIsDeleted(true); // Logical deletion
+        suggestionRepository.save(suggestion);
     }
 }
