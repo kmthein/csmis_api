@@ -66,8 +66,13 @@ public class ReportController {
     }
 
     @PutMapping("monthly-summary")
-    public LunchSummaryDTO getSummaryMonthly() {
-        return reportService.getMonthlyLunchSummary();
+    public LunchSummaryDTO getSummaryMonthly(@RequestParam(value = "month") String month, @RequestParam(value = "year") String year) {
+        return reportService.getMonthlyLunchSummary(month, year);
+    }
+
+    @PutMapping("yearly-summary")
+    public LunchSummaryDTO getSummaryMonthly(@RequestParam(value = "year") String year) {
+        return reportService.getYearlyLunchSummary(year);
     }
 
     @PutMapping("summary-between")

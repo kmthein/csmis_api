@@ -82,8 +82,12 @@ public class JasperReportService {
         return userHasLunchRepo.getDailyData(targetDate.toString());
     }
 
-    public LunchSummaryDTO getMonthlyLunchSummary() {
-        return userHasLunchRepo.getLunchSummaryBetweenTwo(LocalDate.now().withDayOfMonth(1).toString(), LocalDate.now().toString());
+    public LunchSummaryDTO getMonthlyLunchSummary(String month, String year) {
+        return userHasLunchRepo.lunchSummaryByMonthYear(month, year);
+    }
+
+    public LunchSummaryDTO getYearlyLunchSummary(String year) {
+        return userHasLunchRepo.lunchSummaryByYear(year);
     }
 
     public LunchSummaryDTO getSummaryBetween(String startDate, String endDate) {

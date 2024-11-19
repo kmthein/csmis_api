@@ -43,6 +43,60 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
     LunchSummaryDTO getLunchSummaryBetweenTwo(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
     @Query(value = "SELECT " +
+            "SUM(combined.register_and_eat) AS registerAndEat, " +
+            "SUM(combined.register_not_eat) AS registerNotEat, " +
+            "SUM(combined.unregister_but_eat) AS unregisterButEat " +
+            "FROM (" +
+            "    SELECT " +
+            "        SUM(CASE WHEN d.user_id IS NOT NULL THEN 1 ELSE 0 END) AS register_and_eat, " +
+            "        SUM(CASE WHEN d.user_id IS NULL THEN 1 ELSE 0 END) AS register_not_eat, " +
+            "        0 AS unregister_but_eat " +
+            "    FROM user_has_lunch u " +
+            "    LEFT JOIN door_access_record d " +
+            "        ON u.user_id = d.user_id AND DATE(u.dt) = DATE(d.date) " +
+            "    WHERE MONTH(u.dt) = :month " +
+            "    AND YEAR(u.dt) = :year " +
+            "    UNION ALL " +
+            "    SELECT " +
+            "        0 AS register_and_eat, " +
+            "        0 AS register_not_eat, " +
+            "        SUM(CASE WHEN u.user_id IS NULL THEN 1 ELSE 0 END) AS unregister_but_eat " +
+            "    FROM door_access_record d " +
+            "    LEFT JOIN user_has_lunch u " +
+            "        ON d.user_id = u.user_id AND DATE(d.date) = DATE(u.dt) " +
+            "    WHERE u.user_id IS NULL " +
+            "    AND MONTH(d.date) = :month " +
+            "    AND YEAR(d.date) = :year " +
+            ") AS combined", nativeQuery = true)
+    LunchSummaryDTO lunchSummaryByMonthYear(@Param("month") String month, @Param("year") String year);
+
+    @Query(value = "SELECT " +
+            "SUM(combined.register_and_eat) AS registerAndEat, " +
+            "SUM(combined.register_not_eat) AS registerNotEat, " +
+            "SUM(combined.unregister_but_eat) AS unregisterButEat " +
+            "FROM (" +
+            "    SELECT " +
+            "        SUM(CASE WHEN d.user_id IS NOT NULL THEN 1 ELSE 0 END) AS register_and_eat, " +
+            "        SUM(CASE WHEN d.user_id IS NULL THEN 1 ELSE 0 END) AS register_not_eat, " +
+            "        0 AS unregister_but_eat " +
+            "    FROM user_has_lunch u " +
+            "    LEFT JOIN door_access_record d " +
+            "        ON u.user_id = d.user_id AND DATE(u.dt) = DATE(d.date) " +
+            "    WHERE YEAR(u.dt) = :year " +
+            "    UNION ALL " +
+            "    SELECT " +
+            "        0 AS register_and_eat, " +
+            "        0 AS register_not_eat, " +
+            "        SUM(CASE WHEN u.user_id IS NULL THEN 1 ELSE 0 END) AS unregister_but_eat " +
+            "    FROM door_access_record d " +
+            "    LEFT JOIN user_has_lunch u " +
+            "        ON d.user_id = u.user_id AND DATE(d.date) = DATE(u.dt) " +
+            "    WHERE u.user_id IS NULL " +
+            "    AND YEAR(d.date) = :year " +
+            ") AS combined", nativeQuery = true)
+    LunchSummaryDTO lunchSummaryByYear(@Param("year") String year);
+
+    @Query(value = "SELECT " +
             "SUM(register_and_eat) AS registerAndEat, " +
             "SUM(register_not_eat) AS registerNotEat, " +
             "SUM(unregister_but_eat) AS unregisterButEat " +
