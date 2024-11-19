@@ -3,13 +3,10 @@ package com.team2.csmis_api.entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 
-public enum NotificationType {
+public enum Response {
 
     @Enumerated(EnumType.STRING)
-    SUGGESTION,
-
+    GOOD,
     @Enumerated(EnumType.STRING)
-    ANNOUNCEMENT
-
+    BAD
 }
-
