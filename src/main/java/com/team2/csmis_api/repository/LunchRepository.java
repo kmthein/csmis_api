@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LunchRepository extends JpaRepository<Lunch, Integer> {
@@ -18,6 +20,8 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
 
     @Query("SELECT l FROM Lunch l WHERE DATE(l.date) = CURDATE()")
     Lunch findLunchByCurrentDate();
+
+    Optional<Lunch> findByDate(LocalDate date);
 
     @Query(value = "SELECT * FROM lunch l WHERE " +
             "WEEKDAY(CURDATE()) BETWEEN 0 AND 4 " +
