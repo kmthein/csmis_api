@@ -130,6 +130,9 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
 
     Optional<UserHasLunch> findByUserIdAndDt(Long userId, Date dt);
 
+    @Query("SELECT u FROM UserHasLunch u WHERE u.dt = :date")
+    List<UserHasLunch> findByDate(Date date);
+
     @Query("SELECT uhl FROM UserHasLunch uhl WHERE DATE(uhl.dt) = CURDATE()")
     List<UserHasLunch> findByCurrentDate();
 }
