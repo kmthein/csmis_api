@@ -1,5 +1,6 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.MonthlyLunchCostDTO;
 import com.team2.csmis_api.dto.UserActionDTO;
 import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.dto.UserDTO;
@@ -28,8 +29,10 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class JasperReportService {
@@ -96,6 +99,36 @@ public class JasperReportService {
         return userHasLunchRepo.getLunchSummaryBetweenTwo(startDate, endDate);
     }
 
+    public List<MonthlyLunchCostDTO> getLunchCostsByDepartment(String date, String month, String year, String start, String end) {
+        List<Object[]> results = new ArrayList<>();
+        if(start != null && end != null) {
+            results = userHasLunchRepo.getLunchCostBetweenTwoDate(start, end);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (String) row[2], (Double) row[3]))
+                    .collect(Collectors.toList());
+        } else if(month == null && date == null) {
+            results = userHasLunchRepo.getLunchCostByYearly(year);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        } else if(year != null && month != null && date == null) {
+            results = userHasLunchRepo.getLunchCostByYearAndMonth(month, year);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (String) row[2], (Double) row[3]))
+                    .collect(Collectors.toList());
+        } else if(date != null) {
+            results = userHasLunchRepo.getLunchCostByDay(date);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        }else {
+            results = userHasLunchRepo.getMonthlyLunchCostByDepartment(month);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        }
+    }
+
     public String dateToString(Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         return formatter.format(date);
@@ -147,34 +180,36 @@ public class JasperReportService {
         return restaurantRepository.getAllRestaurants();
     }
 
-    public byte[] generateDailyReport(LocalDate date, String fileType) throws Exception {
+    public byte[] generateDailyReport(String reportTemplatePath, LocalDate date, String fileType) throws Exception {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("reportDate", java.sql.Date.valueOf(date));
-        return generateReport("dailyReport", fileType, parameters);
+        parameters.put("timeRangeType", "daily");
+        parameters.put("date", java.sql.Date.valueOf(date));
+        return generateReport(reportTemplatePath, fileType, parameters);
     }
 
-    public byte[] generateWeeklyReport(LocalDate startDate, LocalDate endDate, String fileType) throws Exception {
+    public byte[] generateWeeklyReport(String reportTemplatePath, LocalDate startDate, LocalDate endDate, String fileType) throws Exception {
         Map<String, Object> parameters = new HashMap<>();
-        Date reportStartDate = java.sql.Date.valueOf(startDate);
-        Date reportEndDate = java.sql.Date.valueOf(endDate);
-        parameters.put("startDate", reportStartDate);
-        parameters.put("endDate", reportEndDate);
-        return generateReport("weeklyReport", fileType, parameters);
+        parameters.put("timeRangeType", "weekly");
+        parameters.put("startDate", java.sql.Date.valueOf(startDate));
+        parameters.put("endDate", java.sql.Date.valueOf(endDate));
+        return generateReport(reportTemplatePath, fileType, parameters);
     }
 
-    public byte[] generateMonthlyReport(int month, int year, String fileType) throws Exception {
+    public byte[] generateMonthlyReport(String reportTemplatePath, int month, int year, String fileType) throws Exception {
         Map<String, Object> parameters = new HashMap<>();
+        parameters.put("timeRangeType", "monthly");
         parameters.put("month", month);
         parameters.put("year", year);
-
-        return generateReport("monthlyReport", fileType, parameters);
+        return generateReport(reportTemplatePath, fileType, parameters);
     }
 
-    public byte[] generateYearlyReport(int year, String fileType) throws Exception {
+    public byte[] generateYearlyReport(String reportTemplatePath, int year, String fileType) throws Exception {
         Map<String, Object> parameters = new HashMap<>();
+        parameters.put("timeRangeType", "yearly");
         parameters.put("year", year);
-        return generateReport("yearlyReport", fileType, parameters);
+        return generateReport(reportTemplatePath, fileType, parameters);
     }
+
 
     public List<UserActionDTO> getRegisteredAteByDate(LocalDate date) {
         List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByDate(date);
@@ -190,13 +225,14 @@ public class JasperReportService {
         return reportData;
     }
 
-    public List<UserActionDTO> getRegisteredAteByMonth(YearMonth date) {
-        List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByMonth(date);
+    public List<UserActionDTO> getRegisteredAteByMonth(int month, int year) {
+        List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByMonth(month, year);
+
         List<UserActionDTO> reportData = new ArrayList<>();
         processLogs(logs, reportData);
+
         return reportData;
     }
-
 
     public List<UserActionDTO> getRegisteredAteByYear(int year) {
         List<DoorAccessRecord> logs = doorLogRepo.findRegisteredAteByYear(year);
@@ -215,5 +251,73 @@ public class JasperReportService {
             dto.setId(record.getId());
             reportData.add(dto);
         }
+    }
+
+    public List<UserActionDTO> getUnRegisteredAteByDate(LocalDate date) {
+        List<DoorAccessRecord> logs = doorLogRepo.findUnRegisteredAteByDate(date);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getUnRegisteredAteByWeek(LocalDate startDate, LocalDate endDate) {
+        List<DoorAccessRecord> logs = doorLogRepo.findUnRegisteredAteByWeek(startDate, endDate);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getUnRegisteredAteByMonth(int month, int year) {
+        List<DoorAccessRecord> logs = doorLogRepo.findUnRegisteredAteByMonth(month, year);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getUnRegisteredAteByYear(int year) {
+        List<DoorAccessRecord> logs = doorLogRepo.findUnRegisteredAteByYear(year);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLogs(logs, reportData);
+        return reportData;
+    }
+
+    private void processLog(List<UserHasLunch> logs, List<UserActionDTO> reportData) {
+        for (UserHasLunch record : logs) {
+            UserActionDTO dto = new UserActionDTO();
+            dto.setName(record.getUser().getName());
+            dto.setDoorLogNo(record.getUser().getDoorLogNo());
+            dto.setDate(record.getDt().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            dto.setUserId(record.getUser().getId());
+            dto.setId(record.getId());
+            reportData.add(dto);
+        }
+    }
+
+    public List<UserActionDTO> getRegisteredNotEatByDate(LocalDate date) {
+        List<UserHasLunch> logs = userHasLunchRepo.findRegisteredNotEatDaily(date);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLog(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getRegisteredNotEatByWeek(LocalDate startDate, LocalDate endDate) {
+        List<UserHasLunch> logs = userHasLunchRepo.findRegisteredNotEatWeekly(startDate, endDate);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLog(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getRegisteredNotEatByMonth(int month, int year) {
+        List<UserHasLunch> logs = userHasLunchRepo.findRegisteredNotEatMonthly(month, year);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLog(logs, reportData);
+        return reportData;
+    }
+
+    public List<UserActionDTO> getRegisteredNotEatByYear(int year) {
+        List<UserHasLunch> logs = userHasLunchRepo.findRegisteredNotEatYearly(year);
+        List<UserActionDTO> reportData = new ArrayList<>();
+        processLog(logs, reportData);
+        return reportData;
     }
 }
