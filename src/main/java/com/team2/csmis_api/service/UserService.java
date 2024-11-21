@@ -20,8 +20,7 @@ public interface UserService {
 
     ResponseDTO updateUserById(UserDTO userDTO, int id);
     UserDTO mapUserToDTO(User user);
-
     ResponseDTO toggleMail(int id, boolean mailOn);
-
     void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO);
+    ResponseDTO forcePasswordChange(int id, String newPassword);
 }

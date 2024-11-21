@@ -27,7 +27,7 @@ public class SuggestionController {
         return userHasSuggestionService.findUnseenSuggestionsByUserId(userId);
     }
 
-    @PreAuthorize("hasAuthority('OPERATOR')")
+
     @PostMapping
     public ResponseEntity<SuggestionDTO> createSuggestion(@RequestBody SuggestionDTO suggestionDTO) {
         SuggestionDTO createdSuggestion = suggestionService.createSuggestion(suggestionDTO);

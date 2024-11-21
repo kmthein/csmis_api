@@ -15,26 +15,26 @@ public class VoucherService {
     @Autowired
     private VoucherRepository voucherRepository;
 
-    public List<VoucherDTO> getVouchers(Date startDate, Date endDate) {
-        return voucherRepository.findByPaymentDateBetween(startDate, endDate)
-                .stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    private VoucherDTO convertToDto(Voucher voucher) {
-        VoucherDTO dto = new VoucherDTO();
-        dto.setVoucherCode(voucher.getVoucherCode());
-        dto.setPeriod(voucher.getPeriod());
-        dto.setCashier(voucher.getCashier());
-        dto.setReceivedBy(voucher.getReceivedBy());
-        dto.setApprover(voucher.getApprover());
-        dto.setNumberOfPax(voucher.getNumberOfPax());
-        dto.setPrice(voucher.getPrice());
-        dto.setAmount(voucher.getAmount());
-        dto.setPaymentDate(voucher.getPaymentDate());
-        dto.setStatus(voucher.getStatus());
-        dto.setPaymentMethod(voucher.getPaymentMethod());
-        return dto;
-    }
+//    public List<VoucherDTO> getVouchers(Date startDate, Date endDate) {
+//        return voucherRepository.findByPaymentDateBetween(startDate, endDate)
+//                .stream()
+//                .map(this::convertToDto)
+//                .collect(Collectors.toList());
+//    }
+//
+//    private VoucherDTO convertToDto(Voucher voucher) {
+//        VoucherDTO dto = new VoucherDTO();
+//        dto.setVoucherCode(voucher.getVoucherCode());
+//        dto.setPeriod(voucher.getPeriod());
+//        dto.setCashier(voucher.getCashier());
+//        dto.setReceivedBy(voucher.getReceivedBy());
+//        dto.setApprover(voucher.getApprover());
+//        dto.setNumberOfPax(voucher.getNumberOfPax());
+//        dto.setPrice(voucher.getPrice());
+//        dto.setAmount(voucher.getAmount());
+//        dto.setPaymentDate(voucher.getPaymentDate());
+//        dto.setStatus(voucher.getStatus());
+//        dto.setPaymentMethod(voucher.getPaymentMethod());
+//        return dto;
+//    }
 }

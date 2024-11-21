@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
-    List<Voucher> findByPaymentDateBetween(Date startDate, Date endDate);
+//    List<Voucher> findByPaymentDateBetween(Date startDate, Date endDate);
 }
