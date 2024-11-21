@@ -172,6 +172,8 @@ public class JasperReportService {
             dto.setName(record.getUser().getName());
             dto.setDoorLogNo(record.getDoorLogNo());
             dto.setDate(record.getDate().toLocalDate());
+            dto.setTeam(record.getUser().getTeam().getName());
+            dto.setDepartment(record.getUser().getDepartment().getName());
             dto.setUserId(record.getUser().getId());
             dto.setId(record.getId());
             reportData.add(dto);
@@ -213,6 +215,8 @@ public class JasperReportService {
             dto.setDoorLogNo(record.getUser().getDoorLogNo());
             dto.setDate(record.getDt().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             dto.setUserId(record.getUser().getId());
+            dto.setTeam(record.getUser().getTeam().getName());
+            dto.setDepartment(record.getUser().getDepartment().getName());
             dto.setId(record.getId());
             reportData.add(dto);
         }

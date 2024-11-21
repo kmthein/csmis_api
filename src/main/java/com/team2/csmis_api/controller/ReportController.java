@@ -176,8 +176,6 @@ public class ReportController {
     }
 
 
-
-
     @GetMapping("/registered-ate-yearly")
     public List<UserActionDTO> searchRAByYear(@RequestParam int year) {
         return reportService.getRegisteredAteByYear(year);
