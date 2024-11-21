@@ -28,6 +28,9 @@ public class User extends Base implements UserDetails {
     @Column(name = "door_log_no")
     private Integer doorLogNo;
 
+    @Column(name = "has_default_password", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean hasDefaultPassword = true;
+
     @Column(name = "received_mail", columnDefinition = "BOOLEAN DEFAULT FALSE")
     private Boolean receivedMail = false;
 

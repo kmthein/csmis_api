@@ -1,6 +1,7 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.LunchRegistrationDTO;
+import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.entity.UserHasLunch;
 import com.team2.csmis_api.service.UserHasLunchServices;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +76,15 @@ public ResponseEntity<List<Date>> getSelectedDates(@PathVariable int userId) {
         }
     }
 
+    @PutMapping("/update-next-month/{userId}")
+    public ResponseEntity<?> updateLunchForNextMonth(@PathVariable Integer userId, @RequestBody LunchRegistrationDTO registrationDto) {
+        try {
+            userHasLunchService.updateLunchForNextMonth(userId, registrationDto);
+            return ResponseEntity.ok("Lunch registration for next month updated successfully for user ID: " + userId);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating next month's lunch registration: " + e.getMessage());
+        }
+    }
 
 
 }

@@ -1,23 +1,29 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.DietaryPreferenceDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.*;
 import com.team2.csmis_api.exception.ResourceNotFoundException;
+import com.team2.csmis_api.repository.*;
 import com.team2.csmis_api.repository.DepartmentRepository;
 import com.team2.csmis_api.repository.DivisionRepository;
 import com.team2.csmis_api.repository.TeamRepository;
 import com.team2.csmis_api.repository.UserRepository;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +31,11 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -52,10 +63,39 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private MeatRepository meatRepository;
+
+    @Autowired
+    private EmailService emailService;
+
     private static final String DEFAULT_PASSWORD = "DAT110ct2";
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     public static String getDefaultPassword() {
         return DEFAULT_PASSWORD;
+    }
+
+    @Override
+    public ResponseDTO forcePasswordChange(int id, String newPassword) {
+        User user = userRepo.getUserById(id);
+        ResponseDTO res = new ResponseDTO();
+        if(user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setHasDefaultPassword(false);
+        User updateUser = userRepo.save(user);
+        if(updateUser != null) {
+            res.setStatus("200");
+            res.setMessage("Password changed successfully");
+        } else {
+            res.setStatus("403");
+            res.setMessage("Password can't be changed");
+        }
+        return res;
     }
 
     @Transactional
@@ -66,11 +106,26 @@ public class UserServiceImpl implements UserService {
             try {
                 users = excelForUserService.getUsersDataFromExcel(file.getInputStream());
                 String defaultPassword = getDefaultPassword();
+                String subject = "Welcome to the CSMIS!";
                 for(User user: users) {
+                    String loginUrl = UriComponentsBuilder.fromHttpUrl(baseUrl)
+                            .path("/login")
+                            .toUriString();
+                    boolean userExists = userRepo.existsByStaffId(user.getStaffId()); // Replace with appropriate check (email, etc.)
 
+                    if(!userExists) {
+                        String body = "<p>Dear, " + user.getName() + "</p>" +
+                                "<p>Your account has been created.</p>" +
+                                "<p>Login with your staff ID: <strong>" + user.getStaffId() + "</strong> and the default password: <strong>" + defaultPassword + "</strong>.</p>" +
+                                "<p>Please change your password after logging in.</p>"+
+                                "<p>You can log in here: <a href='" + loginUrl + "'>Login to CSMIS</a></p>";
+                        emailService.sendEmail(user.getEmail(), subject, body);
+                    }
                 }
             } catch (IOException e) {
                 throw new IllegalArgumentException("The file is not a valid excel file");
+            } catch (MessagingException e) {
+                throw new RuntimeException(e);
             }
         }
         userRepo.saveAll(users);
@@ -141,6 +196,26 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
+    public void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO) {
+        User user = userRepo.findById(preferenceDTO.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Update the user's vegan status
+        user.setIsVegan(preferenceDTO.getIsVegan());
+
+        // Update the user's meat preferences
+        List<Meat> meats = preferenceDTO.getMeatIds().stream()
+                .map(meatId -> {
+                    // Assuming you have a method to find a Meat by its ID
+                    return meatRepository.findById(meatId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Meat not found"));
+                })
+                .collect(Collectors.toList());
+
+        user.setMeats(meats);
+
+        userRepo.save(user); // Save the user with updated preferences
+    }
 
     public UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
@@ -258,11 +333,12 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
-
     @Override
     public UserDTO getUserById(int id) {
         User user = userRepo.getUserById(id);
         UserDTO userDTO = mapUserToDTO(user);
         return userDTO;
     }
+
+
 }

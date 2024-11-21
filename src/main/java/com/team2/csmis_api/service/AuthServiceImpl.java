@@ -59,6 +59,11 @@ public class AuthServiceImpl implements AuthService {
                 res.setMessage("Staff ID is not found, try again");
                 return res;
             }
+            if(existUser.getIsActive() == false) {
+                res.setStatus("403");
+                res.setMessage("This Staff ID can't access to the system, try another");
+                return res;
+            }
             Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getStaffId(), user.getPassword()));
             String token = jwtService.generateToken(existUser);
             ResponseTokenDTO tokenDTO = new ResponseTokenDTO();
