@@ -1,5 +1,6 @@
 package com.team2.csmis_api.controller;
 
+import com.team2.csmis_api.dto.MonthlyLunchCostDTO;
 import com.team2.csmis_api.dto.UserActionDTO;
 import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.dto.UserDTO;
@@ -91,6 +92,15 @@ public class ReportController {
         // Export the report to a PDF file
         response.setContentType("application/pdf");
         JasperExportManager.exportReportToPdfStream(jasperPrint, response.getOutputStream());
+    }
+
+    @PutMapping("lunch-cost")
+    public List<MonthlyLunchCostDTO> getLunchCostsForMonth(@RequestParam(value = "date", required = false) String date,
+                                                           @RequestParam(value = "month", required = false) String month,
+                                                           @RequestParam(value = "year", required = false) String year,
+                                                           @RequestParam(value = "start", required = false) String start,
+                                                           @RequestParam(value = "end", required = false) String end) {
+        return reportService.getLunchCostsByDepartment(date, month, year, start, end);
     }
 
     @GetMapping("/generate")

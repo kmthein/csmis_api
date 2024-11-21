@@ -15,6 +15,118 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Integer> {
+    @Query(value = """
+        SELECT 
+            d.name AS departmentName, 
+            :start AS start, 
+            :end AS end, 
+            SUM(l.price) AS totalCost 
+        FROM 
+            lunch l
+        INNER JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        INNER JOIN 
+            user u ON uhl.user_id = u.id
+        INNER JOIN 
+            department d ON u.department_id = d.id
+        WHERE 
+            l.date BETWEEN :start AND :end
+        GROUP BY 
+            d.name
+        ORDER BY 
+            d.name
+    """, nativeQuery = true)
+    List<Object[]> getLunchCostBetweenTwoDate(@Param("start") String start, @Param("end") String end);
+
+    @Query(value = """
+        SELECT 
+            d.name AS departmentName, 
+            DATE_FORMAT(l.date, '%Y-%m-%d') AS date, 
+            SUM(l.price) AS totalCost 
+        FROM 
+            lunch l
+        INNER JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        INNER JOIN 
+            user u ON uhl.user_id = u.id
+        INNER JOIN 
+            department d ON u.department_id = d.id
+        WHERE 
+            DATE_FORMAT(l.date, '%Y-%m-%d') = :date
+        GROUP BY 
+            d.name, DATE_FORMAT(l.date, '%Y-%m-%d')
+        ORDER BY 
+            d.name
+    """, nativeQuery = true)
+    List<Object[]> getLunchCostByDay(@Param("date") String date);
+
+    @Query(value = """
+        SELECT 
+            d.name AS departmentName, 
+            DATE_FORMAT(l.date, '%Y') AS year, 
+            SUM(l.price) AS totalCost 
+        FROM 
+            lunch l
+        INNER JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        INNER JOIN 
+            user u ON uhl.user_id = u.id
+        INNER JOIN 
+            department d ON u.department_id = d.id
+        WHERE 
+            DATE_FORMAT(l.date, '%Y') = :year
+        GROUP BY 
+            d.name, DATE_FORMAT(l.date, '%Y')
+        ORDER BY 
+            d.name
+    """, nativeQuery = true)
+    List<Object[]> getLunchCostByYearly(@Param("year") String year);
+
+    @Query(value = """
+        SELECT 
+            d.name AS departmentName, 
+            DATE_FORMAT(l.date, '%m') AS month, 
+            DATE_FORMAT(l.date, '%Y') AS year, 
+            SUM(l.price) AS totalCost 
+        FROM 
+            lunch l
+        INNER JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        INNER JOIN 
+            user u ON uhl.user_id = u.id
+        INNER JOIN 
+            department d ON u.department_id = d.id
+        WHERE 
+            DATE_FORMAT(l.date, '%Y-%m') = CONCAT(:year, '-', :month)
+        GROUP BY 
+            d.name, DATE_FORMAT(l.date, '%m'), DATE_FORMAT(l.date, '%Y')
+        ORDER BY 
+            d.name
+    """, nativeQuery = true)
+    List<Object[]> getLunchCostByYearAndMonth(@Param("month") String month, @Param("year") String year);
+
+    @Query(value = """
+        SELECT 
+            d.name AS departmentName, 
+            DATE_FORMAT(l.date, '%m') AS month, 
+            SUM(l.price) AS totalCost 
+        FROM 
+            lunch l
+        INNER JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        INNER JOIN 
+            user u ON uhl.user_id = u.id
+        INNER JOIN 
+            department d ON u.department_id = d.id
+        WHERE 
+            DATE_FORMAT(l.date, '%m') = :selectedMonth
+        GROUP BY 
+            d.name, DATE_FORMAT(l.date, '%m')
+        ORDER BY 
+            d.name
+    """, nativeQuery = true)
+    List<Object[]> getMonthlyLunchCostByDepartment(@Param("selectedMonth") String selectedMonth);
+
     @Query(value = "SELECT " +
             "SUM(register_and_eat) AS registerAndEat, " +
             "SUM(register_not_eat) AS registerNotEat, " +

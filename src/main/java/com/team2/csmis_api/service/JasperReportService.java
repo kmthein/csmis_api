@@ -1,5 +1,6 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.MonthlyLunchCostDTO;
 import com.team2.csmis_api.dto.UserActionDTO;
 import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.dto.UserDTO;
@@ -30,6 +31,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class JasperReportService {
@@ -94,6 +96,36 @@ public class JasperReportService {
 
     public LunchSummaryDTO getSummaryBetween(String startDate, String endDate) {
         return userHasLunchRepo.getLunchSummaryBetweenTwo(startDate, endDate);
+    }
+
+    public List<MonthlyLunchCostDTO> getLunchCostsByDepartment(String date, String month, String year, String start, String end) {
+        List<Object[]> results = new ArrayList<>();
+        if(start != null && end != null) {
+            results = userHasLunchRepo.getLunchCostBetweenTwoDate(start, end);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (String) row[2], (Double) row[3]))
+                    .collect(Collectors.toList());
+        } else if(month == null && date == null) {
+            results = userHasLunchRepo.getLunchCostByYearly(year);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        } else if(year != null && month != null && date == null) {
+            results = userHasLunchRepo.getLunchCostByYearAndMonth(month, year);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (String) row[2], (Double) row[3]))
+                    .collect(Collectors.toList());
+        } else if(date != null) {
+            results = userHasLunchRepo.getLunchCostByDay(date);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        }else {
+            results = userHasLunchRepo.getMonthlyLunchCostByDepartment(month);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        }
     }
 
     public String dateToString(Date date) {
