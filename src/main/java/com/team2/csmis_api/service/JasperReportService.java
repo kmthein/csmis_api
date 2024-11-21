@@ -12,6 +12,7 @@ import com.team2.csmis_api.repository.RestaurantRepository;
 import com.team2.csmis_api.repository.UserHasLunchRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAccessor;
@@ -92,6 +94,11 @@ public class JasperReportService {
 
     public LunchSummaryDTO getSummaryBetween(String startDate, String endDate) {
         return userHasLunchRepo.getLunchSummaryBetweenTwo(startDate, endDate);
+    }
+
+    public String dateToString(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.format(date);
     }
 
     public byte[] generateReport(String reportTemplatePath, String fileType, Map<String, Object> parameters) throws Exception {

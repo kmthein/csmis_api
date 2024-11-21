@@ -51,7 +51,12 @@ public class SettingService {
     }
 
     public LocalTime localTimeFormatter(String timeString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter formatter = null;
+        if(timeString.length() > 5) {
+            formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        } else {
+            formatter = DateTimeFormatter.ofPattern("HH:mm");
+        }
         LocalTime localTime = LocalTime.parse(timeString, formatter);
         return localTime;
     }
