@@ -1,6 +1,7 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.ResponseDTO;
+import com.team2.csmis_api.dto.SettingsDTO;
 import com.team2.csmis_api.entity.Settings;
 import com.team2.csmis_api.service.SettingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,13 @@ public class SettingsController {
         return settingService.getSettings();
     }
 
+    @PutMapping("")
+    public ResponseDTO updateSettings(@ModelAttribute SettingsDTO settingsDTO) {
+        return settingService.updateSettings(settingsDTO);
+    }
+
     @PutMapping("last-register")
-    public ResponseDTO setLastRegisterTime(@RequestParam(value = "lastRegisterDay") String lastRegisterDay, @RequestParam(value = "lastRegisterTime") String lastRegisterTime) {
-        return settingService.setLastRegister(lastRegisterDay, lastRegisterTime);
+    public ResponseDTO setLastRegisterTime(@RequestParam(value = "adminId") Integer adminId, @RequestParam(value = "lastRegisterDay") String lastRegisterDay, @RequestParam(value = "lastRegisterTime") String lastRegisterTime) {
+        return settingService.setLastRegister(adminId, lastRegisterDay, lastRegisterTime);
     }
 }

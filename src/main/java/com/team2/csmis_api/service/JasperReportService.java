@@ -1,6 +1,8 @@
 package com.team2.csmis_api.service;
 
+import com.team2.csmis_api.dto.MonthlyLunchCostDTO;
 import com.team2.csmis_api.dto.UserActionDTO;
+import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.DoorAccessRecord;
 import com.team2.csmis_api.entity.Restaurant;
@@ -11,21 +13,26 @@ import com.team2.csmis_api.repository.RestaurantRepository;
 import com.team2.csmis_api.repository.UserHasLunchRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class JasperReportService {
@@ -48,6 +55,23 @@ public class JasperReportService {
     @Autowired
     private UserHasLunchRepository userHasLunchRepo;
 
+    @Value("classpath:/reports/lunch-summary-daily.jasper")  // Path to your precompiled .jasper report
+    private Resource reportResource;
+
+    public JasperPrint generateLunchSummary(Date targetDate) throws Exception {
+        // Load the Jasper report
+        InputStream reportStream = reportResource.getInputStream();
+
+        // Parameters for the report
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("reportDate", targetDate);
+
+
+        // Fill the report with data and parameters
+        JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameters, dataSource.getConnection());
+
+        return jasperPrint;
+    }
 
     public List<UserDTO> getMailNotiOnUsers() {
         List<User> tempUserList = userRepository.getMailNotiOnUsers();
@@ -57,6 +81,57 @@ public class JasperReportService {
             userDTOList.add(userDTO);
         }
         return userDTOList;
+    }
+
+    public LunchSummaryDTO getDailyLunchSummary(LocalDate targetDate) {
+        return userHasLunchRepo.getDailyData(targetDate.toString());
+    }
+
+    public LunchSummaryDTO getMonthlyLunchSummary(String month, String year) {
+        return userHasLunchRepo.lunchSummaryByMonthYear(month, year);
+    }
+
+    public LunchSummaryDTO getYearlyLunchSummary(String year) {
+        return userHasLunchRepo.lunchSummaryByYear(year);
+    }
+
+    public LunchSummaryDTO getSummaryBetween(String startDate, String endDate) {
+        return userHasLunchRepo.getLunchSummaryBetweenTwo(startDate, endDate);
+    }
+
+    public List<MonthlyLunchCostDTO> getLunchCostsByDepartment(String date, String month, String year, String start, String end) {
+        List<Object[]> results = new ArrayList<>();
+        if(start != null && end != null) {
+            results = userHasLunchRepo.getLunchCostBetweenTwoDate(start, end);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (String) row[2], (Double) row[3]))
+                    .collect(Collectors.toList());
+        } else if(month == null && date == null) {
+            results = userHasLunchRepo.getLunchCostByYearly(year);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        } else if(year != null && month != null && date == null) {
+            results = userHasLunchRepo.getLunchCostByYearAndMonth(month, year);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (String) row[2], (Double) row[3]))
+                    .collect(Collectors.toList());
+        } else if(date != null) {
+            results = userHasLunchRepo.getLunchCostByDay(date);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        }else {
+            results = userHasLunchRepo.getMonthlyLunchCostByDepartment(month);
+            return results.stream()
+                    .map(row -> new MonthlyLunchCostDTO((String) row[0], (String) row[1], (Double) row[2]))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    public String dateToString(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        return formatter.format(date);
     }
 
     public byte[] generateReport(String reportTemplatePath, String fileType, Map<String, Object> parameters) throws Exception {

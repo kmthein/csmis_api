@@ -9,10 +9,12 @@ import com.team2.csmis_api.dto.WeeklyMenuDTO;
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.service.LunchService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -31,6 +33,18 @@ public class LunchController {
     public LunchDTO getLunchById(@PathVariable("id") Integer id) {
         return lunchService.getLunchById(id);
     }
+
+    @GetMapping("/date")
+    public ResponseEntity<LunchDTO> getMenuByDate(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        try {
+            LunchDTO lunchDTO = lunchService.getMenuByDate(date);
+            return ResponseEntity.ok(lunchDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
 
     @GetMapping("")
     public ResponseEntity<List<LunchDTO>> getAllLunches() {
@@ -82,4 +96,6 @@ public class LunchController {
         lunchService.deleteLunch(id);
         return ResponseEntity.noContent().build(); // Returns 204 No Content
     }
+
+
 }

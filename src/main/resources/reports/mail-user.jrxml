@@ -210,26 +210,26 @@
 				<imageExpression><![CDATA[net.sf.jasperreports.engine.util.JRLoader.loadBytes(getClass().getResource("/images/DAT Logo.png"))]]></imageExpression>
 			</image>
 			<staticText>
-				<reportElement x="439" y="40" width="254" height="20" uuid="7edfdd7f-24f6-43ba-b02a-79dd16c96a67"/>
-				<textElement textAlignment="Left">
+				<reportElement x="420" y="40" width="134" height="20" uuid="7edfdd7f-24f6-43ba-b02a-79dd16c96a67"/>
+				<textElement textAlignment="Right">
 					<font size="10" isBold="false"/>
 				</textElement>
 				<text><![CDATA[Mail Notification On Users]]></text>
 			</staticText>
 			<textField pattern="MMMMM dd, yyyy">
-				<reportElement x="440" y="60" width="100" height="20" uuid="036d7c76-bc84-4145-bbf0-cccd16427eb4"/>
-				<textElement textAlignment="Left"/>
+				<reportElement x="420" y="60" width="134" height="20" uuid="036d7c76-bc84-4145-bbf0-cccd16427eb4"/>
+				<textElement textAlignment="Right"/>
 				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="355" y="40" width="100" height="20" uuid="887fbabd-9a7e-42dc-82bc-7ce501978fb2"/>
+				<reportElement x="301" y="40" width="74" height="20" uuid="887fbabd-9a7e-42dc-82bc-7ce501978fb2"/>
 				<textElement textAlignment="Left">
 					<font size="10" isBold="false"/>
 				</textElement>
 				<text><![CDATA[Report Name :]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="355" y="60" width="84" height="20" uuid="2de3bdc0-4063-4079-a2f0-c2e27b52e40e"/>
+				<reportElement x="301" y="60" width="74" height="20" uuid="2de3bdc0-4063-4079-a2f0-c2e27b52e40e"/>
 				<textElement textAlignment="Left">
 					<font size="10" isBold="false"/>
 				</textElement>

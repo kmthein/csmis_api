@@ -9,6 +9,7 @@ import java.util.Date;
 @Table(name = "user_has_lunch")
 @Entity
 public class UserHasLunch extends Base{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

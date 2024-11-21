@@ -1,5 +1,6 @@
 package com.team2.csmis_api.controller;
 
+import com.team2.csmis_api.dto.DietaryPreferenceDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
 import com.team2.csmis_api.entity.Holiday;
@@ -24,7 +25,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("excel")
+    @PostMapping("/excel")
     public ResponseEntity<?> uploadStaffData(
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "adminId", required = false) Integer adminId) throws IOException {
@@ -63,5 +64,10 @@ public class UserController {
     @GetMapping("{id}")
     public UserDTO getUserById(@PathVariable("id") Integer id) {
         return userService.getUserById(id);
+    }
+    @PostMapping("/saveDietaryPreference")
+    public ResponseEntity<?> saveDietaryPreference(@RequestBody DietaryPreferenceDTO preferenceDTO) {
+        userService.updateDietaryPreference(preferenceDTO);
+        return ResponseEntity.ok("Dietary preferences updated successfully.");
     }
 }

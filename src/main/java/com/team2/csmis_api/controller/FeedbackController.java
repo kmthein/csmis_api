@@ -21,6 +21,16 @@ public class FeedbackController {
         return ResponseEntity.ok(createdFeedback);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<FeedbackDTO> updateFeedback(
+            @PathVariable Integer id,
+            @RequestBody FeedbackDTO feedbackDTO) {
+
+        FeedbackDTO updatedFeedback = feedbackService.updateFeedback(id, feedbackDTO);
+        return ResponseEntity.ok(updatedFeedback);
+    }
+
+
     @GetMapping
     public ResponseEntity<List<FeedbackDTO>> getAllFeedbacks() {
         List<FeedbackDTO> feedbacks = feedbackService.getAllFeedbacks();
@@ -31,12 +41,6 @@ public class FeedbackController {
     public ResponseEntity<FeedbackDTO> getFeedbackById(@PathVariable Integer id) {
         FeedbackDTO feedback = feedbackService.getFeedbackById(id);
         return ResponseEntity.ok(feedback);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<FeedbackDTO> updateFeedback(@PathVariable Integer id, @RequestBody FeedbackDTO feedbackDTO) {
-        FeedbackDTO updatedFeedback = feedbackService.updateFeedback(id, feedbackDTO);
-        return ResponseEntity.ok(updatedFeedback);
     }
 
     @DeleteMapping("/{id}")

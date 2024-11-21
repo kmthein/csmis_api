@@ -6,9 +6,11 @@ import com.team2.csmis_api.entity.Announcement;
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.service.AnnouncementService;
 import com.team2.csmis_api.service.LunchService;
+import com.team2.csmis_api.service.UserHasAnnouncementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +27,15 @@ public class AnnouncementController {
     @Autowired
     AnnouncementService announcementService;
 
+    @Autowired
+    private UserHasAnnouncementService userHasAnnouncementService;
+
+    @GetMapping("/unseen/{userId}")
+    public List<AnnouncementDTO> getUnseenAnnouncementsByUserId(@PathVariable Integer userId) {
+        return userHasAnnouncementService.findUnseenAnnouncementsByUserId(userId);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("")
     public ResponseEntity<?> saveAnnouncement(@ModelAttribute Announcement announcement,
                                               @RequestParam(value = "files", required = false) MultipartFile[] files) {
