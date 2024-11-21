@@ -70,4 +70,21 @@ public class UserController {
         userService.updateDietaryPreference(preferenceDTO);
         return ResponseEntity.ok("Dietary preferences updated successfully.");
     }
+    @GetMapping("/preferences/{userId}")
+    public ResponseEntity<?> getUserPreferences(@PathVariable Integer userId) {
+        try {
+            DietaryPreferenceDTO preferences = userService.getDietaryPreferences(userId);
+
+            if (preferences == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User preferences not found");
+            }
+
+            return ResponseEntity.ok(preferences);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An error occurred while retrieving preferences");
+        }
+    }
+
 }
