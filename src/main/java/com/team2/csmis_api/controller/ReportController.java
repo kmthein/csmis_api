@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,14 +79,15 @@ public class ReportController {
                 .contentType(fileType.equalsIgnoreCase("pdf") ? MediaType.APPLICATION_PDF : MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(reportData);
     }
-    // Daily report generation
+
     @GetMapping("/generate-daily")
     public ResponseEntity<byte[]> generateRADailyReport(
             @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam String fileType,
-            @RequestParam(defaultValue = "dailyReport") String fileName) {
+            @RequestParam(defaultValue = "dailyReport") String fileName,
+            @RequestParam String templatePath) {
         try {
-            byte[] reportData = reportService.generateDailyReport(date, fileType);
+            byte[] reportData = reportService.generateDailyReport(templatePath, date, fileType);
             return buildResponse(reportData, fileType, fileName);
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,15 +95,15 @@ public class ReportController {
         }
     }
 
-    // Weekly report generation
     @GetMapping("/generate-weekly")
     public ResponseEntity<byte[]> generateRAWeeklyReport(
             @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam String fileType,
-            @RequestParam(defaultValue = "weeklyReport") String fileName) {
+            @RequestParam(defaultValue = "weeklyReport") String fileName,
+            @RequestParam String templatePath) {
         try {
-            byte[] reportData = reportService.generateWeeklyReport(startDate, endDate, fileType);
+            byte[] reportData = reportService.generateWeeklyReport(templatePath, startDate, endDate, fileType);
             return buildResponse(reportData, fileType, fileName);
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,12 +117,13 @@ public class ReportController {
             @RequestParam("month") String monthName,
             @RequestParam("year") int year,
             @RequestParam String fileType,
-            @RequestParam(defaultValue = "monthlyReport") String fileName) {
+            @RequestParam(defaultValue = "monthlyReport") String fileName,
+            @RequestParam String templatePath) {
         try {
             Month monthEnum = Month.valueOf(monthName.toUpperCase());
             int month = monthEnum.getValue();
 
-            byte[] reportData = reportService.generateMonthlyReport(month, year, fileType);
+            byte[] reportData = reportService.generateMonthlyReport(templatePath,month,year,fileType);
             return buildResponse(reportData, fileType, fileName);
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,9 +135,10 @@ public class ReportController {
     public ResponseEntity<byte[]> generateRAYearlyReport(
             @RequestParam("year") int year,
             @RequestParam String fileType,
-            @RequestParam(defaultValue = "yearlyReport") String fileName) {
+            @RequestParam(defaultValue = "yearlyReport") String fileName,
+            @RequestParam String templatePath) {
         try {
-            byte[] reportData = reportService.generateYearlyReport(year, fileType);
+            byte[] reportData = reportService.generateYearlyReport(templatePath,year, fileType);
             return buildResponse(reportData, fileType, fileName);
         } catch (Exception e) {
             e.printStackTrace();
@@ -151,21 +153,102 @@ public class ReportController {
 
     @GetMapping("/registered-ate-weekly")
     public ResponseEntity<List<UserActionDTO>> searchRAByWeek(
-                @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-            List<UserActionDTO> reportData = reportService.getRegisteredAteByWeek(startDate, endDate);
-            return ResponseEntity.ok(reportData);
-        }
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<UserActionDTO> reportData = reportService.getRegisteredAteByWeek(startDate, endDate);
+        return ResponseEntity.ok(reportData);
+    }
 
     @GetMapping("/registered-ate-monthly")
-    public ResponseEntity<List<UserActionDTO>> searchRAByMonth(@RequestParam("yearMonth") @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
-            List<UserActionDTO> reportData = reportService.getRegisteredAteByMonth(yearMonth);
+    public ResponseEntity<List<UserActionDTO>> getRegisteredAteByMonth(
+            @RequestParam("month") String monthName,
+            @RequestParam("year") int year) {
+        try {
+            Month monthEnum = Month.valueOf(monthName.toUpperCase());
+            int month = monthEnum.getValue();
+
+            List<UserActionDTO> reportData = reportService.getRegisteredAteByMonth(month, year);
+
             return ResponseEntity.ok(reportData);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+
+
 
     @GetMapping("/registered-ate-yearly")
     public List<UserActionDTO> searchRAByYear(@RequestParam int year) {
         return reportService.getRegisteredAteByYear(year);
+    }
+
+    @GetMapping("/unregistered-ate-daily")
+    public List<UserActionDTO> searchURAByDate(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return reportService.getUnRegisteredAteByDate(date);
+    }
+
+    @GetMapping("/unregistered-ate-weekly")
+    public ResponseEntity<List<UserActionDTO>> searchURAByWeek(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<UserActionDTO> reportData = reportService.getUnRegisteredAteByWeek(startDate, endDate);
+        return ResponseEntity.ok(reportData);
+    }
+
+    @GetMapping("/unregistered-ate-monthly")
+    public ResponseEntity<List<UserActionDTO>> searchURAByMonth(
+            @RequestParam("month") String monthName,
+            @RequestParam("year") int year) {
+        try {
+            Month monthEnum = Month.valueOf(monthName.toUpperCase());
+            int month = monthEnum.getValue();
+
+            List<UserActionDTO> reportData = reportService.getUnRegisteredAteByMonth(month, year);
+
+            return ResponseEntity.ok(reportData);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/unregistered-ate-yearly")
+    public List<UserActionDTO> searchURAByYear(@RequestParam int year) {
+        return reportService.getUnRegisteredAteByYear(year);
+    }
+
+    @GetMapping("/registered-not-eat-daily")
+    public List<UserActionDTO> searchRNEByDate(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return reportService.getRegisteredNotEatByDate(date);
+    }
+
+    @GetMapping("/registered-not-eat-weekly")
+    public ResponseEntity<List<UserActionDTO>> searchRNEByWeek(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<UserActionDTO> reportData = reportService.getRegisteredNotEatByWeek(startDate, endDate);
+        return ResponseEntity.ok(reportData);
+    }
+
+    @GetMapping("/registered-not-eat-monthly")
+    public ResponseEntity<List<UserActionDTO>> searchRNEByMonth(
+            @RequestParam("month") String monthName,
+            @RequestParam("year") int year) {
+        try {
+            Month monthEnum = Month.valueOf(monthName.toUpperCase());
+            int month = monthEnum.getValue();
+
+            List<UserActionDTO> reportData = reportService.getRegisteredNotEatByMonth(month, year);
+
+            return ResponseEntity.ok(reportData);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @GetMapping("/registered-not-eat-yearly")
+    public List<UserActionDTO> searchRNEByYear(@RequestParam int year) {
+        return reportService.getRegisteredNotEatByYear(year);
     }
 
 }
