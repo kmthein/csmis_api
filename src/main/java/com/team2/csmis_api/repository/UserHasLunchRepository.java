@@ -132,6 +132,36 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
 
     @Query("SELECT u FROM UserHasLunch u WHERE u.dt = :date")
     List<UserHasLunch> findByDate(Date date);
+    @Query("SELECT u FROM UserHasLunch u " +
+            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
+            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE d.user.id IS NULL " +
+            "AND FUNCTION('DATE', u.dt) = :date")
+    List<UserHasLunch> findRegisteredNotEatDaily(@Param("date") LocalDate date);
+
+    @Query("SELECT u FROM UserHasLunch u " +
+            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
+            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE d.user.id IS NULL " +
+            "AND CAST(u.dt AS LocalDate) BETWEEN :startDate AND :endDate")
+    List<UserHasLunch> findRegisteredNotEatWeekly(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT u FROM UserHasLunch u " +
+            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
+            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE d.user.id IS NULL " +
+            "AND FUNCTION('MONTH', u.dt) = :month " +
+            "AND FUNCTION('YEAR', u.dt) = :year")
+    List<UserHasLunch> findRegisteredNotEatMonthly(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT u FROM UserHasLunch u " +
+            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
+            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE d.user.id IS NULL " +
+            "AND FUNCTION('YEAR', u.dt) = :year")
+    List<UserHasLunch> findRegisteredNotEatYearly(@Param("year") int year);
 
     @Query("SELECT uhl FROM UserHasLunch uhl WHERE DATE(uhl.dt) = CURDATE()")
     List<UserHasLunch> findByCurrentDate();
