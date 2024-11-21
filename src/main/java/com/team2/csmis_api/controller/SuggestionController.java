@@ -27,6 +27,12 @@ public class SuggestionController {
         return userHasSuggestionService.findUnseenSuggestionsByUserId(userId);
     }
 
+    @PutMapping("{id}/seen")
+    public SuggestionDTO getSuggestionByIdAndMakeSeen(@PathVariable Integer id, @RequestParam(value = "userId") String userId) {
+        System.out.println(id);
+        System.out.println(userId);
+        return suggestionService.getSuggestionByIdAndMakeSeen(id, Integer.parseInt(userId));
+    }
 
     @PostMapping
     public ResponseEntity<SuggestionDTO> createSuggestion(@RequestBody SuggestionDTO suggestionDTO) {
