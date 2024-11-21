@@ -9,6 +9,12 @@ import java.util.List;
 public class LunchRegistrationDTO {
     private Integer userId;
     private List<Date> selectedDates;
+    private Double userCost;
+    private Date dt;
+    private double lunchPrice;
+    private double companyRate;
+    private String lunch;
+
 
 }
 

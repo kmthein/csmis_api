@@ -24,4 +24,6 @@ public interface UserService {
     ResponseDTO toggleMail(int id, boolean mailOn);
 
     void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO);
+
+    DietaryPreferenceDTO getDietaryPreferences(Integer userId);
 }

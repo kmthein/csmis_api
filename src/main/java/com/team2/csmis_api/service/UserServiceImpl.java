@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MeatRepository meatRepository;
+    private MeatRepository meatRepo;
 
     private static final String DEFAULT_PASSWORD = "DAT110ct2";
 
@@ -151,21 +151,40 @@ public class UserServiceImpl implements UserService {
         User user = userRepo.findById(preferenceDTO.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        // Update the user's vegan status
-        user.setIsVegan(preferenceDTO.getIsVegan());
+        if (user.getIsVegan() != preferenceDTO.getIsVegan()) {
+            user.setIsVegan(preferenceDTO.getIsVegan());
+        }
 
-        // Update the user's meat preferences
         List<Meat> meats = preferenceDTO.getMeatIds().stream()
-                .map(meatId -> {
-                    // Assuming you have a method to find a Meat by its ID
-                    return meatRepository.findById(meatId)
-                            .orElseThrow(() -> new ResourceNotFoundException("Meat not found"));
-                })
+                .map(meatId -> meatRepo.findById(meatId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Meat not found")))
                 .collect(Collectors.toList());
 
         user.setMeats(meats);
+        userRepo.save(user);
+    }
 
-        userRepo.save(user); // Save the user with updated preferences
+    @Override
+    public DietaryPreferenceDTO getDietaryPreferences(Integer userId) {
+        Optional<User> user = userRepo.findById(userId);
+
+        if (user.isPresent()) {
+            User userEntity = user.get();
+
+            DietaryPreferenceDTO dto = new DietaryPreferenceDTO();
+            dto.setUserId(userEntity.getId());
+            dto.setIsVegan(userEntity.getIsVegan());
+
+            List<Integer> meatIds = userEntity.getMeats()
+                    .stream()
+                    .map(Meat::getId)
+                    .collect(Collectors.toList());
+            dto.setMeatIds(meatIds);
+
+            return dto;
+        }
+
+        return null;
     }
 
     public UserDTO mapUserToDTO(User user) {

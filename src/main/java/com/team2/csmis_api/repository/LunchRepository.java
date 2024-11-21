@@ -2,13 +2,17 @@ package com.team2.csmis_api.repository;
 
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.entity.Restaurant;
+import com.team2.csmis_api.entity.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LunchRepository extends JpaRepository<Lunch, Integer> {
@@ -32,4 +36,9 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
     @Transactional
     @Query("UPDATE Lunch l SET l.isDeleted=true WHERE l.id=?1")
     public void deleteLunch(Integer id);
+
+    Optional<Lunch> findByDate(LocalDate localDate);
+
+
+//    Optional<Object> findByDtAndLunch(Date lunchDate, String lunchType);
 }

@@ -19,6 +19,12 @@ public class UserHasLunch extends Base{
     @Column(name = "user_cost")
     private double userCost;
 
+    @Column(name = "company_cost")
+    private Double company_cost;
+
+    @Column(name = "total_cost")
+    private Double total_cost;
+
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
