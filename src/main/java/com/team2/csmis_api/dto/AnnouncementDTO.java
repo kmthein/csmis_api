@@ -14,4 +14,5 @@ public class AnnouncementDTO {
     private Integer adminId;
     private List<Integer> fileIds;
     private List<FileDTO> files;
+
 }
