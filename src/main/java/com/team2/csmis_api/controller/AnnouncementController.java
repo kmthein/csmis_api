@@ -35,6 +35,11 @@ public class AnnouncementController {
         return userHasAnnouncementService.findUnseenAnnouncementsByUserId(userId);
     }
 
+    @PutMapping("{id}/seen")
+    public AnnouncementDTO getAnnouncementByIdAndMakeSeen(@PathVariable Integer id, @RequestParam(value = "userId") String userId) {
+        return announcementService.getAnnouncementByIdAndMakeSeen(id, Integer.parseInt(userId));
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("")
     public ResponseEntity<?> saveAnnouncement(@ModelAttribute Announcement announcement,
