@@ -16,6 +16,10 @@ import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -193,11 +197,12 @@ public class AnnouncementService {
         return announcementDTO;
     }
 
-    public List<AnnouncementDTO> getAllAnnouncementsWithFiles() {
-        List<Announcement> announcements = announcementRepo.getAllAnnouncementsWithFiles();
+    public Page<AnnouncementDTO> getAllAnnouncementsWithFiles(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Announcement> announcementPage = announcementRepo.findAll(pageable);
         List<AnnouncementDTO> announcementDTOs = new ArrayList<>();
 
-        for (Announcement announcement : announcements) {
+        for (Announcement announcement : announcementPage.getContent()) {
             AnnouncementDTO dto = convertToAnnouncementDto(announcement);
 
             List<FileDTO> files = new ArrayList<>();
@@ -215,8 +220,10 @@ public class AnnouncementService {
             announcementDTOs.add(dto);
         }
 
-        return announcementDTOs;
+        // Return a Page of DTOs
+        return new PageImpl<>(announcementDTOs, pageable, announcementPage.getTotalElements());
     }
+
 
     @Transactional
     public AnnouncementDTO updateAnnouncement(Integer id, AnnouncementDTO announcementDTO, MultipartFile[] files, List<Integer> filesToDelete) throws IOException {
