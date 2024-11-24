@@ -98,6 +98,20 @@ public class AnnouncementService {
         return content.toString();
     }
 
+    public AnnouncementDTO getAnnouncementByIdAndMakeSeen(Integer id, Integer userId) {
+        Announcement announcement = announcementRepo.findById(id).orElse(null);
+        User user = userRepo.findById(userId).orElse(null);
+        UserHasAnnouncement userAnnouncement = userHasAnnouncementRepository.findByAnnouncementAndUser(announcement, user);
+        AnnouncementDTO announcementDTO = new AnnouncementDTO();
+        if(userAnnouncement != null) {
+            userAnnouncement.setIsSeen(true);
+            userAnnouncement = userHasAnnouncementRepository.save(userAnnouncement);
+            announcementDTO = convertToAnnouncementDto(announcement);
+            announcementDTO.setSeen(userAnnouncement.getIsSeen());
+        }
+        return announcement != null ? announcementDTO : null;
+    }
+
     public AnnouncementDTO addAnnouncement(Announcement announce, MultipartFile[] files) throws IOException {
         User adminId = userRepo.findById(announce.getUser().getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -146,17 +160,18 @@ public class AnnouncementService {
             userHasAnnouncementRepository.save(userHasAnnouncement);  // Save the UserHasAnnouncement entry
         }
 
-        notificationService.sendAnnouncementNotification("{\"message\": \"New announ received\"}");
+        notificationService.sendAnnouncementNotification("{\"message\": \"New announcement received\"}");
 
         return announcementDTO;
     }
-
-
 
     public AnnouncementDTO convertToAnnouncementDto(Announcement announce) {
         AnnouncementDTO announcementDTO=modelMapper.map(announce, AnnouncementDTO.class);
         announcementDTO.setAdminId(announce.getUser().getId());
         announcementDTO.setDate(announce.getDate());
+        announcementDTO.setId(announce.getId());
+        announcementDTO.setTitle(announce.getTitle());
+        announcementDTO.setCreatedAt(announce.getCreatedAt());
         return announcementDTO;
     }
 
