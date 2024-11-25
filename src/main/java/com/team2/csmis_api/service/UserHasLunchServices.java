@@ -109,7 +109,7 @@ public class UserHasLunchServices {
         }
 
         List<UserHasLunch> newNextMonthLunches = generateLunchForNextMonth(userId, nextMonth);
-        userHasLunchRepository.saveAll(newNextMonthLunches);
+//        userHasLunchRepository.saveAll(newNextMonthLunches);
     }
 
     private List<UserHasLunch> generateLunchForNextMonth(Integer userId, YearMonth month) {
