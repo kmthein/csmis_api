@@ -98,6 +98,12 @@ public class AnnouncementService {
         return content.toString();
     }
 
+    public AnnouncementDTO getAnnouncementById(Integer id) {
+        Announcement announcement = announcementRepo.getAnnouncementById(id);
+        AnnouncementDTO announcementDTO = convertToAnnouncementDto(announcement);
+        return announcementDTO;
+    }
+
     public AnnouncementDTO getAnnouncementByIdAndMakeSeen(Integer id, Integer userId) {
         Announcement announcement = announcementRepo.findById(id).orElse(null);
         User user = userRepo.findById(userId).orElse(null);
@@ -107,7 +113,7 @@ public class AnnouncementService {
             userAnnouncement.setIsSeen(true);
             userAnnouncement = userHasAnnouncementRepository.save(userAnnouncement);
             announcementDTO = convertToAnnouncementDto(announcement);
-            announcementDTO.setSeen(userAnnouncement.getIsSeen());
+            announcementDTO.setSeen(true);
         }
         return announcement != null ? announcementDTO : null;
     }
@@ -200,8 +206,6 @@ public class AnnouncementService {
         return announcementDTOs;
     }
 
-
-
     @Transactional
     public AnnouncementDTO updateAnnouncement(Integer id, AnnouncementDTO announcementDTO, MultipartFile[] files, List<Integer> filesToDelete) throws IOException {
 
@@ -253,9 +257,6 @@ public class AnnouncementService {
         }
         return modelMapper.map(updatedAnnouncement, AnnouncementDTO.class);
     }
-
-
-
 
     public Announcement deleteAnnouncement(Integer id) {
         Announcement announcement = announcementRepo.findById(id)

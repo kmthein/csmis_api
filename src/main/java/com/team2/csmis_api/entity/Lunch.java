@@ -3,11 +3,14 @@ package com.team2.csmis_api.entity;
 import com.team2.csmis_api.converter.StringArrayConverter;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Table(name = "lunch")
 @Entity
 public class Lunch extends Base {

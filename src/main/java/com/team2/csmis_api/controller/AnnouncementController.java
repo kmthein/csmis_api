@@ -64,6 +64,11 @@ public class AnnouncementController {
         return announcementService.getAllAnnouncementsWithFiles();
     }
 
+    @GetMapping("{id}")
+    public AnnouncementDTO getAnnouncementById(@PathVariable("id") Integer id) {
+        return announcementService.getAnnouncementById(id);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateAnnouncement(
             @PathVariable("id") Integer id,

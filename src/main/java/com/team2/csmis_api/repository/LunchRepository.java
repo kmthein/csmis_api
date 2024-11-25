@@ -40,7 +40,7 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE Lunch l SET l.isDeleted=true WHERE l.id=?1")
+    @Query("UPDATE Lunch l SET l.isDeleted=true WHERE l.id=:id")
     public void deleteLunch(Integer id);
 
 //    Optional<Object> findByDtAndLunch(Date lunchDate, String lunchType);
