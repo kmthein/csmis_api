@@ -23,4 +23,5 @@ public interface UserService {
     ResponseDTO toggleMail(int id, boolean mailOn);
     void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO);
     ResponseDTO forcePasswordChange(int id, String newPassword);
+    DietaryPreferenceDTO getDietaryPreferences(Integer userId);
 }

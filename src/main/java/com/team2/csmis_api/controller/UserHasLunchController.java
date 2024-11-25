@@ -1,6 +1,8 @@
 package com.team2.csmis_api.controller;
 
+import com.team2.csmis_api.dto.LunchDetailsDTO;
 import com.team2.csmis_api.dto.LunchRegistrationDTO;
+import com.team2.csmis_api.dto.WeeklyPaymentDTO;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.entity.UserHasLunch;
 import com.team2.csmis_api.service.UserHasLunchServices;
@@ -85,6 +87,9 @@ public ResponseEntity<List<Date>> getSelectedDates(@PathVariable int userId) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating next month's lunch registration: " + e.getMessage());
         }
     }
-
-
+    @GetMapping("/get-lunch-details/{userId}")
+    public ResponseEntity<LunchDetailsDTO> getLunchDetails(@PathVariable Integer userId) {
+        LunchDetailsDTO lunchDetails = userHasLunchService.getLunchDetails(userId);
+        return ResponseEntity.ok(lunchDetails);
+    }
 }

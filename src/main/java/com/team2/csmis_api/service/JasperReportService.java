@@ -1,9 +1,6 @@
 package com.team2.csmis_api.service;
 
-import com.team2.csmis_api.dto.MonthlyLunchCostDTO;
-import com.team2.csmis_api.dto.UserActionDTO;
-import com.team2.csmis_api.dto.LunchSummaryDTO;
-import com.team2.csmis_api.dto.UserDTO;
+import com.team2.csmis_api.dto.*;
 import com.team2.csmis_api.entity.DoorAccessRecord;
 import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.entity.User;
@@ -323,5 +320,18 @@ public class JasperReportService {
         List<UserActionDTO> reportData = new ArrayList<>();
         processLog(logs, reportData);
         return reportData;
+    }
+
+    public List<AvoidMeatDTO> getUserAvoidMeatForNextWeek() {
+
+        List<Object[]> results = userHasLunchRepo.getUserAvoidMeatForNextWeek();
+
+        return results.stream()
+                .map(result -> new AvoidMeatDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        ((Number) result[2]).longValue()
+                ))
+                .collect(Collectors.toList());
     }
 }

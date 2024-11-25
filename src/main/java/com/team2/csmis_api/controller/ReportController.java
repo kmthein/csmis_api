@@ -1,9 +1,6 @@
 package com.team2.csmis_api.controller;
 
-import com.team2.csmis_api.dto.MonthlyLunchCostDTO;
-import com.team2.csmis_api.dto.UserActionDTO;
-import com.team2.csmis_api.dto.LunchSummaryDTO;
-import com.team2.csmis_api.dto.UserDTO;
+import com.team2.csmis_api.dto.*;
 import com.team2.csmis_api.repository.UserHasLunchRepository;
 import com.team2.csmis_api.service.JasperReportService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,10 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.time.YearMonth;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -319,6 +314,12 @@ public class ReportController {
     @GetMapping("/registered-not-eat-yearly")
     public List<UserActionDTO> searchRNEByYear(@RequestParam int year) {
         return reportService.getRegisteredNotEatByYear(year);
+    }
+
+    @GetMapping("/users-avoid-meat")
+    public ResponseEntity<List<AvoidMeatDTO>> getMeatLunchCountsForNextWeek() {
+        List<AvoidMeatDTO> results = reportService.getUserAvoidMeatForNextWeek();
+        return ResponseEntity.ok(results);
     }
 
 }

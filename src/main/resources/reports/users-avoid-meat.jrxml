@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.5.final using JasperReports Library version 6.20.5-3efcf2e67f959db3888d79f73dde2dbd7acb4f8e  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="users-avoid-meat" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="d1ea387e-101d-402c-952b-cc83d54663d6">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="csmis dataadapter-Database JDBC Connection"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT 
+    CASE 
+        WHEN m.id IS NULL THEN 'Is-vegan'  
+        ELSE m.name                       
+    END AS meat,
+    DATE_FORMAT(dates.dt, '%d-%m-%Y (%a)') AS day, 
+    COUNT(
+        CASE 
+            WHEN m.id IS NULL THEN  
+                CASE 
+                    WHEN u.is_vegan = 1 AND uhl.user_id = u.id THEN u.id  
+                    ELSE NULL
+                END
+            ELSE  
+                CASE 
+                    WHEN uam.user_id IS NOT NULL THEN uam.user_id
+                    ELSE NULL
+                END
+        END
+    ) AS count
+FROM 
+    (SELECT NULL AS id, 'is_vegan' AS name  
+     UNION ALL
+     SELECT id, name FROM meat) m
+CROSS JOIN 
+    (SELECT DISTINCT uhl.dt 
+     FROM user_has_lunch uhl
+     WHERE uhl.dt >= DATE_ADD(CURRENT_DATE(), INTERVAL (7 - WEEKDAY(CURRENT_DATE())) DAY)
+       AND uhl.dt < DATE_ADD(CURRENT_DATE(), INTERVAL (14 - WEEKDAY(CURRENT_DATE())) DAY)
+       AND WEEKDAY(uhl.dt) < 5) dates  -- Workdays of the next week
+LEFT JOIN 
+    user_has_lunch uhl ON uhl.dt = dates.dt
+LEFT JOIN 
+    user u ON uhl.user_id = u.id  
+LEFT JOIN 
+    user_avoid_meat uam ON uhl.user_id = uam.user_id AND uam.meat_id = m.id
+GROUP BY 
+    meat, dates.dt  
+ORDER BY 
+    dates.dt, meat]]>
+	</queryString>
+	<field name="meat" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="meat"/>
+		<property name="com.jaspersoft.studio.field.label" value="meat"/>
+	</field>
+	<field name="day" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="day"/>
+		<property name="com.jaspersoft.studio.field.label" value="day"/>
+	</field>
+	<field name="count" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="count"/>
+		<property name="com.jaspersoft.studio.field.label" value="count"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="80" splitType="Stretch">
+			<image>
+				<reportElement x="0" y="30" width="69" height="49" uuid="da628606-aec3-4b6c-a550-4d6eb7d14bee"/>
+				<imageExpression><![CDATA[net.sf.jasperreports.engine.util.JRLoader.loadBytes(getClass().getResource("/images/DAT Logo.png"))]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="355" y="40" width="84" height="19" uuid="7825b7c3-274d-4f94-b79a-ede838cc30ba"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Report Name :]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="440" y="40" width="121" height="20" uuid="f96f7952-c6fe-497d-b413-1a311421d829"/>
+				<textFieldExpression><![CDATA["Users-Avoid-Meat"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="355" y="60" width="84" height="20" uuid="2d12c47b-58c3-4ccd-9713-8aac4a331416"/>
+				<textElement textAlignment="Left">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Report Date   :]]></text>
+			</staticText>
+			<textField pattern="MMMM dd, yyyy">
+				<reportElement x="440" y="60" width="100" height="20" uuid="a1506e6a-9401-4d99-a9b5-32015cf87b2c"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="33" splitType="Stretch"/>
+	</columnHeader>
+	<summary>
+		<band height="145" splitType="Stretch">
+			<crosstab>
+				<reportElement x="40" y="20" width="510" height="87" uuid="04526101-32cd-494f-991c-ccea91b54eda"/>
+				<rowGroup name="dayGroup" width="100">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{day}]]></bucketExpression>
+					</bucket>
+					<crosstabRowHeader>
+						<cellContents>
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField textAdjust="StretchHeight">
+								<reportElement x="0" y="0" width="100" height="20" uuid="87c06610-8c45-4165-90c4-0faa57fff15b"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" markup="styled">
+									<font size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{dayGroup}.substring(0, 10) + "<br/>" + $V{dayGroup}.substring(11)]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabRowHeader>
+					<crosstabTotalRowHeader>
+						<cellContents/>
+					</crosstabTotalRowHeader>
+				</rowGroup>
+				<columnGroup name="meatGroup" height="25">
+					<bucket class="java.lang.String">
+						<bucketExpression><![CDATA[$F{meat}]]></bucketExpression>
+					</bucket>
+					<crosstabColumnHeader>
+						<cellContents>
+							<box>
+								<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+							</box>
+							<textField textAdjust="StretchHeight">
+								<reportElement x="0" y="0" width="60" height="20" uuid="5bc65ea7-867a-4240-aa3b-2c8605965ca5"/>
+								<textElement textAlignment="Center" verticalAlignment="Bottom">
+									<font size="12" isBold="true"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$V{meatGroup}]]></textFieldExpression>
+							</textField>
+						</cellContents>
+					</crosstabColumnHeader>
+					<crosstabTotalColumnHeader>
+						<cellContents/>
+					</crosstabTotalColumnHeader>
+				</columnGroup>
+				<measure name="count" class="java.lang.Long">
+					<measureExpression><![CDATA[$F{count}]]></measureExpression>
+				</measure>
+				<crosstabCell width="60" height="20">
+					<cellContents backcolor="#FFFFFF">
+						<box>
+							<pen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+						</box>
+						<textField>
+							<reportElement x="5" y="0" width="55" height="20" uuid="d41ea41d-f5d4-49ff-b6db-ff4206e1411c"/>
+							<textElement textAlignment="Center" verticalAlignment="Bottom"/>
+							<textFieldExpression><![CDATA[$V{count}]]></textFieldExpression>
+						</textField>
+					</cellContents>
+				</crosstabCell>
+			</crosstab>
+		</band>
+	</summary>
+</jasperReport>
