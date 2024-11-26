@@ -1,6 +1,7 @@
 package com.team2.csmis_api.repository;
 
 
+import com.team2.csmis_api.dto.AvoidMeatDTO;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.entity.UserHasLunch;
@@ -303,4 +304,56 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
 
     @Query("SELECT uhl FROM UserHasLunch uhl WHERE DATE(uhl.dt) = CURDATE()")
     List<UserHasLunch> findByCurrentDate();
+
+    @Query(value = """
+        SELECT\s
+            CASE\s
+                WHEN m.id IS NULL THEN 'is_vegan' \s
+                ELSE m.name                      \s
+            END AS meat,
+            DATE_FORMAT(dates.dt, '%d-%m-%Y (%a)') AS day, \s
+            COUNT(
+                CASE\s
+                    WHEN m.id IS NULL THEN \s
+                        CASE\s
+                            WHEN u.is_vegan = 1 AND uhl.user_id = u.id THEN u.id \s
+                            ELSE NULL
+                        END
+                    ELSE \s
+                        CASE\s
+                            WHEN uam.user_id IS NOT NULL THEN uam.user_id
+                            ELSE NULL
+                        END
+                END
+            ) AS count
+        FROM\s
+            (SELECT NULL AS id, 'is_vegan' AS name \s
+             UNION ALL
+             SELECT id, name FROM meat) m
+        CROSS JOIN\s
+            (SELECT DISTINCT uhl.dt\s
+             FROM user_has_lunch uhl
+             WHERE uhl.dt >= DATE_ADD(CURRENT_DATE(), INTERVAL (7 - WEEKDAY(CURRENT_DATE())) DAY)
+               AND uhl.dt < DATE_ADD(CURRENT_DATE(), INTERVAL (14 - WEEKDAY(CURRENT_DATE())) DAY)
+               AND WEEKDAY(uhl.dt) < 5) dates 
+        LEFT JOIN\s
+            user_has_lunch uhl ON uhl.dt = dates.dt
+        LEFT JOIN\s
+            user u ON uhl.user_id = u.id \s
+        LEFT JOIN\s
+            user_avoid_meat uam ON uhl.user_id = uam.user_id AND uam.meat_id = m.id
+        GROUP BY\s
+            meat, dates.dt \s
+        ORDER BY\s
+            dates.dt, meat;
+       """, nativeQuery = true)
+    List<Object[]> getUserAvoidMeatForNextWeek();
+
+
+
+
+
+
+
+
 }

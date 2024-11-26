@@ -10,6 +10,8 @@ public class UserActionDTO {
     private String name;
     private Integer doorLogNo;
     private LocalDate date;
+    private String department;
+    private String team;
     private Integer userId;
     private Integer Id;
 
