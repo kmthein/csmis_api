@@ -2,13 +2,16 @@ package com.team2.csmis_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 
-@Data
+@Getter
+@Setter
 @Table(name = "holiday")
 @Entity
 public class Holiday extends Base{
