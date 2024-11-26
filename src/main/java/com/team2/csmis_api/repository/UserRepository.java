@@ -29,4 +29,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> getMailNotiOnUsers();
 
     boolean existsByStaffId(String staffId);
+
 }

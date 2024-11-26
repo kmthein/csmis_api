@@ -252,6 +252,36 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
             "AND FUNCTION('DATE', u.dt) = :date")
     List<UserHasLunch> findRegisteredNotEatDaily(@Param("date") LocalDate date);
 
+    @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = MONTH(CURRENT_DATE) AND YEAR(u.dt) = YEAR(CURRENT_DATE)")
+    int countRegisteredDaysForMonth(@Param("userId") Integer userId);
+
+    @Query("SELECT u FROM UserHasLunch u WHERE MONTH(u.dt) = :month AND YEAR(u.dt) = :year")
+    List<UserHasLunch> findByMonthAndYear(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT u FROM UserHasLunch u WHERE u.dt BETWEEN :startOfWeek AND :endOfWeek")
+    List<UserHasLunch> findByDtBetween(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek);
+
+    @Query("SELECT u FROM UserHasLunch u WHERE u.dt BETWEEN :startOfPreviousWeek AND :endOfPreviousWeek")
+    List<UserHasLunch> findUserHasLunchForPreviousWeek(
+            @Param("startOfPreviousWeek") Date startOfPreviousWeek,
+            @Param("endOfPreviousWeek") Date endOfPreviousWeek
+    );
+
+    @Query("SELECT uhl FROM UserHasLunch uhl WHERE MONTH(uhl.dt) = :month AND YEAR(uhl.dt) = :year")
+    List<UserHasLunch> findUserHasLunchForMonth(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE uhl.dt BETWEEN :startOfWeek AND :endOfWeek AND u.department.id = :departmentId")
+    List<UserHasLunch> findUserHasLunchForPreviousWeekByDepartment(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek, @Param("departmentId") Integer departmentId);
+
+    @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE MONTH(uhl.dt) = :month AND YEAR(uhl.dt) = :year AND u.department.id = :departmentId")
+    List<UserHasLunch> findUserHasLunchForMonthAndDepartment(@Param("month") int month, @Param("year") int year, @Param("departmentId") int departmentId);
+
+    @Query("SELECT u FROM UserHasLunch u WHERE YEAR(u.dt) = :year")
+    List<UserHasLunch> findUserHasLunchForYear(@Param("year") int year);
+
+    @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE YEAR(uhl.dt) = :year AND u.department.id = :departmentId")
+    List<UserHasLunch> findUserHasLunchForYearAndDepartment(@Param("year") int year, @Param("departmentId") int departmentId);
+
     @Query("SELECT u FROM UserHasLunch u " +
             "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
             "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
@@ -268,32 +298,6 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
             "AND FUNCTION('MONTH', u.dt) = :month " +
             "AND FUNCTION('YEAR', u.dt) = :year")
     List<UserHasLunch> findRegisteredNotEatMonthly(@Param("month") int month, @Param("year") int year);
-    @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = MONTH(CURRENT_DATE) AND YEAR(u.dt) = YEAR(CURRENT_DATE)")
-    int countRegisteredDaysForMonth(@Param("userId") Integer userId);
-
-    @Query("SELECT u FROM UserHasLunch u WHERE MONTH(u.dt) = :month AND YEAR(u.dt) = :year")
-    List<UserHasLunch> findByMonthAndYear(@Param("month") int month, @Param("year") int year);
-
-    @Query("SELECT u FROM UserHasLunch u WHERE u.dt BETWEEN :startOfWeek AND :endOfWeek")
-    List<UserHasLunch> findByDtBetween(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek);
-
-    @Query("SELECT uhl FROM UserHasLunch uhl WHERE uhl.dt BETWEEN :startDate AND :endDate")
-    List<UserHasLunch> findUserHasLunchForPreviousWeek(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
-
-    @Query("SELECT uhl FROM UserHasLunch uhl WHERE MONTH(uhl.dt) = :month AND YEAR(uhl.dt) = :year")
-    List<UserHasLunch> findUserHasLunchForMonth(@Param("month") int month, @Param("year") int year);
-
-    @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE uhl.dt BETWEEN :startOfWeek AND :endOfWeek AND u.department.id = :departmentId")
-    List<UserHasLunch> findUserHasLunchForPreviousWeekByDepartment(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek, @Param("departmentId") Integer departmentId);
-
-    @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE MONTH(uhl.dt) = :month AND YEAR(uhl.dt) = :year AND u.department.id = :departmentId")
-    List<UserHasLunch> findUserHasLunchForMonthAndDepartment(@Param("month") int month, @Param("year") int year, @Param("departmentId") int departmentId);
-
-    @Query("SELECT u FROM UserHasLunch u WHERE YEAR(u.dt) = :year")
-    List<UserHasLunch> findUserHasLunchForYear(@Param("year") int year);
-
-    @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE YEAR(uhl.dt) = :year AND u.department.id = :departmentId")
-    List<UserHasLunch> findUserHasLunchForYearAndDepartment(@Param("year") int year, @Param("departmentId") int departmentId);
 
     @Query("SELECT u FROM UserHasLunch u " +
             "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
