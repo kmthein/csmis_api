@@ -1,6 +1,5 @@
 package com.team2.csmis_api.entity;
 
-import com.team2.csmis_api.entity.PaymentVoucher;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -15,11 +14,11 @@ public class VoucherRow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "lunch_date", nullable = false)
-    private LocalDate lunchDate;
+    @Column(name = "dt", nullable = false)
+    private LocalDate dt; // Using LocalDate instead of Date
 
-    @Column(name = "pax", nullable = false)
-    private Integer pax;
+    @Column(name = "qty", nullable = false)
+    private Integer qty;
 
     @Column(name = "price", nullable = false)
     private Double price;
@@ -27,12 +26,11 @@ public class VoucherRow {
     @Column(name = "amount", nullable = false)
     private Double amount;
 
-    @Column(name = "remark", columnDefinition = "TEXT")
+    @Column(name = "remark")
     private String remark;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_voucher_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "payment_voucher_id") // Ensure this column name matches the DB column
     private PaymentVoucher paymentVoucher;
-
 
 }

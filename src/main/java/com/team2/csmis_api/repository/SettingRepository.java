@@ -16,4 +16,9 @@ public interface SettingRepository extends JpaRepository<Settings, Integer> {
     Settings findTopByOrderByIdAsc();
 
     Settings findTopByOrderByIdDesc();
+
+    @Query("SELECT s.currentLunchPrice FROM Settings s WHERE s.id = 1") // Change this if your logic to fetch the price differs
+    double findCurrentPrice();
+
+
 }
