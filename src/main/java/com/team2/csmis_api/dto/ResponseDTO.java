@@ -18,6 +18,11 @@ public class ResponseDTO {
         this.message = message;
     }
 
+    public ResponseDTO(String message, String status) {
+        this.message = message;
+        this.status = status;
+    }
+
     public ResponseDTO(String message, String status, Integer id) {
         this.message = message;
         this.status = status;

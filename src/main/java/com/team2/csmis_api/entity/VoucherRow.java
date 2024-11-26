@@ -3,10 +3,13 @@ package com.team2.csmis_api.entity;
 import com.team2.csmis_api.entity.PaymentVoucher;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "voucher_rows")
 public class VoucherRow {

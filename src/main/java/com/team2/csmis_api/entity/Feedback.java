@@ -2,10 +2,13 @@ package com.team2.csmis_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Table(name = "feedback")
 @Entity
 public class Feedback extends Base {

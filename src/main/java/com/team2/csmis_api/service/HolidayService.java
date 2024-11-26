@@ -56,7 +56,7 @@ public class HolidayService {
     }
 
     public List<HolidayDTO> showAllHoliday() {
-        return holidayRepository.findAll().stream()
+        return holidayRepository.getAllHolidays().stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }

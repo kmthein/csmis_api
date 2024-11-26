@@ -24,6 +24,11 @@ public class MeatService {
     }
 
     public Meat save(Meat meat) {
+        Meat existMeat = meatRepository.findByName(meat.getName());
+        if(existMeat != null) {
+            existMeat.setIsDeleted(false);
+            return meatRepository.save(existMeat);
+        }
         return meatRepository.save(meat);
     }
 

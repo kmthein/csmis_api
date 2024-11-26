@@ -37,20 +37,6 @@ public class ReportController {
         response.getOutputStream().flush();
     }
 
-//    @GetMapping("/restaurant/view")
-//    public ResponseEntity<byte[]> viewRestaurantReport() {
-//        try {
-//            byte[] report = reportService.generateRestaurantReport();
-//            return ResponseEntity.ok()
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=restaurant_report.pdf")
-//                    .contentType(MediaType.APPLICATION_PDF)
-//                    .body(report);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return ResponseEntity.status(500).build();
-//        }
-//    }
-
     @GetMapping("mail-on")
     public List<UserDTO> getMailOnUsers() {
         return reportService.getMailNotiOnUsers();
