@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
 //                       .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/restaurants/**", "/api/users/**").authenticated()
-                        .requestMatchers("/api/lunches/**", "/api/suggestions/**").authenticated()
+                        .requestMatchers("/api/lunches/**", "/api/suggestions/**", "/api/feedbacks/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .userDetailsService(userDetailsService)

@@ -1,14 +1,23 @@
 package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.ResponseDTO;
+import com.team2.csmis_api.dto.SettingsDTO;
 import com.team2.csmis_api.entity.Settings;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.SettingRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 @Service
@@ -21,6 +30,39 @@ public class SettingService {
 
     public Settings getSettings() {
         return settingRepository.findById(1).get();
+    }
+
+    public ResponseDTO updateSettings(SettingsDTO settingsDTO) {
+        User admin = userRepository.getUserById(settingsDTO.getAdminId());
+        ResponseDTO res = new ResponseDTO();
+        if(admin == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        Settings settings = settingRepository.findById(1).get();
+        settings.setAdmin(admin);
+        settings.setCompanyRate(settingsDTO.getCompanyRate());
+        settings.setLunchReminderTime(localTimeFormatter(settingsDTO.getLunchReminderTime()));
+        settings.setCurrentLunchPrice(settingsDTO.getCurrentLunchPrice());
+        Settings updateSettings = settingRepository.save(settings);
+        if(updateSettings != null) {
+            res.setStatus("200");
+            res.setMessage("Settings updated successfully");
+        } else {
+            res.setStatus("401");
+            res.setMessage("Settings update failed");
+        }
+        return res;
+    }
+
+    public LocalTime localTimeFormatter(String timeString) {
+        DateTimeFormatter formatter = null;
+        if(timeString.length() > 5) {
+            formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        } else {
+            formatter = DateTimeFormatter.ofPattern("HH:mm");
+        }
+        LocalTime localTime = LocalTime.parse(timeString, formatter);
+        return localTime;
     }
 
     public ResponseDTO setLastRegister(Integer adminId, String day, String time) {
@@ -53,5 +95,35 @@ public class SettingService {
             }
         }
         return res;
+    }
+
+    public boolean isRegistrationAllowed() {
+        Settings settings = settingRepository.findLimitLatestSettings();
+
+        if (settings == null) {
+            throw new IllegalStateException("Settings not configured.");
+        }
+
+        DayOfWeek lastRegisterDay = DayOfWeek.valueOf(settings.getLastRegisterDay());
+        LocalTime lastRegisterTime = LocalTime.parse(settings.getLastRegisterTime());
+
+        LocalDate today = LocalDate.now();
+        LocalDate nextWeek = today.plusWeeks(1);
+        LocalDateTime lastRegisterDeadline = nextWeek
+                .with(TemporalAdjusters.nextOrSame(lastRegisterDay))
+                .atTime(lastRegisterTime);
+
+        return LocalDateTime.now().isBefore(lastRegisterDeadline);
+    }
+
+
+    public Settings getLatestSettings() {
+        // Assuming the `Settings` table has a timestamp or unique ID to determine the latest entry
+        return settingRepository.findTopByOrderByUpdatedAtDesc()
+                .orElseThrow(() -> new RuntimeException("No settings found in the database."));
+    }
+
+    public Settings getRegistrationCutoff() {
+        return settingRepository.findTopByOrderByIdDesc();
     }
 }

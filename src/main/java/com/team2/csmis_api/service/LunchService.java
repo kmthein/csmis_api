@@ -7,13 +7,18 @@ import com.team2.csmis_api.dto.WeeklyMenuDTO;
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.entity.User;
+import com.team2.csmis_api.entity.UserHasLunch;
 import com.team2.csmis_api.repository.LunchRepository;
 import com.team2.csmis_api.repository.RestaurantRepository;
+import com.team2.csmis_api.repository.UserHasLunchRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -30,6 +35,15 @@ public class LunchService {
     @Autowired
     private LunchRepository lunchRepository;
 
+    @Autowired
+    private UserHasLunchRepository userHasLunchRepository;
+
+    public LunchDTO getMenuByDate(LocalDate date) {
+        Lunch lunch = lunchRepository.findByDate(date)
+                .orElseThrow(() -> new RuntimeException("No lunch found for date: " + date));
+        return convertToDTO(lunch);
+    }
+
     // Method to find all lunches and return as DTOs
     public List<LunchDTO> findAll() {
         List<Lunch> lunches = lunchRepository.findAll();
@@ -37,6 +51,11 @@ public class LunchService {
         return lunches.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+    }
+
+    public Lunch findLunchByDate(LocalDate date) {
+        return lunchRepository.findByDate(date)
+                .orElseThrow(() -> new RuntimeException("No lunch found for date: " + date));
     }
 
     public List<LunchDTO> getCurrentWeekMenu() {
@@ -66,6 +85,15 @@ public class LunchService {
             lunchRepository.save(lunch);
             lunchList.add(lunch);
         }
+        for(Lunch saveLunch : lunchList) {
+            List<UserHasLunch> userHasLunchList = userHasLunchRepository.findByDate(localToDate(saveLunch.getDate()));
+            if(userHasLunchList.size() > 0) {
+                for (UserHasLunch userHasLunch : userHasLunchList) {
+                    userHasLunch.setLunch(saveLunch);
+                    userHasLunchRepository.save(userHasLunch);
+                }
+            }
+        }
         if(lunchList.size() > 0) {
             res.setMessage("Lunch added successfully");
             res.setStatus("201");
@@ -74,6 +102,10 @@ public class LunchService {
             res.setStatus("401");
         }
         return res;
+    }
+
+    private Date localToDate(LocalDate localDate) {
+        return Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
     }
 
     // Method to save a lunch and return as DTO

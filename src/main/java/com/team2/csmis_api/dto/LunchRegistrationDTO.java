@@ -16,5 +16,10 @@ public class LunchRegistrationDTO {
     private String lunch;
 
 
+    public LunchRegistrationDTO(Integer userId, List<Date> selectedDates) {
+        this.userId = userId;
+        this.selectedDates = selectedDates;
+    }
+
 }
 
