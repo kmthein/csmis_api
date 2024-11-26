@@ -303,4 +303,9 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
 
     @Query("SELECT uhl FROM UserHasLunch uhl WHERE DATE(uhl.dt) = CURDATE()")
     List<UserHasLunch> findByCurrentDate();
+
+    @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.dt = :date")
+    long countByDate(@Param("date") Date date);
+
+
 }

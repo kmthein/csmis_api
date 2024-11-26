@@ -61,8 +61,11 @@ public class UserHasLunchServices {
             userHasLunch.setCompany_cost(companyCostPerDay);
             double totalCost = userCostPerDay + companyCostPerDay;
             userHasLunch.setTotal_cost(totalCost);
+            System.out.println("Look::  " + userHasLunch);
             userHasLunchRepository.save(userHasLunch);
         }
+
+
 
 
         userRepository.save(user);
