@@ -38,9 +38,16 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
             ")", nativeQuery = true)
     public List<Lunch> getCurrentWeekMenu();
 
+    @Query(value = "SELECT * FROM lunch l WHERE " +
+            "l.date BETWEEN " +
+            "DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY) " +
+            "AND DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 13 DAY)",
+            nativeQuery = true)
+    public List<Lunch> getNextWeekMenu();
+
     @Modifying
     @Transactional
-    @Query("UPDATE Lunch l SET l.isDeleted=true WHERE l.id=?1")
+    @Query("UPDATE Lunch l SET l.isDeleted=true WHERE l.id=:id")
     public void deleteLunch(Integer id);
 
 //    Optional<Object> findByDtAndLunch(Date lunchDate, String lunchType);

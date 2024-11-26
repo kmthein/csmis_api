@@ -2,11 +2,14 @@ package com.team2.csmis_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Settings extends Base {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

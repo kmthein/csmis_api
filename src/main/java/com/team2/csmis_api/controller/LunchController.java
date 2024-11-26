@@ -29,6 +29,11 @@ public class LunchController {
         return lunchService.getCurrentWeekMenu();
     }
 
+    @GetMapping("next-week")
+    public List<LunchDTO> getNextWeekMenu() {
+        return lunchService.getNextWeekMenu();
+    }
+
     @GetMapping("{id}")
     public LunchDTO getLunchById(@PathVariable("id") Integer id) {
         return lunchService.getLunchById(id);

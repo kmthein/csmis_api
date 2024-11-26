@@ -11,4 +11,9 @@ public class LunchDetailsDTO {
     private int registeredDays;
     private double lunchPrice;
     private double companyRate;
+    private double userCostPerDay;
+    private double companyCostPerDay;
+    private double userMonthlyCost;
+    private double companyMonthlyCost;
+    private double estMonthlyCost;
 }
