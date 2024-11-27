@@ -2,6 +2,7 @@ package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.LunchDetailsDTO;
 import com.team2.csmis_api.dto.LunchRegistrationDTO;
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.WeeklyPaymentDTO;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.entity.UserHasLunch;
@@ -17,6 +18,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
 
@@ -81,7 +83,7 @@ public ResponseEntity<List<Date>> getSelectedDates(@PathVariable int userId) {
     @PutMapping("/update-next-month/{userId}")
     public ResponseEntity<?> updateLunchForNextMonth(@PathVariable Integer userId, @RequestBody LunchRegistrationDTO registrationDto) {
         try {
-            userHasLunchService.updateLunchForNextMonth(userId, registrationDto);
+            userHasLunchService.updateLunchForNextMonth(userId, (List<Date>) registrationDto);
             return ResponseEntity.ok("Lunch registration for next month updated successfully for user ID: " + userId);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating next month's lunch registration: " + e.getMessage());
@@ -92,4 +94,10 @@ public ResponseEntity<List<Date>> getSelectedDates(@PathVariable int userId) {
         LunchDetailsDTO lunchDetails = userHasLunchService.getLunchDetails(userId);
         return ResponseEntity.ok(lunchDetails);
     }
+    @GetMapping("/cost-per-day/user/{userId}")
+    public ResponseEntity<Map<String, Object>> getLunchCostPerDayByUserId(@PathVariable Integer userId) {
+        Map<String, Object> costDetails = userHasLunchService.calculateLunchCostPerDayByUserId(userId);
+        return ResponseEntity.ok(costDetails);
+    }
+
 }

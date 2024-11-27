@@ -58,7 +58,7 @@ public class SuggestionService {
         }
 
         String message = "has sent a new suggestion";
-        notificationService.sendSuggestionNotification(user.getName(), message);
+        notificationService.sendSuggestionNotification(savedSuggestion.getUser().getName(), message);
 
         // Return the saved suggestion as a DTO
         return modelMapper.map(savedSuggestion, SuggestionDTO.class);
@@ -69,6 +69,31 @@ public class SuggestionService {
         return suggestionRepository.findAll().stream()
                 .map(suggestion -> modelMapper.map(suggestion, SuggestionDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    public SuggestionDTO getSuggestionByIdAndMakeSeen(Integer id, Integer userId) {
+        Suggestion suggestion = suggestionRepository.findById(id).orElse(null);
+        User user = userRepository.findById(userId).orElse(null);
+        UserHasSuggestion userSuggestion = userHasSuggestionRepository.findBySuggestionAndUser(suggestion, user);
+        SuggestionDTO suggestionDTO = new SuggestionDTO();
+        if(userSuggestion != null) {
+            userSuggestion.setIsSeen(true);
+            userSuggestion = userHasSuggestionRepository.save(userSuggestion);
+            suggestionDTO = convertToSuggestionDto(suggestion);
+            suggestionDTO.setSeen(userSuggestion.getIsSeen());
+        }
+        return suggestion != null ? suggestionDTO : null;
+    }
+
+    private SuggestionDTO convertToSuggestionDto(Suggestion suggestion) {
+        SuggestionDTO dto = new SuggestionDTO();
+        dto.setId(suggestion.getId());
+        dto.setCreatedAt(suggestion.getCreatedAt());
+        dto.setUsername(suggestion.getUser().getName());
+        dto.setContent(suggestion.getContent());
+        dto.setUserId(suggestion.getUser().getId());
+        dto.setDate(suggestion.getDate());
+        return dto;
     }
 
     public SuggestionDTO getSuggestionById(Integer id) {

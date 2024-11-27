@@ -42,7 +42,10 @@ public class UserHasSuggestionService {
         dto.setId(userHasSuggestion.getSuggestion().getId());
         dto.setDate(userHasSuggestion.getSuggestion().getDate());
         dto.setContent(userHasSuggestion.getSuggestion().getContent());
-        dto.setUserId(userHasSuggestion.getUser().getId());
+        dto.setUserId(userHasSuggestion.getSuggestion().getUser().getId());
+        dto.setUsername(userHasSuggestion.getSuggestion().getUser().getName());
+        dto.setCreatedAt(userHasSuggestion.getSuggestion().getCreatedAt());
+        dto.setSeen(userHasSuggestion.getIsSeen());
         return dto;
     }
 

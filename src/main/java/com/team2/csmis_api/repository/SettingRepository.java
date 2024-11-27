@@ -16,4 +16,11 @@ public interface SettingRepository extends JpaRepository<Settings, Integer> {
     Settings findTopByOrderByIdAsc();
 
     Settings findTopByOrderByIdDesc();
+
+    Optional<Settings> findTopByOrderByUpdatedAtDesc(); // Fetch the latest entry by timestamp
+    @Query("SELECT s FROM Settings s ORDER BY s.id DESC LIMIT 1")
+    Settings findLimitLatestSettings();
+
+    @Query("SELECT s FROM Settings s WHERE s.id = (SELECT MAX(s.id) FROM Settings s)")
+    Settings findCurrentSettings();
 }

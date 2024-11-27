@@ -2,10 +2,13 @@ package com.team2.csmis_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
-@Data
+@Getter
+@Setter
 @Table(name = "user_has_lunch")
 @Entity
 public class UserHasLunch extends Base{
