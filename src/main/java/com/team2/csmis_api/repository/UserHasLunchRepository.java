@@ -349,11 +349,4 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
        """, nativeQuery = true)
     List<Object[]> getUserAvoidMeatForNextWeek();
 
-
-
-
-
-
-
-
 }

@@ -13,13 +13,16 @@
 		<![CDATA[SELECT u.name, d.door_log_no, DATE(d.date)
 FROM door_access_record d
 LEFT JOIN user_has_lunch ul ON d.user_id = ul.user_id AND DATE(d.date) = DATE(ul.dt)
-JOIN user u ON d.user_id = u.id
-        WHERE (
-            ($P{timeRangeType} = 'daily' AND DATE(d.date) = $P{date})
+JOIN 
+    user u ON d.user_id = u.id
+WHERE 
+    d.user_id = ul.user_id 
+    AND (
+        ($P{timeRangeType} = 'daily' AND DATE(d.date) = $P{date})
             OR ($P{timeRangeType} = 'weekly' AND d.date BETWEEN $P{startDate} AND $P{endDate})
             OR ($P{timeRangeType} = 'monthly' AND EXTRACT(MONTH FROM d.date) = $P{month} AND EXTRACT(YEAR FROM d.date) = $P{year})
             OR ($P{timeRangeType} = 'yearly' AND EXTRACT(YEAR FROM d.date) = $P{year})
-        )]]>
+    )]]>
 	</queryString>
 	<field name="name" class="java.lang.String">
 		<property name="com.jaspersoft.studio.field.name" value="name"/>
