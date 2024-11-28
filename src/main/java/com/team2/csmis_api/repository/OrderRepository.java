@@ -22,5 +22,4 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     @Query("SELECT o FROM OrderRow o WHERE o.lunchDate IN :dates")
     List<OrderRow> findOrderRowsByDates(@Param("dates") List<LocalDate> dates);
-
 }

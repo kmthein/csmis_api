@@ -57,4 +57,223 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
     @Query("SELECT l.price FROM Lunch l WHERE l.date = :date")
     Double getPriceByDate(LocalDate date);
 //    Optional<Object> findByDtAndLunch(Date lunchDate, String lunchType);
+
+    @Query(value = """
+        SELECT 
+            l.date AS date,
+            o.quantity AS quantity,
+            (COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) AS user_id,
+            l.price AS price,
+            l.company_rate AS company_rate,
+            ((o.quantity * l.price) - ((COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) * (l.price - ((l.company_rate / 100 ) * l.price)))) AS amount,
+            SUM(
+              ((o.quantity * l.price) - ((COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) * (l.price - ((l.company_rate / 100 ) * l.price))))
+            ) OVER () AS total_amount
+        FROM 
+            lunch l
+        LEFT JOIN 
+            order_row o ON l.date = o.lunch_date
+        LEFT JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        LEFT JOIN 
+            door_access_record d 
+            ON l.date = d.date AND d.user_id NOT IN (
+                SELECT user_id FROM user_has_lunch WHERE dt = l.date
+            )
+        WHERE 
+            l.date = :date
+        GROUP BY 
+            l.date, o.quantity, l.company_rate, l.price
+        ORDER BY 
+            l.date
+        """, nativeQuery = true)
+    List<Object[]> getDailyCompanyCosting(@Param("date") LocalDate date);
+
+    // Weekly Report Query
+    @Query(value = """
+        SELECT 
+            l.date AS date,
+            o.quantity AS quantity,
+            (COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) AS user_id,
+            l.price AS price,
+            l.company_rate AS company_rate,
+            ((o.quantity * l.price) - ((COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) * (l.price - ((l.company_rate / 100 ) * l.price)))) AS amount,
+            SUM(
+              ((o.quantity * l.price) - ((COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) * (l.price - ((l.company_rate / 100 ) * l.price))))
+            ) OVER () AS total_amount
+        FROM 
+            lunch l
+        LEFT JOIN 
+            order_row o ON l.date = o.lunch_date
+        LEFT JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        LEFT JOIN 
+            door_access_record d 
+            ON l.date = d.date AND d.user_id NOT IN (
+                SELECT user_id FROM user_has_lunch WHERE dt = l.date
+            )
+        WHERE 
+            l.date BETWEEN :startDate AND :endDate
+        GROUP BY 
+            l.date, o.quantity, l.company_rate, l.price
+        ORDER BY 
+            l.date
+        """, nativeQuery = true)
+    List<Object[]> getWeeklyCompanyCosting(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    // Monthly Report Query
+    @Query(value = """
+        SELECT 
+            l.date AS date,
+            o.quantity AS quantity,
+            (COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) AS user_id,
+            l.price AS price,
+            l.company_rate AS company_rate,
+            ((o.quantity * l.price) - ((COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) * (l.price - ((l.company_rate / 100 ) * l.price)))) AS amount,
+            SUM(
+              ((o.quantity * l.price) - ((COUNT(DISTINCT uhl.user_id) + 
+            COUNT(DISTINCT d.user_id)) * (l.price - ((l.company_rate / 100 ) * l.price))))
+            ) OVER () AS total_amount
+        FROM 
+            lunch l
+        LEFT JOIN 
+            order_row o ON l.date = o.lunch_date
+        LEFT JOIN 
+            user_has_lunch uhl ON l.date = uhl.dt
+        LEFT JOIN 
+            door_access_record d 
+            ON l.date = d.date AND d.user_id NOT IN (
+                SELECT user_id FROM user_has_lunch WHERE dt = l.date
+            )
+        WHERE 
+            MONTH(l.date) = :month
+            AND YEAR(l.date) = :year
+        GROUP BY 
+            l.date, o.quantity, l.company_rate, l.price
+        ORDER BY 
+            l.date
+        """, nativeQuery = true)
+    List<Object[]> getMonthlyCompanyCosting(@Param("month") int month, @Param("year") int year);
+
+
+    @Query(nativeQuery = true, value = """
+        WITH calculated_data AS (
+            SELECT 
+                u.name AS name, 
+                u.staff_id AS staff_id, 
+                SUM(l.price - (l.company_rate / 100) * l.price) AS amount
+            FROM (
+                SELECT dar.user_id AS user_id, dar.date AS date 
+                FROM door_access_record dar
+                WHERE dar.date = :date 
+                AND NOT EXISTS (
+                    SELECT user_id  
+                    FROM user_has_lunch uhl
+                    WHERE dar.user_id = uhl.user_id 
+                    AND dar.date = uhl.dt
+                )
+                UNION ALL
+                SELECT uhl.user_id AS user_id, uhl.dt AS date 
+                FROM user_has_lunch uhl
+                WHERE uhl.dt = :date 
+            ) combined
+            JOIN user u ON combined.user_id = u.id
+            JOIN lunch l ON combined.date = l.date
+            GROUP BY u.name, u.staff_id
+        )
+        SELECT 
+            name, 
+            staff_id, 
+            amount, 
+            SUM(amount) OVER () AS total_amount
+        FROM calculated_data
+        ORDER BY staff_id
+        """)
+    List<Object[]> getDailyEmployeeOwnCost(@Param("date") LocalDate date);
+
+
+    @Query(nativeQuery = true, value = """
+        WITH calculated_data AS (
+            SELECT 
+                u.name AS name, 
+                u.staff_id AS staff_id, 
+                SUM(l.price - (l.company_rate / 100) * l.price) AS amount
+            FROM (
+                SELECT dar.user_id AS user_id, dar.date AS date 
+                FROM door_access_record dar
+                WHERE dar.date BETWEEN :startDate AND :endDate 
+                AND NOT EXISTS (
+                    SELECT user_id  
+                    FROM user_has_lunch uhl
+                    WHERE dar.user_id = uhl.user_id 
+                    AND dar.date = uhl.dt
+                )
+                UNION ALL
+                SELECT uhl.user_id AS user_id, uhl.dt AS date 
+                FROM user_has_lunch uhl
+                WHERE uhl.dt BETWEEN :startDate AND :endDate
+            ) combined
+            JOIN user u ON combined.user_id = u.id
+            JOIN lunch l ON combined.date = l.date
+            GROUP BY u.name, u.staff_id
+        )
+        SELECT 
+            name, 
+            staff_id, 
+            amount, 
+            SUM(amount) OVER () AS total_amount
+        FROM calculated_data
+        ORDER BY staff_id
+        """)
+    List<Object[]> getWeeklyEmployeeOwnCost(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+
+
+    @Query(nativeQuery = true, value = """
+        WITH calculated_data AS (
+            SELECT 
+                u.name AS name, 
+                u.staff_id AS staff_id, 
+                SUM(l.price - (l.company_rate / 100) * l.price) AS amount
+            FROM (
+                SELECT dar.user_id AS user_id, dar.date AS date 
+                FROM door_access_record dar
+                WHERE 
+                MONTH(dar.date) = :month
+                AND YEAR(dar.date) = :year 
+                AND NOT EXISTS (
+                    SELECT user_id  
+                    FROM user_has_lunch uhl
+                    WHERE dar.user_id = uhl.user_id 
+                    AND dar.date = uhl.dt
+                )
+                UNION ALL
+                SELECT uhl.user_id AS user_id, uhl.dt AS date 
+                FROM user_has_lunch uhl
+                WHERE 
+                MONTH(uhl.dt) = :month
+                AND YEAR(uhl.dt) = :year
+            ) combined
+            JOIN user u ON combined.user_id = u.id
+            JOIN lunch l ON combined.date = l.date
+            GROUP BY u.name, u.staff_id
+        )
+        SELECT 
+            name, 
+            staff_id, 
+            amount, 
+            SUM(amount) OVER () AS total_amount
+        FROM calculated_data
+        ORDER BY staff_id
+        """)
+    List<Object[]> getMonthlyEmployeeOwnCost(@Param("month") int month, @Param("year") int year);
+
 }

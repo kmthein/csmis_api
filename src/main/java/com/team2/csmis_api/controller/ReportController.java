@@ -293,5 +293,45 @@ public class ReportController {
         return ResponseEntity.ok(results);
     }
 
+    @PutMapping("/daily-company-cost")
+    public ResponseEntity<List<CostDTO>> getDailyCompanyCosting(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<CostDTO> results = reportService.getDailyCompanyCosting(date);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/weekly-company-cost")
+    public ResponseEntity<List<CostDTO>> getWeeklyCompanyCosting(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<CostDTO> results = reportService.getWeeklyCompanyCosting(startDate,endDate);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/monthly-company-cost")
+    public ResponseEntity<List<CostDTO>> getMonthlyCompanyCosting(@RequestParam("month") String month,
+                                                                  @RequestParam("year") String year) {
+        List<CostDTO> results = reportService.getMonthlyCompanyCosting(Integer.parseInt(month), Integer.parseInt(year));
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/daily-employee-cost")
+    public ResponseEntity<List<EmployeeCostDTO>> getDailyEmployeeOwnCost(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<EmployeeCostDTO> results = reportService.getDailyEmployeeOwnCost(date);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/weekly-employee-cost")
+    public ResponseEntity<List<EmployeeCostDTO>> getWeeklyEmployeeOwnCost(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<EmployeeCostDTO> results = reportService.getWeeklyEmployeeOwnCost(startDate,endDate);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/monthly-employee-cost")
+    public ResponseEntity<List<EmployeeCostDTO>> getMonthlyEmployeeOwnCost(@RequestParam("month") String month,
+                                                                  @RequestParam("year") String year) {
+        List<EmployeeCostDTO> results = reportService.getMonthlyEmployeeOwnCost(Integer.parseInt(month), Integer.parseInt(year));
+        return ResponseEntity.ok(results);
+    }
+
 }
 
