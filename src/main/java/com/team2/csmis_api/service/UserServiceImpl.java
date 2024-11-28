@@ -267,6 +267,29 @@ public class UserServiceImpl implements UserService {
         return res;
     }
 
+    @Override
+    public ResponseDTO changeNewPassword(int id, String oldPassword, String newPassword) {
+        boolean isPasswordSame = isSamePassword(id, oldPassword);
+        ResponseDTO res = new ResponseDTO();
+        if(!isPasswordSame) {
+            res.setStatus("403");
+            res.setMessage("New password must be same with old password");
+        } else {
+            res.setStatus("200");
+            res.setMessage("Password change successfully");
+        }
+        return res;
+    }
+
+    public boolean isSamePassword(int id, String newPassword) {
+        // Fetch the user's current hashed password from the database
+        User user = userRepo.getUserById(id); // Adjust based on your setup
+        String currentEncodedPassword = user.getPassword();
+
+        // Compare the new plain-text password with the encoded current password
+        return passwordEncoder.matches(newPassword, currentEncodedPassword);
+    }
+
     public UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
         if(user.getDivision() != null) {

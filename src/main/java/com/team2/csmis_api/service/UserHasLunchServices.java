@@ -1,9 +1,6 @@
 package com.team2.csmis_api.service;
 
-import com.team2.csmis_api.dto.LunchDetailsDTO;
-import com.team2.csmis_api.dto.LunchRegistrationDTO;
-import com.team2.csmis_api.dto.WeeklyCostsDTO;
-import com.team2.csmis_api.dto.WeeklyPaymentDTO;
+import com.team2.csmis_api.dto.*;
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.entity.Settings;
 import com.team2.csmis_api.entity.User;
@@ -15,8 +12,10 @@ import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
@@ -33,6 +32,26 @@ public class UserHasLunchServices {
     private UserRepository userRepository;
     @Autowired
     private SettingRepository settingsRepository;
+
+    public List<DateCountDTO> getNextWeekLunchCounts() {
+        // Get today's date
+        LocalDate today = LocalDate.now();
+
+        // Calculate next Monday
+        LocalDate nextMonday = today.with(DayOfWeek.MONDAY).isAfter(today) ?
+                today.with(DayOfWeek.MONDAY) :
+                today.plusWeeks(1).with(DayOfWeek.MONDAY);
+
+        // Calculate next Friday
+        LocalDate nextFriday = nextMonday.plusDays(4);
+
+        // Format dates to String
+        Date startDate = java.sql.Date.valueOf(nextMonday);
+        Date endDate = java.sql.Date.valueOf(nextFriday);
+
+        // Fetch data from repository
+        return userHasLunchRepository.getLunchCounts(startDate, endDate);
+    }
 
     public void registerUserForLunch(Integer userId, List<Date> selectedDates) throws Exception {
         User user = userRepository.findById(userId)
