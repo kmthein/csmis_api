@@ -3,6 +3,7 @@ package com.team2.csmis_api.service;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.ResponseTokenDTO;
 import com.team2.csmis_api.dto.UserDTO;
+import com.team2.csmis_api.entity.FileData;
 import com.team2.csmis_api.entity.Role;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.repository.UserRepository;
@@ -69,6 +70,13 @@ public class AuthServiceImpl implements AuthService {
             ResponseTokenDTO tokenDTO = new ResponseTokenDTO();
             tokenDTO.setToken(token);
             UserDTO userDTO = mapper.map(existUser, UserDTO.class);
+            if(existUser.getImages().size() > 0) {
+                for(FileData img: existUser.getImages()) {
+                    if(!img.getIsDeleted()) {
+                        userDTO.setImgUrl(img.getFilePath());
+                    }
+                }
+            }
             tokenDTO.setUserDetails(userDTO);
             return tokenDTO;
         } catch (BadCredentialsException exception) {
