@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface PaymentVoucherService {
+    List<PaymentVoucher> getAllPaymentVoucher();
+
     String createPaymentVoucherByDate(LocalDate selectedDate, PaymentVoucherDTO requestDTO);
 
     void updatePaymentVoucher(Integer id, PaymentVoucherDTO requestDTO);  // Change Long to Integer
@@ -14,6 +16,4 @@ public interface PaymentVoucherService {
     void deletePaymentVoucher(Integer id);
 
     PaymentVoucher getPaymentVoucherById(Integer id);
-
-
 }

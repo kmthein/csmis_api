@@ -1,6 +1,10 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.OrderDTO;
+import com.team2.csmis_api.dto.OrderRowDTO;
+import com.team2.csmis_api.entity.Order;
+import com.team2.csmis_api.entity.OrderRow;
+import com.team2.csmis_api.entity.PaymentVoucher;
 import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +51,16 @@ public class OrderController {
     public ResponseEntity<OrderDTO> getOrderById(@PathVariable Integer id) {
         OrderDTO order = orderService.getOrderById(id);
         return ResponseEntity.ok(order);
+    }
+
+    @PutMapping("find-date")
+    public OrderDTO getOrderByDate(@RequestParam("date") LocalDate date) {
+        return orderService.getOrderByRowDate(date);
+    }
+
+    @GetMapping("/check-exist")
+    public List<OrderRowDTO> checkOrderExist() {
+        return orderService.getNextWeekOrder();
     }
 
     @DeleteMapping("/{id}")
