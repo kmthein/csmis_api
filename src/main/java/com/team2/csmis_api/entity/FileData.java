@@ -1,5 +1,6 @@
 package com.team2.csmis_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class FileData extends Base {
     @Column(name = "file_type")
     private String fileType;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "fileData")
     private List<Announcement> announcements;
 
