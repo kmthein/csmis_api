@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -102,5 +103,8 @@ public class LunchController {
         return ResponseEntity.noContent().build(); // Returns 204 No Content
     }
 
-
+    @GetMapping("/cost")
+    public Double getTotalCost(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        return lunchService.getCost(date);
+    }
 }

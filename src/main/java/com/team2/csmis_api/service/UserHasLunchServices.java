@@ -1,9 +1,6 @@
 package com.team2.csmis_api.service;
 
-import com.team2.csmis_api.dto.LunchDetailsDTO;
-import com.team2.csmis_api.dto.LunchRegistrationDTO;
-import com.team2.csmis_api.dto.WeeklyCostsDTO;
-import com.team2.csmis_api.dto.WeeklyPaymentDTO;
+import com.team2.csmis_api.dto.*;
 import com.team2.csmis_api.entity.Lunch;
 import com.team2.csmis_api.entity.Settings;
 import com.team2.csmis_api.entity.User;
@@ -15,8 +12,10 @@ import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.DayOfWeek;
 import java.time.YearMonth;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.time.LocalDate;
 import java.util.stream.Collectors;
@@ -33,6 +32,26 @@ public class UserHasLunchServices {
     private UserRepository userRepository;
     @Autowired
     private SettingRepository settingsRepository;
+
+    public List<DateCountDTO> getNextWeekLunchCounts() {
+        // Get today's date
+        LocalDate today = LocalDate.now();
+
+        // Calculate next Monday
+        LocalDate nextMonday = today.with(DayOfWeek.MONDAY).isAfter(today) ?
+                today.with(DayOfWeek.MONDAY) :
+                today.plusWeeks(1).with(DayOfWeek.MONDAY);
+
+        // Calculate next Friday
+        LocalDate nextFriday = nextMonday.plusDays(4);
+
+        // Format dates to String
+        Date startDate = java.sql.Date.valueOf(nextMonday);
+        Date endDate = java.sql.Date.valueOf(nextFriday);
+
+        // Fetch data from repository
+        return userHasLunchRepository.getLunchCounts(startDate, endDate);
+    }
 
     public void registerUserForLunch(Integer userId, List<Date> selectedDates) throws Exception {
         User user = userRepository.findById(userId)
@@ -175,51 +194,47 @@ public class UserHasLunchServices {
     }
 
 
-//User
-public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer departmentId) throws Exception {
-    Calendar calendar = Calendar.getInstance();
+    //User
+    public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer departmentId) throws Exception {
+        Calendar calendar = Calendar.getInstance();
 
-    calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        // Get start and end dates of the previous week
+        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        calendar.add(Calendar.WEEK_OF_YEAR, -1);
+        Date startOfPreviousWeek = calendar.getTime();
 
-    calendar.add(Calendar.WEEK_OF_YEAR, -1);
-    Date startOfPreviousWeek = calendar.getTime();
+        calendar.add(Calendar.DATE, 6);
+        Date endOfPreviousWeek = calendar.getTime();
 
-    calendar.add(Calendar.DATE, 6);
-    Date endOfPreviousWeek = calendar.getTime();
+        List<UserHasLunch> userHasLunchList;
 
-    // Debugging: Print the start and end dates of the previous week
-    System.out.println("Start of Previous Week: " + startOfPreviousWeek);
-    System.out.println("End of Previous Week: " + endOfPreviousWeek);
+        if (departmentId != null) {
+            // Fetch lunches for a specific department
+            userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeekByDepartment(
+                    startOfPreviousWeek, endOfPreviousWeek, departmentId
+            );
+        } else {
+            // Fetch lunches for all departments
+            userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeek(
+                    startOfPreviousWeek, endOfPreviousWeek
+            );
+        }
 
-    List<UserHasLunch> userHasLunchList;
+        double totalCost = 0;
+        long registeredDateCount = 0;
 
-    if (departmentId != null) {
-        // Fetch user lunches for the previous week filtered by department
-        userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeekByDepartment(
-                startOfPreviousWeek, endOfPreviousWeek, departmentId);
-    } else {
-        // Fetch user lunches for the previous week without filtering by department
-        userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeek(
-                startOfPreviousWeek, endOfPreviousWeek);
+        // Calculate total cost and registered date count
+        for (UserHasLunch userHasLunch : userHasLunchList) {
+            totalCost += userHasLunch.getUserCost();
+            registeredDateCount++;
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalCost", totalCost);
+        result.put("registeredDateCount", registeredDateCount);
+
+        return result;
     }
-
-    double totalCost = 0;
-    long registeredDateCount = 0;
-
-    // Calculate total cost and registered date count
-    for (UserHasLunch userHasLunch : userHasLunchList) {
-        totalCost += userHasLunch.getUserCost();
-        registeredDateCount++;
-    }
-
-    // Prepare the result to return
-    Map<String, Object> result = new HashMap<>();
-    result.put("totalCost", totalCost);
-    result.put("registeredDateCount", registeredDateCount);
-
-    return result;
-}
-
 
     public Map<String, Object> calculateTotalCostAndDateCountForMonth(int month, int year, Integer departmentId) {
         if (month < 1 || month > 12) {
@@ -284,7 +299,7 @@ public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer
 
 
     //Admin
-    public Map<String, Object> calculateCompanyCostForPreviousWeek(Integer adminId, Integer departmentId) throws Exception {
+    public Map<String, Object> calculateCompanyCostForPreviousWeek( Integer departmentId) throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.WEEK_OF_MONTH, -1);
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -376,7 +391,7 @@ public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer
 
         return result;
     }
-//Total
+    //Total
     public Map<String, Object> calculateAllTotalCostAndDateCountForPreviousWeek(Integer departmentId) throws Exception {
         Calendar calendar = Calendar.getInstance();
 
@@ -519,4 +534,9 @@ public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer
         return result;
     }
 
+
+
+    public Double getCost(Date date) {
+        return userHasLunchRepository.getTotalByDate(date);
+    }
 }

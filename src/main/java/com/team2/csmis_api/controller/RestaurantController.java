@@ -30,7 +30,6 @@ public class RestaurantController {
     @GetMapping("/{id}")
     public RestaurantDTO getRestaurantById(@PathVariable Integer id) {
         return restaurantService.findById(id);
-
     }
 
     @PostMapping

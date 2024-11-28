@@ -1,13 +1,11 @@
 package com.team2.csmis_api.controller;
 
-import com.team2.csmis_api.dto.LunchDetailsDTO;
-import com.team2.csmis_api.dto.LunchRegistrationDTO;
-import com.team2.csmis_api.dto.ResponseDTO;
-import com.team2.csmis_api.dto.WeeklyPaymentDTO;
+import com.team2.csmis_api.dto.*;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.entity.UserHasLunch;
 import com.team2.csmis_api.service.UserHasLunchServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +23,17 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/lunch")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin
 public class UserHasLunchController {
 
     @Autowired
     private UserHasLunchServices userHasLunchService;
+
+    @GetMapping("/lunch-count-next-week")
+    public ResponseEntity<List<DateCountDTO>> getLunchCountsForNextWeek() {
+        List<DateCountDTO> counts = userHasLunchService.getNextWeekLunchCounts();
+        return ResponseEntity.ok(counts);
+    }
 
     @PostMapping("")
     public ResponseEntity<?> registerForLunch(@RequestBody LunchRegistrationDTO registrationDto) {
@@ -98,6 +102,10 @@ public ResponseEntity<List<Date>> getSelectedDates(@PathVariable int userId) {
     public ResponseEntity<Map<String, Object>> getLunchCostPerDayByUserId(@PathVariable Integer userId) {
         Map<String, Object> costDetails = userHasLunchService.calculateLunchCostPerDayByUserId(userId);
         return ResponseEntity.ok(costDetails);
+    }
+    @GetMapping("/cost")
+    public Double getTotalCost(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+        return userHasLunchService.getCost(date);
     }
 
 }
