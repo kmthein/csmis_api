@@ -61,8 +61,11 @@ public class UserHasLunchServices {
             userHasLunch.setCompany_cost(companyCostPerDay);
             double totalCost = userCostPerDay + companyCostPerDay;
             userHasLunch.setTotal_cost(totalCost);
+            System.out.println("Look::  " + userHasLunch);
             userHasLunchRepository.save(userHasLunch);
         }
+
+
 
 
         userRepository.save(user);
@@ -88,28 +91,38 @@ public class UserHasLunchServices {
         }
     }
 
-    public void updateLunchForNextMonth(Integer userId, LunchRegistrationDTO registrationDto) {
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth nextMonth = currentMonth.plusMonths(1);
-
-        List<UserHasLunch> currentLunchRegistrations = userHasLunchRepository.findByUserId(userId);
-
-        List<UserHasLunch> nextMonthRegistrations = currentLunchRegistrations.stream()
-                .filter(registration -> {
-                    LocalDate registrationDate = registration.getDt().toInstant()
-                            .atZone(ZoneId.systemDefault())  // Convert Date to ZonedDateTime
-                            .toLocalDate();  // Convert to LocalDate
-                    YearMonth registrationMonth = YearMonth.from(registrationDate);
-                    return registrationMonth.equals(nextMonth);  // Filter only next month's registrations
-                })
-                .collect(Collectors.toList());
-
-        if (!nextMonthRegistrations.isEmpty()) {
-            userHasLunchRepository.deleteAll(nextMonthRegistrations);
+    public void updateLunchForNextMonth(Integer userId, List<Date> selectedDates) throws Exception {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("User not found with id: " + userId));
+        Settings settings = settingsRepository.findTopByOrderByIdDesc();
+        if (settings == null) {
+            throw new Exception("Settings not configured");
         }
 
-        List<UserHasLunch> newNextMonthLunches = generateLunchForNextMonth(userId, nextMonth);
-        userHasLunchRepository.saveAll(newNextMonthLunches);
+        double companyRate = settings.getCompanyRate();
+        double lunchPrice = settings.getCurrentLunchPrice();
+        double userSharePercentage = 100 - companyRate;
+        double userCostPerDay = (lunchPrice * userSharePercentage) / 100;
+        double companyCostPerDay = (lunchPrice * companyRate) / 100;
+
+        double totalUserCost = 0;
+        double totalCompanyCost = 0;
+        for (Date date : selectedDates) {
+            totalUserCost += userCostPerDay;
+            totalCompanyCost += companyCostPerDay;
+
+            UserHasLunch userHasLunch = new UserHasLunch();
+            userHasLunch.setUser(user);
+            userHasLunch.setDt(date);
+            userHasLunch.setUserCost(userCostPerDay);
+            userHasLunch.setCompany_cost(companyCostPerDay);
+            double totalCost = userCostPerDay + companyCostPerDay;
+            userHasLunch.setTotal_cost(totalCost);
+            userHasLunchRepository.save(userHasLunch);
+        }
+
+
+        userRepository.save(user);
     }
 
     private List<UserHasLunch> generateLunchForNextMonth(Integer userId, YearMonth month) {
@@ -133,58 +146,79 @@ public class UserHasLunchServices {
 
     public LunchDetailsDTO getLunchDetails(Integer userId) {
         int registeredDays = userHasLunchRepository.countRegisteredDaysForMonth(userId);
-
         Settings settings = settingsRepository.findLatestSettings();
+        if (settings == null) {
+            throw new RuntimeException("Settings not found!");
+        }
+
         double lunchPrice = settings.getCurrentLunchPrice();
         double companyRate = settings.getCompanyRate();
+        double userSharePercentage = 100 - companyRate;
+
+        double userCostPerDay = (lunchPrice * userSharePercentage) / 100;
+        double companyCostPerDay = (lunchPrice * companyRate) / 100;
+        double userMonthlyCost = userCostPerDay * registeredDays;
+        double companyMonthlyCost = companyCostPerDay * registeredDays;
+        double estMonthlyCost = lunchPrice * registeredDays;
 
         LunchDetailsDTO details = new LunchDetailsDTO();
         details.setRegisteredDays(registeredDays);
         details.setLunchPrice(lunchPrice);
         details.setCompanyRate(companyRate);
+        details.setUserCostPerDay(userCostPerDay);
+        details.setCompanyCostPerDay(companyCostPerDay);
+        details.setUserMonthlyCost(userMonthlyCost);
+        details.setCompanyMonthlyCost(companyMonthlyCost);
+        details.setEstMonthlyCost(estMonthlyCost);
 
         return details;
     }
 
+
 //User
-    public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer departmentId) throws Exception {
-        Calendar calendar = Calendar.getInstance();
+public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer departmentId) throws Exception {
+    Calendar calendar = Calendar.getInstance();
 
-        calendar.set(Calendar.DAY_OF_MONTH, 1);
-        Date firstDayOfCurrentMonth = calendar.getTime();
+    calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 
-        calendar.add(Calendar.WEEK_OF_MONTH, -1);
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);  // Set to Monday
-        Date startOfPreviousWeek = calendar.getTime();
+    calendar.add(Calendar.WEEK_OF_YEAR, -1);
+    Date startOfPreviousWeek = calendar.getTime();
 
-        calendar.add(Calendar.DATE, 6);
-        Date endOfPreviousWeek = calendar.getTime();
+    calendar.add(Calendar.DATE, 6);
+    Date endOfPreviousWeek = calendar.getTime();
 
-        List<UserHasLunch> userHasLunchList;
+    // Debugging: Print the start and end dates of the previous week
+    System.out.println("Start of Previous Week: " + startOfPreviousWeek);
+    System.out.println("End of Previous Week: " + endOfPreviousWeek);
 
-        if (departmentId != null) {
-            userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeekByDepartment(
-                    startOfPreviousWeek, endOfPreviousWeek, departmentId);
-        } else {
-            userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeek(
-                    startOfPreviousWeek, endOfPreviousWeek);
-        }
+    List<UserHasLunch> userHasLunchList;
 
-        double totalCost = 0;
-        long registeredDateCount = 0;
-
-        for (UserHasLunch userHasLunch : userHasLunchList) {
-            totalCost += userHasLunch.getUserCost();
-            registeredDateCount++;
-        }
-
-        // Prepare the result to return
-        Map<String, Object> result = new HashMap<>();
-        result.put("totalCost", totalCost);
-        result.put("registeredDateCount", registeredDateCount);
-
-        return result;
+    if (departmentId != null) {
+        // Fetch user lunches for the previous week filtered by department
+        userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeekByDepartment(
+                startOfPreviousWeek, endOfPreviousWeek, departmentId);
+    } else {
+        // Fetch user lunches for the previous week without filtering by department
+        userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeek(
+                startOfPreviousWeek, endOfPreviousWeek);
     }
+
+    double totalCost = 0;
+    long registeredDateCount = 0;
+
+    // Calculate total cost and registered date count
+    for (UserHasLunch userHasLunch : userHasLunchList) {
+        totalCost += userHasLunch.getUserCost();
+        registeredDateCount++;
+    }
+
+    // Prepare the result to return
+    Map<String, Object> result = new HashMap<>();
+    result.put("totalCost", totalCost);
+    result.put("registeredDateCount", registeredDateCount);
+
+    return result;
+}
 
 
     public Map<String, Object> calculateTotalCostAndDateCountForMonth(int month, int year, Integer departmentId) {
@@ -450,4 +484,39 @@ public class UserHasLunchServices {
 
         return result;
     }
+
+    public Map<String, Object> calculateLunchCostPerDayByUserId(Integer userId) {
+        // Fetch the user from the User table
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user == null) {
+            throw new RuntimeException("User not found with ID: " + userId);
+        }
+
+        // Fetch the settings (assuming one global settings record is active)
+        Settings settings = settingsRepository.findCurrentSettings(); // Customize query to fetch active settings
+
+        if (settings == null) {
+            throw new RuntimeException("Settings not found.");
+        }
+
+        // Extract data from settings
+        double lunchPrice = settings.getCurrentLunchPrice();
+        double companyRate = settings.getCompanyRate();
+        double userSharePercentage = 100 - companyRate;
+
+        // Calculate the costs
+        double userCostPerDay = (lunchPrice * userSharePercentage) / 100;
+        double companyCostPerDay = (lunchPrice * companyRate) / 100;
+
+        // Prepare the result
+        Map<String, Object> result = new HashMap<>();
+        result.put("userName", user.getName()); // Include user details for reference
+        result.put("lunchPrice", lunchPrice);
+        result.put("userCostPerDay", userCostPerDay);
+        result.put("companyCostPerDay", companyCostPerDay);
+
+        return result;
+    }
+
 }

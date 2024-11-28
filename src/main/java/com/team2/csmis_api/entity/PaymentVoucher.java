@@ -9,11 +9,11 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "payment_vouchers")
-public class PaymentVoucher {
+public class PaymentVoucher extends Base{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "voucherNo", nullable = false)
     private String voucherNo;
@@ -27,8 +27,12 @@ public class PaymentVoucher {
     @Column(name = "invoiceFor", nullable = false)
     private String invoiceFor;
 
-    @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL)
+//    @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL)
+//    private List<VoucherRow> rows;
+
+    @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<VoucherRow> rows;
+
 
     @Column(name = "cashier", nullable = false)
     private String cashier;
@@ -44,24 +48,9 @@ public class PaymentVoucher {
     @Column(name = "status", nullable = false)
     private PaymentStatus status; // Using Enum instead of String
 
+
     public enum PaymentStatus {
         PAID,
         UNPAID
     }
 }
-
-//    public enum PaymentStatus {
-//        PAID,
-//        UNPAID
-//    }
-//
-//    public void addRow(VoucherRow row) {
-//        rows.add(row);
-//        row.setPaymentVoucher(this);
-//    }
-//
-//    public void removeRow(VoucherRow row) {
-//        rows.remove(row);
-//        row.setPaymentVoucher(null);
-//    }
-

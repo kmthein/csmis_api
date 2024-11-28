@@ -5,11 +5,14 @@ import com.team2.csmis_api.dto.OrderRowDTO;
 import com.team2.csmis_api.entity.Order;
 import com.team2.csmis_api.entity.OrderRow;
 import com.team2.csmis_api.repository.OrderRepository;
+import com.team2.csmis_api.repository.UserHasLunchRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
+
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +23,14 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
+    private UserHasLunchRepository userHasLunchRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
+
+    public long getQuantity(Date date) {
+        return userHasLunchRepository.countByDate(date);
+    }
 
     @Transactional
     public OrderDTO createOrder(OrderDTO orderDTO) {
@@ -37,7 +47,7 @@ public class OrderService {
         return modelMapper.map(savedOrder, OrderDTO.class);
     }
 
-    public OrderDTO getOrderById(Long id) {
+    public OrderDTO getOrderById(Integer id) {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found for ID: " + id));
         return modelMapper.map(order, OrderDTO.class);
@@ -51,7 +61,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderDTO updateOrder(Long id, OrderDTO updatedOrderDTO) {
+    public OrderDTO updateOrder(Integer id, OrderDTO updatedOrderDTO) {
         Order existingOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found for ID: " + id));
 
@@ -75,7 +85,7 @@ public class OrderService {
         return modelMapper.map(updatedOrder, OrderDTO.class);
     }
 
-    public void deleteOrder(Long id) {
+    public void deleteOrder(Integer id) {
         orderRepository.deleteById(id);
     }
 }

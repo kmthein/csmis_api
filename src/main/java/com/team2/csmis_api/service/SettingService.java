@@ -12,8 +12,12 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Optional;
 
 @Service
@@ -91,5 +95,35 @@ public class SettingService {
             }
         }
         return res;
+    }
+
+    public boolean isRegistrationAllowed() {
+        Settings settings = settingRepository.findLimitLatestSettings();
+
+        if (settings == null) {
+            throw new IllegalStateException("Settings not configured.");
+        }
+
+        DayOfWeek lastRegisterDay = DayOfWeek.valueOf(settings.getLastRegisterDay());
+        LocalTime lastRegisterTime = LocalTime.parse(settings.getLastRegisterTime());
+
+        LocalDate today = LocalDate.now();
+        LocalDate nextWeek = today.plusWeeks(1);
+        LocalDateTime lastRegisterDeadline = nextWeek
+                .with(TemporalAdjusters.nextOrSame(lastRegisterDay))
+                .atTime(lastRegisterTime);
+
+        return LocalDateTime.now().isBefore(lastRegisterDeadline);
+    }
+
+
+    public Settings getLatestSettings() {
+        // Assuming the `Settings` table has a timestamp or unique ID to determine the latest entry
+        return settingRepository.findTopByOrderByUpdatedAtDesc()
+                .orElseThrow(() -> new RuntimeException("No settings found in the database."));
+    }
+
+    public Settings getRegistrationCutoff() {
+        return settingRepository.findTopByOrderByIdDesc();
     }
 }

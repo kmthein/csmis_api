@@ -11,6 +11,8 @@ import java.util.List;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement,Integer> {
+    @Query("SELECT a FROM Announcement a WHERE a.id = :id AND a.isDeleted = false")
+    public Announcement getAnnouncementById(Integer id);
 
     @Query("SELECT a FROM Announcement a WHERE a.isDeleted <> true ORDER BY a.updatedAt DESC")
     public List<Announcement> getAllAnnouncementsWithFiles();

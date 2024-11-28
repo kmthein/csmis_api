@@ -8,25 +8,19 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, Integer> {
+//    Optional<Order> findByOrderDateBetween(LocalDate startOfWeek, LocalDate endOfWeek);
+//
+//
+//    @Query("SELECT o FROM Order o WHERE o.restaurant.name = :restaurantName AND o.orderDate = :orderDate")
+//    Optional<Order> findByRestaurantNameAndOrderDate(@Param("restaurantName") String restaurantName,
+//                                                     @Param("orderDate") LocalDate orderDate);
 
-//    @Query("SELECT o FROM Order o JOIN FETCH o.rows WHERE o.id = :id")
-//    Optional<Order> findByIdWithRows(@Param("id") Long id);
+    @Query("SELECT o FROM OrderRow o WHERE o.lunchDate IN :dates")
+    List<OrderRow> findOrderRowsByDates(@Param("dates") List<LocalDate> dates);
 
-    // Find an order by its lunch date
-    @Query("SELECT o FROM Order o WHERE o.orderDate = :lunchDate")
-    Optional<Order> findByLunchDate(@Param("lunchDate") LocalDate lunchDate);
-
-//    @Query("SELECT orw FROM OrderRow orw WHERE orw.lunchDate = :lunchDate")
-//    Optional<OrderRow> findOrderRowByLunchDate(LocalDate lunchDate);
-
-//    @Query("SELECT o FROM Order o JOIN o.rows r WHERE r.lunchDate = :lunchDate")
-//    Optional<Order> findOrderRowByLunchDate(@Param("lunchDate") LocalDate lunchDate);
-
-    @Query("SELECT o FROM Order o JOIN o.rows r WHERE r.lunchDate = :lunchDate")
-    Optional<Order> findOrderByLunchDate(@Param("lunchDate") LocalDate lunchDate);
 }
-

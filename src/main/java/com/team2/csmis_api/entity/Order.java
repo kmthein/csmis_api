@@ -13,8 +13,7 @@ public class Order extends Base {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    private Integer id;
 
     @Column(name = "order_date")
     private LocalDate orderDate;
@@ -30,7 +29,8 @@ public class Order extends Base {
     @JoinColumn(name = "admin_id")
     private User user;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OrderRow> rows;
+
 
 }

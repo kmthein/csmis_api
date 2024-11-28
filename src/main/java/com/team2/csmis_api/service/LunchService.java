@@ -69,6 +69,17 @@ public class LunchService {
         }
     }
 
+    public List<LunchDTO> getNextWeekMenu() {
+        List<Lunch> lunchList = lunchRepository.getNextWeekMenu();
+        if(lunchList.size() > 0) {
+            return lunchList.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
+    }
+
     public ResponseDTO addWeeklyMenu(WeeklyMenuDTO weeklyMenuDTO) {
         ResponseDTO res = new ResponseDTO();
         List<Lunch> lunchList = new ArrayList<>();
@@ -207,6 +218,7 @@ public class LunchService {
         }
         return res;
     }
+
 
     public void deleteLunch(Integer id) {
         lunchRepository.deleteLunch(id);

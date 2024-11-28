@@ -1,6 +1,7 @@
 package com.team2.csmis_api.repository;
 
 
+import com.team2.csmis_api.dto.AvoidMeatDTO;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.entity.UserHasLunch;
@@ -251,22 +252,6 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
             "AND FUNCTION('DATE', u.dt) = :date")
     List<UserHasLunch> findRegisteredNotEatDaily(@Param("date") LocalDate date);
 
-    @Query("SELECT u FROM UserHasLunch u " +
-            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
-            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
-            "WHERE d.user.id IS NULL " +
-            "AND CAST(u.dt AS LocalDate) BETWEEN :startDate AND :endDate")
-    List<UserHasLunch> findRegisteredNotEatWeekly(
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate);
-
-    @Query("SELECT u FROM UserHasLunch u " +
-            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
-            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
-            "WHERE d.user.id IS NULL " +
-            "AND FUNCTION('MONTH', u.dt) = :month " +
-            "AND FUNCTION('YEAR', u.dt) = :year")
-    List<UserHasLunch> findRegisteredNotEatMonthly(@Param("month") int month, @Param("year") int year);
     @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = MONTH(CURRENT_DATE) AND YEAR(u.dt) = YEAR(CURRENT_DATE)")
     int countRegisteredDaysForMonth(@Param("userId") Integer userId);
 
@@ -276,8 +261,11 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
     @Query("SELECT u FROM UserHasLunch u WHERE u.dt BETWEEN :startOfWeek AND :endOfWeek")
     List<UserHasLunch> findByDtBetween(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek);
 
-    @Query("SELECT uhl FROM UserHasLunch uhl WHERE uhl.dt BETWEEN :startDate AND :endDate")
-    List<UserHasLunch> findUserHasLunchForPreviousWeek(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    @Query("SELECT u FROM UserHasLunch u WHERE u.dt BETWEEN :startOfPreviousWeek AND :endOfPreviousWeek")
+    List<UserHasLunch> findUserHasLunchForPreviousWeek(
+            @Param("startOfPreviousWeek") Date startOfPreviousWeek,
+            @Param("endOfPreviousWeek") Date endOfPreviousWeek
+    );
 
     @Query("SELECT uhl FROM UserHasLunch uhl WHERE MONTH(uhl.dt) = :month AND YEAR(uhl.dt) = :year")
     List<UserHasLunch> findUserHasLunchForMonth(@Param("month") int month, @Param("year") int year);
@@ -298,9 +286,73 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
             "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
             "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
             "WHERE d.user.id IS NULL " +
+            "AND CAST(u.dt AS LocalDate) BETWEEN :startDate AND :endDate")
+    List<UserHasLunch> findRegisteredNotEatWeekly(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT u FROM UserHasLunch u " +
+            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
+            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE d.user.id IS NULL " +
+            "AND FUNCTION('MONTH', u.dt) = :month " +
+            "AND FUNCTION('YEAR', u.dt) = :year")
+    List<UserHasLunch> findRegisteredNotEatMonthly(@Param("month") int month, @Param("year") int year);
+
+    @Query("SELECT u FROM UserHasLunch u " +
+            "LEFT JOIN DoorAccessRecord d ON u.user.id = d.user.id " +
+            "AND FUNCTION('DATE', u.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE d.user.id IS NULL " +
             "AND FUNCTION('YEAR', u.dt) = :year")
     List<UserHasLunch> findRegisteredNotEatYearly(@Param("year") int year);
 
     @Query("SELECT uhl FROM UserHasLunch uhl WHERE DATE(uhl.dt) = CURDATE()")
     List<UserHasLunch> findByCurrentDate();
+
+    @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.dt = :date")
+    long countByDate(@Param("date") Date date);
+
+    @Query(value = """
+        SELECT\s
+            CASE\s
+                WHEN m.id IS NULL THEN 'is_vegan' \s
+                ELSE m.name                      \s
+            END AS meat,
+            DATE_FORMAT(dates.dt, '%d-%m-%Y (%a)') AS day, \s
+            COUNT(
+                CASE\s
+                    WHEN m.id IS NULL THEN \s
+                        CASE\s
+                            WHEN u.is_vegan = 1 AND uhl.user_id = u.id THEN u.id \s
+                            ELSE NULL
+                        END
+                    ELSE \s
+                        CASE\s
+                            WHEN uam.user_id IS NOT NULL THEN uam.user_id
+                            ELSE NULL
+                        END
+                END
+            ) AS count
+        FROM\s
+            (SELECT NULL AS id, 'is_vegan' AS name \s
+             UNION ALL
+             SELECT id, name FROM meat) m
+        CROSS JOIN\s
+            (SELECT DISTINCT uhl.dt\s
+             FROM user_has_lunch uhl
+             WHERE uhl.dt >= DATE_ADD(CURRENT_DATE(), INTERVAL (7 - WEEKDAY(CURRENT_DATE())) DAY)
+               AND uhl.dt < DATE_ADD(CURRENT_DATE(), INTERVAL (14 - WEEKDAY(CURRENT_DATE())) DAY)
+               AND WEEKDAY(uhl.dt) < 5) dates 
+        LEFT JOIN\s
+            user_has_lunch uhl ON uhl.dt = dates.dt
+        LEFT JOIN\s
+            user u ON uhl.user_id = u.id \s
+        LEFT JOIN\s
+            user_avoid_meat uam ON uhl.user_id = uam.user_id AND uam.meat_id = m.id
+        GROUP BY\s
+            meat, dates.dt \s
+        ORDER BY\s
+            dates.dt, meat;
+       """, nativeQuery = true)
+    List<Object[]> getUserAvoidMeatForNextWeek();
 }

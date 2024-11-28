@@ -12,7 +12,7 @@ public class VoucherRow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "dt", nullable = false)
     private LocalDate dt; // Using LocalDate instead of Date
@@ -30,7 +30,7 @@ public class VoucherRow {
     private String remark;
 
     @ManyToOne
-    @JoinColumn(name = "payment_voucher_id") // Ensure this column name matches the DB column
-    private PaymentVoucher paymentVoucher;
+    @JoinColumn(name = "payment_voucher_id")
+    private PaymentVoucher paymentVoucher;  // Reference to PaymentVoucher
 
 }

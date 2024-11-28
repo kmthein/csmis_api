@@ -2,8 +2,11 @@ package com.team2.csmis_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Table(name = "department")
 @Entity
 public class Department extends Base{

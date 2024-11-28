@@ -3,6 +3,7 @@ package com.team2.csmis_api.dto;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -14,4 +15,6 @@ public class AnnouncementDTO {
     private Integer adminId;
     private List<Integer> fileIds;
     private List<FileDTO> files;
+    private boolean isSeen;
+    private LocalDateTime createdAt;
 }

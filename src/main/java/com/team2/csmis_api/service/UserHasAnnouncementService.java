@@ -52,6 +52,9 @@ public class UserHasAnnouncementService {
         dto.setDate(userHasAnnouncement.getAnnouncement().getDate());
         dto.setContent(userHasAnnouncement.getAnnouncement().getContent());
         dto.setAdminId(userHasAnnouncement.getUser().getId());
+        dto.setCreatedAt(userHasAnnouncement.getAnnouncement().getCreatedAt());
+        dto.setTitle(userHasAnnouncement.getAnnouncement().getTitle());
+        dto.setSeen(userHasAnnouncement.getIsSeen());
         return dto;
     }
 

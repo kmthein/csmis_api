@@ -3,25 +3,15 @@ package com.team2.csmis_api.dto;
 
 import lombok.Data;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Data
 public class PaymentVoucherDTO {
-    private String voucherNo;
-    private LocalDate paymentDate;
-    private String restaurantName;
-    private String invoiceFor;
-    private List<VoucherRowDTO> rows;
-    private String cashier;
-    private String receivedBy;
-    private String approvedBy;
-    private String status; // "Paid" or "Unpaid"
+    private Integer cashierUserId;  // ID of the cashier selected from UI
+    private Integer approvedByUserId;  // ID of the ADMIN selected from UI
+    private String remark;  // Remark input by the cashier
+    private String receivedBy;  // Who received the voucher
+    private String status;  // Payment status (Paid/Unpaid)
+    private List<VoucherRowDTO> rows;  // List of VoucherRowDTO for rows
+
 }
-//    @Override
-//    public String toString() {
-//        return "PaymentVoucherDTO{" +
-//                "receivedBy='" + receivedBy + '\'' +
-//                ", status='" + status + '\'' +
-//                '}';
-//    }
