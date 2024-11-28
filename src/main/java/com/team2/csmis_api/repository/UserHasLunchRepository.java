@@ -356,4 +356,7 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
             dates.dt, meat;
        """, nativeQuery = true)
     List<Object[]> getUserAvoidMeatForNextWeek();
+
+    @Query("SELECT u.total_cost FROM UserHasLunch u WHERE u.dt = :date")
+    Double getTotalByDate(@Param("date") Date date);
 }
