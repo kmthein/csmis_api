@@ -236,6 +236,11 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public List<User> getAllAdmins() {
+        return userRepo.findAllAdmins();
+    }
+
     public UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
         if(user.getDivision() != null) {

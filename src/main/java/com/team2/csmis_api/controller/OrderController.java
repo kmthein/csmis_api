@@ -1,15 +1,20 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.OrderDTO;
+import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -48,5 +53,30 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/getOrderQuantity")
+    public long getOrderQuantity(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        return orderService.getOrderQuantity(date);
+    }
+//    @GetMapping("/restaurant")
+//    public ResponseEntity<String> getRestaurantByDate(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+//        Optional<Restaurant> restaurant = orderService.getRestaurantByOrderDate(date);
+//
+//        if (restaurant.isPresent()) {
+//            return ResponseEntity.ok(restaurant.get().getName());
+//        } else {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No restaurant found for the given date.");
+//        }
+//    }
+    @GetMapping("/restaurant")
+    public ResponseEntity<List<Restaurant>> getRestaurantByDate(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
+        List<Restaurant> restaurants = orderService.getRestaurantsByOrderDate(date);
+
+        if (!restaurants.isEmpty()) {
+            return ResponseEntity.ok(restaurants);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        }
     }
 }

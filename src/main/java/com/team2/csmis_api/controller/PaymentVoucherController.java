@@ -5,6 +5,7 @@ import com.team2.csmis_api.dto.PaymentVoucherDTO;
 import com.team2.csmis_api.entity.PaymentVoucher;
 import com.team2.csmis_api.service.PaymentVoucherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +22,8 @@ public class PaymentVoucherController {
 
     @PostMapping("/from-date")
     public ResponseEntity<Void> createPaymentVoucherByDate(
-            @RequestParam("selectedDate") LocalDate selectedDate,
-            @RequestBody PaymentVoucherDTO requestDTO) {
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate selectedDate,
+            @RequestBody PaymentVoucherDTO requestDTO) {System.out.println(requestDTO.getStatus());
         paymentVoucherService.createPaymentVoucherByDate(selectedDate, requestDTO);
         return ResponseEntity.ok().build();
     }

@@ -4,6 +4,7 @@ import com.team2.csmis_api.dto.OrderDTO;
 import com.team2.csmis_api.dto.OrderRowDTO;
 import com.team2.csmis_api.entity.Order;
 import com.team2.csmis_api.entity.OrderRow;
+import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.repository.OrderRepository;
 import com.team2.csmis_api.repository.UserHasLunchRepository;
 import org.modelmapper.ModelMapper;
@@ -12,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,5 +90,19 @@ public class OrderService {
 
     public void deleteOrder(Integer id) {
         orderRepository.deleteById(id);
+    }
+
+    public long getOrderQuantity(LocalDate date) {
+        return orderRepository.getTotalQuantityByDate(date);
+    }
+
+
+//    public Optional<Restaurant> getRestaurantByOrderDate(LocalDate orderDate) {
+//        return orderRepository.findByOrderDate(orderDate)
+//                .map(Order::getRestaurant);
+//    }
+
+    public List<Restaurant> getRestaurantsByOrderDate(LocalDate selectedDate) {
+        return orderRepository.findRestaurantByOrderDate(selectedDate);
     }
 }

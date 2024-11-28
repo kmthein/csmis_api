@@ -179,28 +179,26 @@ public class UserHasLunchServices {
     public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer departmentId) throws Exception {
         Calendar calendar = Calendar.getInstance();
 
+        // Get start and end dates of the previous week
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-
         calendar.add(Calendar.WEEK_OF_YEAR, -1);
         Date startOfPreviousWeek = calendar.getTime();
 
         calendar.add(Calendar.DATE, 6);
         Date endOfPreviousWeek = calendar.getTime();
 
-        // Debugging: Print the start and end dates of the previous week
-        System.out.println("Start of Previous Week: " + startOfPreviousWeek);
-        System.out.println("End of Previous Week: " + endOfPreviousWeek);
-
         List<UserHasLunch> userHasLunchList;
 
         if (departmentId != null) {
-            // Fetch user lunches for the previous week filtered by department
+            // Fetch lunches for a specific department
             userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeekByDepartment(
-                    startOfPreviousWeek, endOfPreviousWeek, departmentId);
+                    startOfPreviousWeek, endOfPreviousWeek, departmentId
+            );
         } else {
-            // Fetch user lunches for the previous week without filtering by department
+            // Fetch lunches for all departments
             userHasLunchList = userHasLunchRepository.findUserHasLunchForPreviousWeek(
-                    startOfPreviousWeek, endOfPreviousWeek);
+                    startOfPreviousWeek, endOfPreviousWeek
+            );
         }
 
         double totalCost = 0;
@@ -212,14 +210,12 @@ public class UserHasLunchServices {
             registeredDateCount++;
         }
 
-        // Prepare the result to return
         Map<String, Object> result = new HashMap<>();
         result.put("totalCost", totalCost);
         result.put("registeredDateCount", registeredDateCount);
 
         return result;
     }
-
 
     public Map<String, Object> calculateTotalCostAndDateCountForMonth(int month, int year, Integer departmentId) {
         if (month < 1 || month > 12) {
@@ -284,7 +280,7 @@ public class UserHasLunchServices {
 
 
     //Admin
-    public Map<String, Object> calculateCompanyCostForPreviousWeek(Integer adminId, Integer departmentId) throws Exception {
+    public Map<String, Object> calculateCompanyCostForPreviousWeek( Integer departmentId) throws Exception {
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.WEEK_OF_MONTH, -1);
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);

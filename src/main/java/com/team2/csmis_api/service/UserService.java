@@ -26,4 +26,5 @@ public interface UserService {
     DietaryPreferenceDTO getDietaryPreferences(Integer userId);
 
 
+    List<User> getAllAdmins();
 }
