@@ -24,4 +24,6 @@ public interface UserService {
     void updateDietaryPreference(DietaryPreferenceDTO preferenceDTO);
     ResponseDTO forcePasswordChange(int id, String newPassword);
     DietaryPreferenceDTO getDietaryPreferences(Integer userId);
+
+
 }

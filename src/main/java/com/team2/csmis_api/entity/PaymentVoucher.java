@@ -2,50 +2,55 @@ package com.team2.csmis_api.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Getter
-@Setter
-@Table(name = "payment_voucher")
+@Data
 @Entity
-public class PaymentVoucher extends Base {
+@Table(name = "payment_vouchers")
+public class PaymentVoucher extends Base{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "voucherNo", columnDefinition = "TEXT")
+    @Column(name = "voucherNo", nullable = false)
     private String voucherNo;
 
-    @Column(name = "restaurantName", columnDefinition = "TEXT")
-    private String restaurantName;
-
-    @Column(name = "paymentDate")
+    @Column(name = "paymentDate", nullable = false)
     private LocalDate paymentDate;
 
-    @Column(name = "invoiceFor", columnDefinition = "TEXT")
+    @Column(name = "restaurantName", nullable = false)
+    private String restaurantName;
+
+    @Column(name = "invoiceFor", nullable = false)
     private String invoiceFor;
 
+//    @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL)
+//    private List<VoucherRow> rows;
 
-    @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<VoucherRow> rows;
 
 
-    @Column(name = "cashier", columnDefinition = "TEXT")
+    @Column(name = "cashier", nullable = false)
     private String cashier;
 
-    @Column(name = "receivedBy", columnDefinition = "TEXT")
+    @Column(name = "receivedBy", nullable = false)
     private String receivedBy;
 
-    @Column(name = "approvedBy", columnDefinition = "TEXT")
+    @Column(name = "approvedBy", nullable = false)
     private String approvedBy;
 
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private PaymentStatus status; // Using Enum instead of String
 
 
+    public enum PaymentStatus {
+        PAID,
+        UNPAID
+    }
 }

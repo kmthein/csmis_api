@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -22,6 +23,10 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
 
     @Query("SELECT l FROM Lunch l WHERE DATE(l.date) = CURDATE()")
     Lunch findLunchByCurrentDate();
+
+    @Query("SELECT l.price FROM Lunch l WHERE l.date = :date")
+    Optional<Double> findPriceByDate(@Param("date") LocalDate date);
+
 
     Optional<Lunch> findByDate(LocalDate date);
 
@@ -51,5 +56,5 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
     public void deleteLunch(Integer id);
     @Query("SELECT l.price FROM Lunch l WHERE l.date = :date")
     Double getPriceByDate(LocalDate date);
-
+//    Optional<Object> findByDtAndLunch(Date lunchDate, String lunchType);
 }
