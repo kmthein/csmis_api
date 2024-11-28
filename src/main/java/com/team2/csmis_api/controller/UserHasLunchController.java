@@ -8,6 +8,7 @@ import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.entity.UserHasLunch;
 import com.team2.csmis_api.service.UserHasLunchServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -98,6 +99,10 @@ public ResponseEntity<List<Date>> getSelectedDates(@PathVariable int userId) {
     public ResponseEntity<Map<String, Object>> getLunchCostPerDayByUserId(@PathVariable Integer userId) {
         Map<String, Object> costDetails = userHasLunchService.calculateLunchCostPerDayByUserId(userId);
         return ResponseEntity.ok(costDetails);
+    }
+    @GetMapping("/cost")
+    public Double getTotalCost(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+        return userHasLunchService.getCost(date);
     }
 
 }
