@@ -22,8 +22,8 @@ public class WeeklyPaymentController {
     @Autowired
     private SettingService settingService;
     @GetMapping("/total-cost-and-date-count")
-    public ResponseEntity<Map<String, Object>> getTotalCostAndDateCountForPreviousWeek(
-            @RequestParam(required = false) Integer departmentId) {
+    public ResponseEntity<Map<String, Object>> getWeeklyPayment(
+            @RequestParam(value = "departmentId", required = false) Integer departmentId) {
         try {
             Map<String, Object> result = userHasLunchServices.calculateTotalCostAndDateCountForPreviousWeek(departmentId);
             return ResponseEntity.ok(result);
@@ -60,9 +60,9 @@ public class WeeklyPaymentController {
 
     @GetMapping("/total-company-cost")
     public ResponseEntity<Map<String, Object>> getCompanyCostForPreviousWeek(
-            @RequestParam Integer adminId, @RequestParam(required = false) Integer departmentId) {
+           @RequestParam(required = false) Integer departmentId) {
         try {
-            Map<String, Object> result = userHasLunchServices.calculateCompanyCostForPreviousWeek(adminId, departmentId);
+            Map<String, Object> result = userHasLunchServices.calculateCompanyCostForPreviousWeek(departmentId);
             return ResponseEntity.ok(result);
         }  catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

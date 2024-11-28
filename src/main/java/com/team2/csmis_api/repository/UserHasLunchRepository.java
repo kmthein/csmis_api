@@ -271,7 +271,11 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
     List<UserHasLunch> findUserHasLunchForMonth(@Param("month") int month, @Param("year") int year);
 
     @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE uhl.dt BETWEEN :startOfWeek AND :endOfWeek AND u.department.id = :departmentId")
-    List<UserHasLunch> findUserHasLunchForPreviousWeekByDepartment(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek, @Param("departmentId") Integer departmentId);
+    List<UserHasLunch> findUserHasLunchForPreviousWeekByDepartment(
+            @Param("startOfWeek") Date startOfWeek,
+            @Param("endOfWeek") Date endOfWeek,
+            @Param("departmentId") Integer departmentId
+    );
 
     @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE MONTH(uhl.dt) = :month AND YEAR(uhl.dt) = :year AND u.department.id = :departmentId")
     List<UserHasLunch> findUserHasLunchForMonthAndDepartment(@Param("month") int month, @Param("year") int year, @Param("departmentId") int departmentId);

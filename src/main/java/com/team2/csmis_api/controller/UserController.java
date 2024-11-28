@@ -92,4 +92,9 @@ public class UserController {
                     .body("An error occurred while retrieving preferences");
         }
     }
+
+    @GetMapping("/getAllAdmins")
+    public List<User> getAllAdmins() {
+        return userService.getAllAdmins();
+    }
 }

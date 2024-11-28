@@ -244,12 +244,12 @@ public class UserServiceImpl implements UserService {
     public ResponseDTO updateUserProfile(UserImageDTO userImageDTO) {
         User user = userRepo.getUserById(userImageDTO.getUserId());
         ResponseDTO res = new ResponseDTO();
-        if(user == null) {
+        if (user == null) {
             throw new ResourceNotFoundException("User not found");
         }
         List<FileData> imgList = new ArrayList<>();
-        if(!userImageDTO.getImgUrl().equals("")) {
-            for(FileData img: user.getImages()) {
+        if (!userImageDTO.getImgUrl().equals("")) {
+            for (FileData img : user.getImages()) {
                 img.setIsDeleted(true);
                 imgList.add(img);
                 fileRepo.save(img);
@@ -265,6 +265,10 @@ public class UserServiceImpl implements UserService {
         res.setStatus("200");
         res.setMessage("User profile uploaded");
         return res;
+    }
+    @Override
+    public List<User> getAllAdmins() {
+        return userRepo.findAllAdmins();
     }
 
     public UserDTO mapUserToDTO(User user) {

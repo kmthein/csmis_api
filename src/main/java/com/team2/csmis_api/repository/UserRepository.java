@@ -33,4 +33,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     boolean existsByStaffId(String staffId);
 
-}
+    @Query("SELECT u FROM User u WHERE u.role = com.team2.csmis_api.entity.Role.ADMIN")
+    List<User> findAllAdmins();}
