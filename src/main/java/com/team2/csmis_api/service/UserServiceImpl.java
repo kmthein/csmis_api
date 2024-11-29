@@ -3,6 +3,7 @@ package com.team2.csmis_api.service;
 import com.team2.csmis_api.dto.DietaryPreferenceDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
+import com.team2.csmis_api.dto.UserImageDTO;
 import com.team2.csmis_api.entity.*;
 import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.*;
@@ -53,6 +54,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private TeamRepository teamRepo;
+
+    @Autowired
+    private FileRepository fileRepo;
 
     @Autowired
     private ModelMapper mapper;
@@ -236,6 +240,33 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public ResponseDTO updateUserProfile(UserImageDTO userImageDTO) {
+        User user = userRepo.getUserById(userImageDTO.getUserId());
+        ResponseDTO res = new ResponseDTO();
+        if(user == null) {
+            throw new ResourceNotFoundException("User not found");
+        }
+        List<FileData> imgList = new ArrayList<>();
+        if(!userImageDTO.getImgUrl().equals("")) {
+            for(FileData img: user.getImages()) {
+                img.setIsDeleted(true);
+                imgList.add(img);
+                fileRepo.save(img);
+            }
+        }
+        FileData fileData = new FileData();
+        fileData.setFilePath(userImageDTO.getImgUrl());
+        fileData.setFileType("image/jpeg");
+        fileData = fileRepo.save(fileData);
+        imgList.add(fileData);
+        user.setImages(imgList);
+        user = userRepo.save(user);
+        res.setStatus("200");
+        res.setMessage("User profile uploaded");
+        return res;
+    }
+
     public UserDTO mapUserToDTO(User user) {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
         if(user.getDivision() != null) {
@@ -356,6 +387,13 @@ public class UserServiceImpl implements UserService {
     public UserDTO getUserById(int id) {
         User user = userRepo.getUserById(id);
         UserDTO userDTO = mapUserToDTO(user);
+        if(user.getImages().size() > 0) {
+            for(FileData img: user.getImages()) {
+                if(!img.getIsDeleted()) {
+                    userDTO.setImgUrl(img.getFilePath());
+                }
+            }
+        }
         return userDTO;
     }
 

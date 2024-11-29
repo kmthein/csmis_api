@@ -309,7 +309,6 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
     @Query("SELECT uhl FROM UserHasLunch uhl WHERE DATE(uhl.dt) = CURDATE()")
     List<UserHasLunch> findByCurrentDate();
 
-
     @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.dt = :date")
     long countByDate(@Param("date") Date date);
 
@@ -356,4 +355,7 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
             dates.dt, meat;
        """, nativeQuery = true)
     List<Object[]> getUserAvoidMeatForNextWeek();
+
+    @Query("SELECT u.total_cost FROM UserHasLunch u WHERE u.dt = :date")
+    Double getTotalByDate(@Param("date") Date date);
 }

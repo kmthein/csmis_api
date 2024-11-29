@@ -519,4 +519,9 @@ public class UserHasLunchServices {
         return result;
     }
 
+
+
+    public Double getCost(Date date) {
+        return userHasLunchRepository.getTotalByDate(date);
+    }
 }

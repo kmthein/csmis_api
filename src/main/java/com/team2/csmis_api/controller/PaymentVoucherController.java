@@ -1,53 +1,50 @@
 package com.team2.csmis_api.controller;
 
+
 import com.team2.csmis_api.dto.PaymentVoucherDTO;
+import com.team2.csmis_api.entity.PaymentVoucher;
 import com.team2.csmis_api.service.PaymentVoucherService;
-import org.springframework.http.HttpStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
+import java.time.LocalDate;
+
 
 @RestController
 @RequestMapping("/api/payment-vouchers")
+@RequiredArgsConstructor
 public class PaymentVoucherController {
 
     private final PaymentVoucherService paymentVoucherService;
 
-    public PaymentVoucherController(PaymentVoucherService paymentVoucherService) {
-        this.paymentVoucherService = paymentVoucherService;
+    @PostMapping("/from-date")
+    public ResponseEntity<Void> createPaymentVoucherByDate(
+            @RequestParam("selectedDate") LocalDate selectedDate,
+            @RequestBody PaymentVoucherDTO requestDTO) {
+        paymentVoucherService.createPaymentVoucherByDate(selectedDate, requestDTO);
+        return ResponseEntity.ok().build();
     }
-
-    @PostMapping
-    public ResponseEntity<PaymentVoucherDTO> createPaymentVoucher(@RequestBody PaymentVoucherDTO paymentVoucherDTO) {
-        PaymentVoucherDTO createdVoucher = paymentVoucherService.createPaymentVoucher(paymentVoucherDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdVoucher);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<PaymentVoucherDTO> getPaymentVoucherById(@PathVariable Integer id) {
-        PaymentVoucherDTO voucher = paymentVoucherService.getPaymentVoucherById(id);
-        return ResponseEntity.ok(voucher);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<PaymentVoucherDTO>> getAllPaymentVouchers() {
-        List<PaymentVoucherDTO> vouchers = paymentVoucherService.getAllPaymentVouchers();
-        return ResponseEntity.ok(vouchers);
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<PaymentVoucherDTO> updatePaymentVoucher(
+    public ResponseEntity<Void> updatePaymentVoucher(
             @PathVariable Integer id,
-            @RequestBody PaymentVoucherDTO updatedVoucherDTO
-    ) {
-        PaymentVoucherDTO updatedVoucher = paymentVoucherService.updatePaymentVoucher(id, updatedVoucherDTO);
-        return ResponseEntity.ok(updatedVoucher);
+            @RequestBody PaymentVoucherDTO requestDTO) {
+        paymentVoucherService.updatePaymentVoucher(id, requestDTO);
+        return ResponseEntity.ok().build();
     }
 
+    // Delete Payment Voucher by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePaymentVoucher(@PathVariable Integer id) {
+    public ResponseEntity<String> deletePaymentVoucher(@PathVariable Integer id) {
         paymentVoucherService.deletePaymentVoucher(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Payment Voucher with ID " + id + " has been successfully deleted.");
+    }
+
+    // Get Payment Voucher by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<PaymentVoucher> getPaymentVoucherById(@PathVariable Integer id) {
+        PaymentVoucher voucher = paymentVoucherService.getPaymentVoucherById(id);
+        return ResponseEntity.ok(voucher);
     }
 }

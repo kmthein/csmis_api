@@ -4,8 +4,11 @@ import com.team2.csmis_api.dto.OrderDTO;
 import com.team2.csmis_api.dto.OrderRowDTO;
 import com.team2.csmis_api.entity.Order;
 import com.team2.csmis_api.entity.OrderRow;
+import com.team2.csmis_api.entity.User;
+import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.OrderRepository;
 import com.team2.csmis_api.repository.UserHasLunchRepository;
+import com.team2.csmis_api.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +29,9 @@ public class OrderService {
     private UserHasLunchRepository userHasLunchRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
     public long getQuantity(Date date) {
@@ -43,6 +49,15 @@ public class OrderService {
             order.getRows().forEach(row -> row.setOrder(order));
         }
 
+        for(OrderRowDTO row : orderDTO.getRows()) {
+            System.out.println("Date: " + row.getLunchDate().toString() + ",pax: " + row.getQuantity());
+        }
+
+        User admin = userRepository.getUserById(orderDTO.getAdminId());
+        if(admin == null) {
+            throw new ResourceNotFoundException("Admin not found");
+        }
+        order.setUser(admin);
         Order savedOrder = orderRepository.save(order);
         return modelMapper.map(savedOrder, OrderDTO.class);
     }

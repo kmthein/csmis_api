@@ -24,6 +24,10 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
     @Query("SELECT l FROM Lunch l WHERE DATE(l.date) = CURDATE()")
     Lunch findLunchByCurrentDate();
 
+    @Query("SELECT l.price FROM Lunch l WHERE l.date = :date")
+    Optional<Double> findPriceByDate(@Param("date") LocalDate date);
+
+
     Optional<Lunch> findByDate(LocalDate date);
 
     @Query(value = "SELECT * FROM lunch l WHERE " +
@@ -50,7 +54,8 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
     @Transactional
     @Query("UPDATE Lunch l SET l.isDeleted=true WHERE l.id=:id")
     public void deleteLunch(Integer id);
-
+    @Query("SELECT l.price FROM Lunch l WHERE l.date = :date")
+    Double getPriceByDate(LocalDate date);
 //    Optional<Object> findByDtAndLunch(Date lunchDate, String lunchType);
 
     @Query(value = """

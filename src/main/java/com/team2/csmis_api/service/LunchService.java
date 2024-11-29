@@ -219,7 +219,13 @@ public class LunchService {
         return res;
     }
 
+
     public void deleteLunch(Integer id) {
         lunchRepository.deleteLunch(id);
+    }
+
+    public Double getCost(LocalDate date) {
+        return lunchRepository.getPriceByDate(date);
+
     }
 }

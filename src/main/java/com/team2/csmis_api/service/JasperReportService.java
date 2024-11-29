@@ -156,23 +156,6 @@ public class JasperReportService {
         }
     }
 
-    public byte[] generateRestaurantReport() throws Exception {
-        // Load the Jasper report template from resources
-        InputStream reportStream = new ClassPathResource("reports/restaurant2.jrxml").getInputStream();
-
-        // Compile the report
-        JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
-
-        // Set report parameters if needed (useful for dynamic data)
-        Map<String, Object> parameters = new HashMap<>();
-
-        // Fill the report with data from the database
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource.getConnection());
-
-        // Export the report to a PDF
-        return JasperExportManager.exportReportToPdf(jasperPrint);
-    }
-
     public List<Restaurant> fetchData(int month, int year) {
         return restaurantRepository.getAllRestaurants();
     }
