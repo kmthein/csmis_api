@@ -396,7 +396,7 @@ public class UserServiceImpl implements UserService {
         tempUser.setIsVegan(false);
         String defaultPassword = getDefaultPassword();
         tempUser.setPassword(passwordEncoder.encode(defaultPassword));
-
+        tempUser.setHasDefaultPassword(true);
         // Save the user
         User userSave = userRepo.save(tempUser);
         if (userSave != null) {

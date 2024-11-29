@@ -2,6 +2,7 @@ package com.team2.csmis_api.controller;
 
 
 import com.team2.csmis_api.dto.PaymentVoucherDTO;
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.entity.PaymentVoucher;
 import com.team2.csmis_api.service.PaymentVoucherService;
 import lombok.RequiredArgsConstructor;
@@ -34,11 +35,11 @@ public class PaymentVoucherController {
         return ResponseEntity.ok().build();
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updatePaymentVoucher(
+    public ResponseDTO updatePaymentVoucher(
             @PathVariable Integer id,
             @RequestBody PaymentVoucherDTO requestDTO) {
-        paymentVoucherService.updatePaymentVoucher(id, requestDTO);
-        return ResponseEntity.ok().build();
+        ResponseDTO res = paymentVoucherService.updatePaymentVoucher(id, requestDTO);
+        return res;
     }
 
     // Delete Payment Voucher by ID

@@ -1,6 +1,7 @@
 package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.PaymentVoucherDTO;
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.VoucherRowDTO;
 import com.team2.csmis_api.entity.*;
 import com.team2.csmis_api.exception.ResourceNotFoundException;
@@ -209,7 +210,8 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
     //*****************************UPDATE****************************//
 
     @Transactional
-    public void updatePaymentVoucher(Integer id, PaymentVoucherDTO requestDTO) {
+    public ResponseDTO updatePaymentVoucher(Integer id, PaymentVoucherDTO requestDTO) {
+        ResponseDTO res = new ResponseDTO();
         // Fetch the existing PaymentVoucher by ID
         PaymentVoucher existingVoucher = paymentVoucherRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("PaymentVoucher with id " + id + " not found")
@@ -258,7 +260,15 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         }
 
         // Save the updated PaymentVoucher
-        paymentVoucherRepository.save(existingVoucher);
+        PaymentVoucher voucher = paymentVoucherRepository.save(existingVoucher);
+        if(voucher != null) {
+            res.setMessage("Payment updated successfully");
+            res.setStatus("200");
+        } else {
+            res.setMessage("Payment can't be updated");
+            res.setStatus("401");
+        }
+        return res;
     }
     //****************************************************************//
     //****************************************************************//
