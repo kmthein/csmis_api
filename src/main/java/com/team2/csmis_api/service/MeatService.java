@@ -1,6 +1,5 @@
 package com.team2.csmis_api.service;
 
-import com.team2.csmis_api.dto.MeatDTO;
 import com.team2.csmis_api.entity.Meat;
 import com.team2.csmis_api.repository.MeatRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class MeatService {
@@ -35,11 +33,18 @@ public class MeatService {
     public void deleteById(Integer id) {
         meatRepository.deleteById(id);
     }
-
     public boolean isNameUnique(String name) {
-        return meatRepository.findAllActiveMeats().stream()
-                .noneMatch(meat -> meat.getName().equalsIgnoreCase(name));
+        String normalizedName = name.trim().replaceAll("\\s", "").toLowerCase(); // Normalize name
+        return meatRepository.isNameUnique(normalizedName);
     }
+
+
+//    public boolean isNameUnique(String name, Integer idToExclude) {
+//        String normalizedName = name.trim().toLowerCase();
+//        long count = meatRepository.countByNormalizedNameExcludingId(normalizedName, idToExclude);
+//        return count == 0; // Return true if no such name exists
+//    }
+
 
 
 
