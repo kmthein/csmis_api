@@ -43,11 +43,12 @@ public class PaymentVoucher extends Base{
     @Column(name = "approvedBy", nullable = false)
     private String approvedBy;
 
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PaymentStatus status; // Using Enum instead of String
 
+    @Column(name = "total_amount")
+    private Double totalAmount;
 
     public enum PaymentStatus {
         PAID,

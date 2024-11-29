@@ -22,4 +22,6 @@ public interface UserService {
     ResponseDTO forcePasswordChange(int id, String newPassword);
     DietaryPreferenceDTO getDietaryPreferences(Integer userId);
     ResponseDTO updateUserProfile(UserImageDTO userImageDTO);
+    List<User> getAllAdmins();
+    ResponseDTO changeNewPassword(int id, String oldPassword, String newPassword);
 }

@@ -244,12 +244,12 @@ public class UserServiceImpl implements UserService {
     public ResponseDTO updateUserProfile(UserImageDTO userImageDTO) {
         User user = userRepo.getUserById(userImageDTO.getUserId());
         ResponseDTO res = new ResponseDTO();
-        if(user == null) {
+        if (user == null) {
             throw new ResourceNotFoundException("User not found");
         }
         List<FileData> imgList = new ArrayList<>();
-        if(!userImageDTO.getImgUrl().equals("")) {
-            for(FileData img: user.getImages()) {
+        if (!userImageDTO.getImgUrl().equals("")) {
+            for (FileData img : user.getImages()) {
                 img.setIsDeleted(true);
                 imgList.add(img);
                 fileRepo.save(img);
@@ -265,6 +265,33 @@ public class UserServiceImpl implements UserService {
         res.setStatus("200");
         res.setMessage("User profile uploaded");
         return res;
+    }
+    @Override
+    public List<User> getAllAdmins() {
+        return userRepo.findAllAdmins();
+    }
+
+    @Override
+    public ResponseDTO changeNewPassword(int id, String oldPassword, String newPassword) {
+        boolean isPasswordSame = isSamePassword(id, oldPassword);
+        ResponseDTO res = new ResponseDTO();
+        if(!isPasswordSame) {
+            res.setStatus("403");
+            res.setMessage("New password must be same with old password");
+        } else {
+            res.setStatus("200");
+            res.setMessage("Password change successfully");
+        }
+        return res;
+    }
+
+    public boolean isSamePassword(int id, String newPassword) {
+        // Fetch the user's current hashed password from the database
+        User user = userRepo.getUserById(id); // Adjust based on your setup
+        String currentEncodedPassword = user.getPassword();
+
+        // Compare the new plain-text password with the encoded current password
+        return passwordEncoder.matches(newPassword, currentEncodedPassword);
     }
 
     public UserDTO mapUserToDTO(User user) {
