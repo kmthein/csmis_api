@@ -132,6 +132,7 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         List<VoucherRow> voucherRows = orderRows.stream().map(orderRow -> {
             // Get the lunch date for the current order row
             LocalDate lunchDate = orderRow.getLunchDate();
+            System.out.println(orderRow.getLunchDate());
 
             // Check if lunch exists for the selected date; if not, find another date in the same week
             Lunch lunch = getLunchForWeek(lunchDate, weekdays);
