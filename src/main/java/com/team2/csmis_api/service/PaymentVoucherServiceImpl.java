@@ -274,4 +274,9 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
                 .orElseThrow(() -> new RuntimeException("Payment Voucher with id " + id + " not found or has been deleted"));
     }
 
+    @Override
+    public List<PaymentVoucher> getAllNonDeletedPaymentVouchers() {
+        return paymentVoucherRepository.findAllNonDeleted();
+    }
+
 }

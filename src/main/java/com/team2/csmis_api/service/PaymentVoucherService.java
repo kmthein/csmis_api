@@ -15,5 +15,7 @@ public interface PaymentVoucherService {
 
     PaymentVoucher getPaymentVoucherById(Integer id);
 
+    List<PaymentVoucher> getAllNonDeletedPaymentVouchers();
+
 
 }

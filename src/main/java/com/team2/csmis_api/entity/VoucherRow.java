@@ -1,5 +1,6 @@
 package com.team2.csmis_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -29,6 +30,7 @@ public class VoucherRow {
     @Column(name = "remark")
     private String remark;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "payment_voucher_id")
     private PaymentVoucher paymentVoucher;  // Reference to PaymentVoucher

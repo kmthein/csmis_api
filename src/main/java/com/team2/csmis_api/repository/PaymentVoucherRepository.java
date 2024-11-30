@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,8 +20,8 @@ public interface PaymentVoucherRepository extends JpaRepository<PaymentVoucher, 
             "WHERE pv.voucherNo LIKE CONCAT('CS-', :year, :month, '%')")
     Optional<String> findLatestVoucherNo(@Param("year") String year, @Param("month") String month);
 
-//    @Query("SELECT v FROM PaymentVoucher v WHERE v.isDeleted = false")
-//    List<PaymentVoucher> findAllNonDeleted();
+    @Query("SELECT pv FROM PaymentVoucher pv WHERE pv.isDeleted = false")
+    List<PaymentVoucher> findAllNonDeleted();
 
 
 }

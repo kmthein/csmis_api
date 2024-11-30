@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @RestController
@@ -46,5 +47,10 @@ public class PaymentVoucherController {
     public ResponseEntity<PaymentVoucher> getPaymentVoucherById(@PathVariable Integer id) {
         PaymentVoucher voucher = paymentVoucherService.getPaymentVoucherById(id);
         return ResponseEntity.ok(voucher);
+    }
+
+    @GetMapping("/non-deleted")
+    public List<PaymentVoucher> getAllNonDeletedPaymentVouchers() {
+        return paymentVoucherService.getAllNonDeletedPaymentVouchers();
     }
 }
