@@ -23,4 +23,5 @@ public class UserDTO {
     private String status;
     private Boolean receivedMail;
     private Boolean hasDefaultPassword;
+    private String imgUrl;
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @RestController
@@ -20,10 +21,15 @@ public class PaymentVoucherController {
 
     private final PaymentVoucherService paymentVoucherService;
 
+    @GetMapping
+    public List<PaymentVoucher> getAllPaymentVouchers() {
+        return paymentVoucherService.getAllPaymentVoucher();
+    }
+
     @PostMapping("/from-date")
     public ResponseEntity<Void> createPaymentVoucherByDate(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate selectedDate,
-            @RequestBody PaymentVoucherDTO requestDTO) {System.out.println(requestDTO.getStatus());
+            @RequestBody PaymentVoucherDTO requestDTO) {
         paymentVoucherService.createPaymentVoucherByDate(selectedDate, requestDTO);
         return ResponseEntity.ok().build();
     }

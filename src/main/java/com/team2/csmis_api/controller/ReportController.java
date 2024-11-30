@@ -28,15 +28,6 @@ public class ReportController {
     @Autowired
     private JasperReportService reportService;
 
-    @GetMapping("/restaurants")
-    public void generateRestaurantReport(HttpServletResponse response) throws Exception {
-        byte[] pdfReport = reportService.generateRestaurantReport();
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "inline; filename=restaurant_report.pdf");
-        response.getOutputStream().write(pdfReport);
-        response.getOutputStream().flush();
-    }
-
     @GetMapping("mail-on")
     public List<UserDTO> getMailOnUsers() {
         return reportService.getMailNotiOnUsers();
@@ -89,41 +80,44 @@ public class ReportController {
             @RequestParam String templatePath,
             @RequestParam String fileType,
             @RequestParam(defaultValue = "report") String fileName,
-            @RequestParam Map<String, ?> allParams) {
+            @RequestParam Map<String, String> allParams) {
         try {
-            Map<String, Object> parameters = new HashMap<>();  // Add parameters as needed
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); // Define date format
+            Map<String, Object> parameters = new HashMap<>();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             for (String key : allParams.keySet()) {
-                Object value = allParams.get(key);
-
-                // Check if the value is a date string and convert it
-                if (value instanceof String) {
-                    String stringValue = (String) value;
+                String value = allParams.get(key);
+                try {
+                    // Try parsing as an integer
+                    int intValue = Integer.parseInt(value);
+                    parameters.put(key, intValue);
+                } catch (NumberFormatException intEx) {
                     try {
-                        // Attempt to parse as date
-                        Date dateValue = dateFormat.parse(stringValue);
-                        parameters.put(key, dateValue);  // Store Date object
-                    } catch (ParseException e) {
-                        // Not a date, store the original string
-                        parameters.put(key, stringValue);
+                        // Try parsing as a date
+                        Date dateValue = dateFormat.parse(value);
+                        parameters.put(key, dateValue);
+                    } catch (ParseException dateEx) {
+                        // Fallback: store the original string
+                        parameters.put(key, value);
                     }
-                } else {
-                    parameters.put(key, value);  // Store non-string values as-is
                 }
             }
+
             byte[] reportData = reportService.generateReport(templatePath, fileType, parameters);
 
-            String headerValue = (fileType.equalsIgnoreCase("pdf") ? "inline" : "attachment") + "; filename=" + fileName + "." + fileType;
+            String headerValue = (fileType.equalsIgnoreCase("pdf") ? "inline" : "attachment")
+                    + "; filename=" + fileName + "." + fileType;
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, headerValue)
-                    .contentType(fileType.equalsIgnoreCase("pdf") ? MediaType.APPLICATION_PDF : MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                    .contentType(fileType.equalsIgnoreCase("pdf") ? MediaType.APPLICATION_PDF
+                            : MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                     .body(reportData);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     private ResponseEntity<byte[]> buildResponse(byte[] reportData, String fileType, String fileName) {
         String headerValue = (fileType.equalsIgnoreCase("pdf") ? "inline" : "attachment") + "; filename=" + fileName + "." + fileType;
@@ -296,6 +290,46 @@ public class ReportController {
     @GetMapping("/users-avoid-meat")
     public ResponseEntity<List<AvoidMeatDTO>> getMeatLunchCountsForNextWeek() {
         List<AvoidMeatDTO> results = reportService.getUserAvoidMeatForNextWeek();
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/daily-company-cost")
+    public ResponseEntity<List<CostDTO>> getDailyCompanyCosting(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<CostDTO> results = reportService.getDailyCompanyCosting(date);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/weekly-company-cost")
+    public ResponseEntity<List<CostDTO>> getWeeklyCompanyCosting(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<CostDTO> results = reportService.getWeeklyCompanyCosting(startDate,endDate);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/monthly-company-cost")
+    public ResponseEntity<List<CostDTO>> getMonthlyCompanyCosting(@RequestParam("month") String month,
+                                                                  @RequestParam("year") String year) {
+        List<CostDTO> results = reportService.getMonthlyCompanyCosting(Integer.parseInt(month), Integer.parseInt(year));
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/daily-employee-cost")
+    public ResponseEntity<List<EmployeeCostDTO>> getDailyEmployeeOwnCost(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        List<EmployeeCostDTO> results = reportService.getDailyEmployeeOwnCost(date);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/weekly-employee-cost")
+    public ResponseEntity<List<EmployeeCostDTO>> getWeeklyEmployeeOwnCost(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                 @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<EmployeeCostDTO> results = reportService.getWeeklyEmployeeOwnCost(startDate,endDate);
+        return ResponseEntity.ok(results);
+    }
+
+    @PutMapping("/monthly-employee-cost")
+    public ResponseEntity<List<EmployeeCostDTO>> getMonthlyEmployeeOwnCost(@RequestParam("month") String month,
+                                                                  @RequestParam("year") String year) {
+        List<EmployeeCostDTO> results = reportService.getMonthlyEmployeeOwnCost(Integer.parseInt(month), Integer.parseInt(year));
         return ResponseEntity.ok(results);
     }
 

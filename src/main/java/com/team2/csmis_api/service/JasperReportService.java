@@ -5,10 +5,7 @@ import com.team2.csmis_api.entity.DoorAccessRecord;
 import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.entity.UserHasLunch;
-import com.team2.csmis_api.repository.DoorLogRepository;
-import com.team2.csmis_api.repository.RestaurantRepository;
-import com.team2.csmis_api.repository.UserHasLunchRepository;
-import com.team2.csmis_api.repository.UserRepository;
+import com.team2.csmis_api.repository.*;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
@@ -48,6 +45,9 @@ public class JasperReportService {
 
     @Autowired
     private DoorLogRepository doorLogRepo;
+
+    @Autowired
+    private LunchRepository lunchRepo;
 
     @Autowired
     private UserHasLunchRepository userHasLunchRepo;
@@ -154,23 +154,6 @@ public class JasperReportService {
         } else {
             throw new IllegalArgumentException("Unsupported file type: " + fileType);
         }
-    }
-
-    public byte[] generateRestaurantReport() throws Exception {
-        // Load the Jasper report template from resources
-        InputStream reportStream = new ClassPathResource("reports/restaurant2.jrxml").getInputStream();
-
-        // Compile the report
-        JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
-
-        // Set report parameters if needed (useful for dynamic data)
-        Map<String, Object> parameters = new HashMap<>();
-
-        // Fill the report with data from the database
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource.getConnection());
-
-        // Export the report to a PDF
-        return JasperExportManager.exportReportToPdf(jasperPrint);
     }
 
     public List<Restaurant> fetchData(int month, int year) {
@@ -331,6 +314,87 @@ public class JasperReportService {
                         (String) result[0],
                         (String) result[1],
                         ((Number) result[2]).longValue()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<CostDTO> getDailyCompanyCosting(LocalDate date) {
+        List<Object[]> results = lunchRepo.getDailyCompanyCosting(date);
+        return results.stream()
+                .map(result -> new CostDTO(
+                        (Date) result[0],
+                        (Integer) result[1],
+                        (Long) result[2],
+                        (Double) result[3],
+                        (Double) result[4],
+                        (Double) result[5],
+                        (Double) result[6]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<CostDTO> getWeeklyCompanyCosting(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = lunchRepo.getWeeklyCompanyCosting(startDate,endDate);
+        return results.stream()
+                .map(result -> new CostDTO(
+                        (Date) result[0],
+                        (Integer) result[1],
+                        (Long) result[2],
+                        (Double) result[3],
+                        (Double) result[4],
+                        (Double) result[5],
+                        (Double) result[6]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<CostDTO> getMonthlyCompanyCosting(int month, int year) {
+        List<Object[]> results = lunchRepo.getMonthlyCompanyCosting(month,year);
+        return results.stream()
+                .map(result -> new CostDTO(
+                        (Date) result[0],
+                        (Integer) result[1],
+                        (Long) result[2],
+                        (Double) result[3],
+                        (Double) result[4],
+                        (Double) result[5],
+                        (Double) result[6]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<EmployeeCostDTO> getDailyEmployeeOwnCost(LocalDate date) {
+        List<Object[]> results = lunchRepo.getDailyEmployeeOwnCost(date);
+        return results.stream()
+                .map(result -> new EmployeeCostDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        (Double) result[2],
+                        (Double) result[3]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<EmployeeCostDTO> getWeeklyEmployeeOwnCost(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = lunchRepo.getWeeklyEmployeeOwnCost(startDate, endDate);
+        return results.stream()
+                .map(result -> new EmployeeCostDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        (Double) result[2],
+                        (Double) result[3]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<EmployeeCostDTO> getMonthlyEmployeeOwnCost(int month, int year) {
+        List<Object[]> results = lunchRepo.getMonthlyEmployeeOwnCost(month,year);
+        return results.stream()
+                .map(result -> new EmployeeCostDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        (Double) result[2],
+                        (Double) result[3]
                 ))
                 .collect(Collectors.toList());
     }

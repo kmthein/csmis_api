@@ -3,6 +3,7 @@ package com.team2.csmis_api.service;
 import com.team2.csmis_api.dto.PaymentVoucherDTO;
 import com.team2.csmis_api.dto.VoucherRowDTO;
 import com.team2.csmis_api.entity.*;
+import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,11 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
     private final LunchRepository lunchRepo;
     private final UserRepository userRepository;
     private final VoucherRowRepository voucherRowRepository;
+
+    @Override
+    public List<PaymentVoucher> getAllPaymentVoucher() {
+        return paymentVoucherRepository.findAll();
+    }
 
     @Transactional
     public String createPaymentVoucherByDate(LocalDate selectedDate, PaymentVoucherDTO requestDTO) {
@@ -94,7 +100,7 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
             throw new RuntimeException("Cashier user not found");
         }
 
-        User approvedBy = userRepository.findUserById(requestDTO.getApprovedByUserId());
+        User approvedBy = userRepository.findByName(requestDTO.getApprovedByName());
         if (approvedBy == null) {
             throw new RuntimeException("ApprovedBy user (ADMIN) not found");
         }
@@ -104,6 +110,7 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         voucher.setVoucherNo(newVoucherNo);
         voucher.setPaymentDate(LocalDate.now());
         voucher.setRestaurantName(order.getRestaurant().getName());
+        voucher.setTotalAmount(requestDTO.getTotalAmount());
 
         // Calculate the Monday and Friday of the selected week
         List<LocalDate> weekdays = getWeekdaysFromSelectedDate(selectedDate);
@@ -124,6 +131,7 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         List<VoucherRow> voucherRows = orderRows.stream().map(orderRow -> {
             // Get the lunch date for the current order row
             LocalDate lunchDate = orderRow.getLunchDate();
+            System.out.println(orderRow.getLunchDate());
 
             // Check if lunch exists for the selected date; if not, find another date in the same week
             Lunch lunch = getLunchForWeek(lunchDate, weekdays);
@@ -217,10 +225,11 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         }
 
         // Update Approved By
-        if (requestDTO.getApprovedByUserId() != null) {
-            User approvedBy = userRepository.findById(requestDTO.getApprovedByUserId()).orElseThrow(
-                    () -> new RuntimeException("Approved By User with id " + requestDTO.getApprovedByUserId() + " not found")
-            );
+        if (requestDTO.getApprovedByName() != null) {
+            User approvedBy = userRepository.findByName(requestDTO.getApprovedByName());
+            if(approvedBy == null) {
+                throw new ResourceNotFoundException("Approve id not found");
+            }
             existingVoucher.setApprovedBy(approvedBy.getName()); // Assuming 'username' is the field to set
         }
 
