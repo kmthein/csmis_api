@@ -22,21 +22,6 @@ public interface DoorLogRepository extends JpaRepository<DoorAccessRecord,Intege
             "AND d.user.id = :userId")
     BigDecimal getWeeklyTotalUserCostByUserId(@Param("userId") Integer userId);
 
-    @Query("SELECT SUM(ul.userCost) FROM DoorAccessRecord d " +
-            "LEFT JOIN UserHasLunch ul ON d.user.id = ul.user.id " +
-            "AND FUNCTION('DATE', d.date) = FUNCTION('DATE', ul.dt) " +
-            "WHERE FUNCTION('MONTH', d.date) = FUNCTION('MONTH', CURRENT_DATE) " +
-            "AND FUNCTION('YEAR', d.date) = FUNCTION('YEAR', CURRENT_DATE) " +
-            "AND d.user.id = :userId")
-    BigDecimal getMonthlyTotalUserCostByUserId(@Param("userId") Integer userId);
-
-
-    @Query("SELECT SUM(ul.userCost) FROM DoorAccessRecord d " +
-            "LEFT JOIN UserHasLunch ul ON d.user.id = ul.user.id " +
-            "AND FUNCTION('DATE', d.date) = FUNCTION('DATE', ul.dt) " +
-            "WHERE FUNCTION('YEAR', d.date) = FUNCTION('YEAR', CURRENT_DATE) " +
-            "AND d.user.id = :userId")
-    BigDecimal getYearlyTotalUserCostByUserId(@Param("userId") Integer userId);
 
     @Query("SELECT d FROM DoorAccessRecord d")
     public List<DoorAccessRecord> getAllDoorAccessRecords();

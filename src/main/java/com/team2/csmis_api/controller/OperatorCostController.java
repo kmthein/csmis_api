@@ -2,6 +2,7 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.service.DoorLogService;
+import com.team2.csmis_api.service.UserHasLunchServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +15,11 @@ import java.math.BigDecimal;
 public class OperatorCostController {
 
     @Autowired
-    private DoorLogService doorLogService;
+    private UserHasLunchServices userHasLunchService;
 
     @GetMapping("/weekly/{userId}")
     public ResponseEntity<BigDecimal> getWeeklyTotalCostByUserId(@PathVariable int userId) {
-        BigDecimal totalCost = doorLogService.getUserWeeklyTotalCost(userId);
+        BigDecimal totalCost = userHasLunchService.getUserWeeklyTotalCost(userId);
 
         if (totalCost != null) {
             return ResponseEntity.ok(totalCost);
@@ -29,7 +30,7 @@ public class OperatorCostController {
 
     @GetMapping("/monthly/{userId}")
     public ResponseEntity<BigDecimal> getMonthlyTotalCostByUserId(@PathVariable int userId) {
-        BigDecimal totalCost = doorLogService.getUserMonthlyTotalCost(userId);
+        BigDecimal totalCost = userHasLunchService.getUserMonthlyTotalCost(userId);
 
         if (totalCost != null) {
             return ResponseEntity.ok(totalCost);
@@ -40,7 +41,7 @@ public class OperatorCostController {
 
     @GetMapping("/yearly/{userId}")
     public ResponseEntity<BigDecimal> getYearlyTotalCostByUserId(@PathVariable int userId) {
-        BigDecimal totalCost = doorLogService.getUserYearlyTotalCost(userId);
+        BigDecimal totalCost = userHasLunchService.getUserYearlyTotalCost(userId);
 
         if (totalCost != null) {
             return ResponseEntity.ok(totalCost);
