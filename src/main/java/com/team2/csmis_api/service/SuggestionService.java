@@ -89,16 +89,26 @@ public class SuggestionService {
         SuggestionDTO dto = new SuggestionDTO();
         dto.setId(suggestion.getId());
         dto.setCreatedAt(suggestion.getCreatedAt());
-        dto.setUsername(suggestion.getUser().getName());
+        System.out.println(suggestion.getUser().getName());
+        System.out.println(suggestion.getUser().getEmail());
+        dto.setName(suggestion.getUser().getName());
         dto.setContent(suggestion.getContent());
         dto.setUserId(suggestion.getUser().getId());
         dto.setDate(suggestion.getDate());
+        if(suggestion.getUser().getImages().size() > 0) {
+            for (FileData file : suggestion.getUser().getImages()) {
+                if(!file.getIsDeleted()) {
+                    dto.setUserImg(file.getFilePath());
+                }
+            }
+        }
         return dto;
     }
 
     public SuggestionDTO getSuggestionById(Integer id) {
         Suggestion suggestion = suggestionRepository.findById(id).orElse(null);
-        return suggestion != null ? modelMapper.map(suggestion, SuggestionDTO.class) : null;
+        SuggestionDTO suggestionDTO = convertToSuggestionDto(suggestion);
+        return suggestion != null ? suggestionDTO : null;
     }
 
     public SuggestionDTO updateSuggestion(Integer id, SuggestionDTO suggestionDTO) {

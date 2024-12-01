@@ -4,6 +4,7 @@ package com.team2.csmis_api.controller;
 import com.team2.csmis_api.dto.PaymentVoucherDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.entity.PaymentVoucher;
+import com.team2.csmis_api.entity.VoucherRow;
 import com.team2.csmis_api.service.PaymentVoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -25,6 +26,11 @@ public class PaymentVoucherController {
     @GetMapping
     public List<PaymentVoucher> getAllPaymentVouchers() {
         return paymentVoucherService.getAllPaymentVoucher();
+    }
+
+    @GetMapping("/get-dates")
+    public List<VoucherRow> getAlreadyHaveVoucherDates() {
+        return paymentVoucherService.getAlreadyHaveVoucherDates();
     }
 
     @PostMapping("/from-date")

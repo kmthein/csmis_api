@@ -35,6 +35,11 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         return paymentVoucherRepository.findAll();
     }
 
+    @Override
+    public List<VoucherRow> getAlreadyHaveVoucherDates() {
+        return voucherRowRepository.findAll();
+    }
+
     @Transactional
     public String createPaymentVoucherByDate(LocalDate selectedDate, PaymentVoucherDTO requestDTO) {
         // Get weekdays from the selected date
