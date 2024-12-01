@@ -16,10 +16,7 @@ import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -198,7 +195,8 @@ public class AnnouncementService {
     }
 
     public Page<AnnouncementDTO> getAllAnnouncementsWithFiles(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Sort.Direction direction = Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "updatedAt"));
         Page<Announcement> announcementPage = announcementRepo.findAll(pageable);
         List<AnnouncementDTO> announcementDTOs = new ArrayList<>();
 
@@ -260,7 +258,6 @@ public class AnnouncementService {
             existingAnnouncement.setUser(optAdmin.get());
         }
         existingAnnouncement.setDate(LocalDate.now());
-
         Announcement updatedAnnouncement = announcementRepo.save(existingAnnouncement);
         if(updatedAnnouncement != null) {
             String subject = "Announcement Updated: " + updatedAnnouncement.getTitle();
