@@ -2,15 +2,17 @@ package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.FeedbackDTO;
 import com.team2.csmis_api.entity.Feedback;
+import com.team2.csmis_api.entity.FeedbackResponse;
 import com.team2.csmis_api.entity.Lunch;
-import com.team2.csmis_api.entity.Response;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.repository.FeedbackRepository;
+import com.team2.csmis_api.repository.FeedbackResponseRepository;
 import com.team2.csmis_api.repository.LunchRepository;
 import com.team2.csmis_api.repository.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -29,77 +31,109 @@ public class FeedbackService {
     private LunchRepository lunchRepository;
 
     @Autowired
+    private FeedbackResponseRepository feedbackResponseRepository;
+
+    @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private NotificationService notificationService;
+
     // Create Feedback
+    @Transactional
     public FeedbackDTO createFeedback(FeedbackDTO feedbackDTO) {
+        System.out.println("Response ID: " + feedbackDTO.getResponseId()); // Debug log
+
         Feedback feedback = modelMapper.map(feedbackDTO, Feedback.class);
 
-        User user = userRepository.findById(feedbackDTO.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-        Lunch lunch = lunchRepository.findById(feedbackDTO.getLunchId())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid lunch ID"));
-        feedback.setUser(user);
-        feedback.setLunch(lunch);
+        if (feedbackDTO.getResponseId() != null) {
+            feedback.setResponse(feedbackResponseRepository.findById(feedbackDTO.getResponseId()).orElse(null));
+        }
+
+        feedback.setUser(userRepository.findById(feedbackDTO.getUserId()).orElse(null));
+        feedback.setLunch(lunchRepository.findById(feedbackDTO.getLunchId()).orElse(null));
         feedback.setDate(LocalDate.now());
 
-        // Automatically sets createdAt and updatedAt in Base
         Feedback savedFeedback = feedbackRepository.save(feedback);
+        String message = "has sent a feedback the menu on";
+        notificationService.sendSuggestionNotification(savedFeedback.getUser().getName(), message);
         return modelMapper.map(savedFeedback, FeedbackDTO.class);
     }
 
+    // Update Feedback
+    @Transactional
     public FeedbackDTO updateFeedback(Integer id, FeedbackDTO feedbackDTO) {
-        // Fetch existing feedback from the database
         Feedback existingFeedback = feedbackRepository.findById(id)
-                .filter(f -> !f.getIsDeleted()) // Ensure it's not deleted
-                .orElseThrow(() -> new IllegalArgumentException("Feedback not found"));
+                .filter(feedback -> !feedback.getIsDeleted())
+                .orElse(null);
 
-        // Update fields
+        if (existingFeedback == null) {
+            return null; // Handle as needed
+        }
+
         existingFeedback.setComment(feedbackDTO.getComment());
-        existingFeedback.setResponse(Response.valueOf(feedbackDTO.getResponse()));
 
-        // If user or lunch is being updated, set them again
+        if (feedbackDTO.getResponseId() != null) {
+            existingFeedback.setResponse(feedbackResponseRepository.findById(feedbackDTO.getResponseId()).orElse(null));
+        }
+
         if (feedbackDTO.getUserId() != null) {
-            User user = userRepository.findById(feedbackDTO.getUserId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-            existingFeedback.setUser(user);
+            existingFeedback.setUser(userRepository.findById(feedbackDTO.getUserId()).orElse(null));
         }
 
         if (feedbackDTO.getLunchId() != null) {
-            Lunch lunch = lunchRepository.findById(feedbackDTO.getLunchId())
-                    .orElseThrow(() -> new IllegalArgumentException("Invalid lunch ID"));
-            existingFeedback.setLunch(lunch);
+            existingFeedback.setLunch(lunchRepository.findById(feedbackDTO.getLunchId()).orElse(null));
         }
 
-        // Optionally, update the date if required (for example, to set a new date on updates)
-        existingFeedback.setDate(LocalDate.now()); // You can choose whether to update the date or not.
+        existingFeedback.setDate(feedbackDTO.getDate() != null ? feedbackDTO.getDate() : existingFeedback.getDate());
 
-        // Save and return the updated Feedback
         Feedback updatedFeedback = feedbackRepository.save(existingFeedback);
         return modelMapper.map(updatedFeedback, FeedbackDTO.class);
     }
 
     // Logical Delete Feedback
+    @Transactional
     public void deleteFeedback(Integer id) {
-        Feedback feedback = feedbackRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Feedback not found"));
-        feedback.setIsDeleted(true); // Logical deletion
-        feedbackRepository.save(feedback);
+        Feedback feedback = feedbackRepository.findById(id).orElse(null);
+        if (feedback != null) {
+            feedback.setIsDeleted(true);
+            feedbackRepository.save(feedback);
+        }
     }
 
     // Get All Feedbacks
     public List<FeedbackDTO> getAllFeedbacks() {
-        return feedbackRepository.findAllActiveFeedbacks()
+        return feedbackRepository.findAllActiveFeedbacksWithDetails()
                 .stream()
-                .map(feedback -> modelMapper.map(feedback, FeedbackDTO.class))
+                .map(feedback -> {
+                    FeedbackDTO dto = modelMapper.map(feedback, FeedbackDTO.class);
+
+                    // Map userName
+                    if (feedback.getUser() != null) {
+                        dto.setUserName(feedback.getUser().getName());
+                    }
+
+                    // Map response
+                    if (feedback.getResponse() != null) {
+                        dto.setResponse(feedback.getResponse().getResponse());
+                    }
+
+                    // Map lunch menu
+                    if (feedback.getLunch() != null) {
+                        dto.setLunchMenu(feedback.getLunch().getMenu());
+                    }
+
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
+
 
     // Get Feedback by ID
     public FeedbackDTO getFeedbackById(Integer id) {
         Feedback feedback = feedbackRepository.findById(id)
-                .filter(f -> !f.getIsDeleted()) // Exclude deleted feedbacks
-                .orElseThrow(() -> new IllegalArgumentException("Feedback not found"));
-        return modelMapper.map(feedback, FeedbackDTO.class);
+                .filter(f -> !f.getIsDeleted())
+                .orElse(null);
+        return feedback != null ? modelMapper.map(feedback, FeedbackDTO.class) : null;
     }
 }

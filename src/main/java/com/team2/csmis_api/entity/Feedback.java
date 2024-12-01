@@ -32,9 +32,8 @@ public class Feedback extends Base {
     @Column(name = "comment")
     private String comment;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "response", nullable = true)
-    private Response response;
-
+    @ManyToOne
+    @JoinColumn(name="feedback_response_id")
+    private FeedbackResponse response;
 
 }

@@ -27,13 +27,15 @@ public class NotificationService {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public void sendFeedbackNotification(String message) {
-        messagingTemplate.convertAndSend("/topic/feedbacks", message);
-    }
 
     public void sendSuggestionNotification(String userName, String message) {
         String notificationMessage = String.format("{\"message\": \"%s\", \"userName\": \"%s\"}", message, userName);
         messagingTemplate.convertAndSend("/topic/suggestions", notificationMessage);
+    }
+
+    public void sendFeedbackNotification(String userName, String message) {
+        String notificationMessage = String.format("{\"message\": \"%s\", \"userName\": \"%s\"}", message, userName);
+        messagingTemplate.convertAndSend("/topic/feedbacks", notificationMessage);
     }
 
 

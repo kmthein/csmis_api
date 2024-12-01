@@ -38,18 +38,6 @@ public class DoorLogService {
     @Autowired
     private ModelMapper mapper;
 
-    public BigDecimal getUserWeeklyTotalCost(int userId) {
-        return doorLogRepo.getWeeklyTotalUserCostByUserId(userId);
-    }
-
-    public BigDecimal getUserMonthlyTotalCost(int userId) {
-        return doorLogRepo.getMonthlyTotalUserCostByUserId(userId);
-    }
-
-    public BigDecimal getUserYearlyTotalCost(int userId) {
-        return doorLogRepo.getYearlyTotalUserCostByUserId(userId);
-    }
-
     @Transactional
     public List<DoorAccessRecord> saveDoorLogToDatabase(MultipartFile file, Integer adminId) {
         List<DoorAccessRecord> doorAccessRecords = new ArrayList<>();

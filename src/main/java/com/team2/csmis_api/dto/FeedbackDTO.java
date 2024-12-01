@@ -8,8 +8,11 @@ import java.time.LocalDate;
 public class FeedbackDTO {
     private Integer id;
     private Integer userId;
+    private Integer responseId;
     private Integer lunchId;
     private LocalDate date;
     private String comment;
+    private String userName;
+    private String lunchMenu;
     private String response;
 }

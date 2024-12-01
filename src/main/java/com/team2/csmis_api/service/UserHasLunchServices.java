@@ -12,6 +12,7 @@ import com.team2.csmis_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.YearMonth;
 import java.time.ZoneId;
@@ -32,6 +33,19 @@ public class UserHasLunchServices {
     private UserRepository userRepository;
     @Autowired
     private SettingRepository settingsRepository;
+
+    public BigDecimal getUserWeeklyTotalCost(int userId) {
+        return userHasLunchRepository.getWeeklyTotalUserCostByUserId(userId);
+    }
+
+
+    public BigDecimal getUserMonthlyTotalCost(int userId) {
+        return userHasLunchRepository.getMonthlyTotalUserCostByUserId(userId);
+    }
+
+    public BigDecimal getUserYearlyTotalCost(int userId) {
+        return userHasLunchRepository.getYearlyTotalUserCostByUserId(userId);
+    }
 
     public List<DateCountDTO> getNextWeekLunchCounts() {
         // Get today's date
