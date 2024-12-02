@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -13,8 +14,8 @@ public class PaidVoucherDTO {
     private String cashier;
     private String approvedBy;
     private String receivedBy;
-    private LocalDate payDate;
-    private Double mount;
+    private Date payDate;
+    private Double amount;
     private String status;
-
+    private String paymentMethod;
 }

@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Date;
@@ -54,8 +56,8 @@ public class OrderController {
     }
 
     @PutMapping("find-date")
-    public OrderDTO getOrderByDate(@RequestParam("date") LocalDate date) {
-        return orderService.getOrderByRowDate(date);
+    public OrderDTO getOrderByDate(@RequestParam("date") String date) {
+        return orderService.getOrderByRowDate(LocalDate.parse(date));
     }
 
     @GetMapping("/check-exist")
@@ -70,8 +72,8 @@ public class OrderController {
     }
 
     @GetMapping("/getOrderQuantity")
-    public long getOrderQuantity(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
-        return orderService.getOrderQuantity(date);
+    public long getOrderQuantity(@RequestParam String date) {
+        return orderService.getOrderQuantity(LocalDate.parse(date));
     }
 //    @GetMapping("/restaurant")
 //    public ResponseEntity<String> getRestaurantByDate(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {

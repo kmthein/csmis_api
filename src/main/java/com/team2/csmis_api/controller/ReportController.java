@@ -357,8 +357,8 @@ public class ReportController {
     }
 
     @PutMapping("/paid-voucher-list")
-    public ResponseEntity<List<PaidVoucherDTO>> getPaidVoucher(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                                          @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    public ResponseEntity<List<PaidVoucherDTO>> getPaidVoucher(@RequestParam("startDate") String startDate,
+                                                                          @RequestParam("endDate") String endDate) {
         List<PaidVoucherDTO> results = reportService.getPaidVoucher(startDate,endDate);
         return ResponseEntity.ok(results);
     }

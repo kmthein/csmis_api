@@ -43,7 +43,13 @@ public class OrderService {
     private ModelMapper modelMapper;
 
     public OrderDTO getOrderByRowDate(LocalDate date) {
-        return orderRowRepository.findOrderByDate(date);
+        System.out.println(date);
+        OrderDTO orderDTO = orderRowRepository.findOrderByDate(date);
+        if(orderDTO != null) {
+            List<OrderRowDTO> orderRowDTOS = orderRowRepository.getOrderRowsByOrderId(orderDTO.getId());
+            orderDTO.setRows(orderRowDTOS);
+        }
+        return orderDTO;
     }
 
     @Transactional
@@ -61,6 +67,10 @@ public class OrderService {
 
         // Fetch data from repository
         return orderRepository.getOrderRow(nextMonday, nextFriday);
+    }
+
+    public long getOrderQuantity(Date date) {
+        return orderRowRepository.getOrderRowQuantity(date);
     }
 
     public long getQuantity(Date date) {

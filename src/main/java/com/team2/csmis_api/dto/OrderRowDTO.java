@@ -10,7 +10,6 @@ import java.time.LocalDate;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @NoArgsConstructor
-@AllArgsConstructor
 public class OrderRowDTO {
     private Integer id;
     private LocalDate lunchDate;
@@ -21,4 +20,9 @@ public class OrderRowDTO {
         this.lunchDate = lunchDate;
     }
 
+    public OrderRowDTO(Long id, LocalDate lunchDate, Integer quantity) {
+        this.id = Math.toIntExact(id);
+        this.lunchDate = lunchDate;
+        this.quantity = quantity;
+    }
 }

@@ -447,7 +447,7 @@ public class JasperReportService {
 //    }
 
 
-    public List<PaidVoucherDTO> getPaidVoucher(LocalDate startDate, LocalDate endDate) {
+    public List<PaidVoucherDTO> getPaidVoucher(String startDate, String endDate) {
         List<Object[]> results = voucherRowRepo.getPaidVoucher(startDate, endDate);
         return results.stream()
                 .map(result -> new PaidVoucherDTO(
@@ -456,9 +456,10 @@ public class JasperReportService {
                         (String) result[2],
                         (String) result[3],
                         (String) result[4],
-                        (LocalDate) result[5],
+                        (Date) result[5],
                         (Double) result[6],
-                        (String) result[7]
+                        (String) result[7],
+                        (String) result[8]
                 ))
                 .collect(Collectors.toList());
     }

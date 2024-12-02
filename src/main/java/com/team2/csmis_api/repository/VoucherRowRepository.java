@@ -34,7 +34,8 @@ public interface VoucherRowRepository extends JpaRepository<VoucherRow, Integer>
             pv.approved_by AS appro,
             pv.payment_date AS pdate,
             SUM(vr.amount) AS amount,
-            pv.status AS status
+            pv.status AS status,
+            pv.payment_method AS method
         FROM\s
             payment_vouchers pv
         JOIN\s
@@ -43,9 +44,9 @@ public interface VoucherRowRepository extends JpaRepository<VoucherRow, Integer>
             pv.payment_date BETWEEN :startDate AND :endDate
         GROUP BY\s
           pv.voucher_no, pv.invoice_for,\s
-          pv.cashier, pv.received_by, pv.approved_by, pv.payment_date, pv.status
+          pv.cashier, pv.received_by, pv.approved_by, pv.payment_date, pv.status, pv.payment_method
         """, nativeQuery = true)
-    List<Object[]> getPaidVoucher(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    List<Object[]> getPaidVoucher(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
 
 }

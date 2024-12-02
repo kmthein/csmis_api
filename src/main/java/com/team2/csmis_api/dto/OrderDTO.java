@@ -1,5 +1,6 @@
 package com.team2.csmis_api.dto;
 
+import com.team2.csmis_api.entity.OrderRow;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,6 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class OrderDTO {
     private Integer id;
     private LocalDate orderDate;
@@ -34,5 +34,15 @@ public class OrderDTO {
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
         this.adminId = adminId;
+    }
+
+    public OrderDTO(Integer id, LocalDate orderDate, String message, Integer restaurantId, String restaurantName, Integer adminId, List<OrderRowDTO> rows) {
+        this.id = id;
+        this.orderDate = orderDate;
+        this.message = message;
+        this.restaurantId = restaurantId;
+        this.restaurantName = restaurantName;
+        this.adminId = adminId;
+        this.rows = rows;
     }
 }
