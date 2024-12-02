@@ -54,6 +54,9 @@ public class JasperReportService {
     @Autowired
     private UserHasLunchRepository userHasLunchRepo;
 
+    @Autowired
+    private VoucherRowRepository voucherRowRepo;
+
     @Value("classpath:/reports/lunch-summary-daily.jasper")  // Path to your precompiled .jasper report
     private Resource reportResource;
 
@@ -442,4 +445,22 @@ public class JasperReportService {
 //        // Export the report to a byte array (PDF format in this case)
 //        return JasperExportManager.exportReportToPdf(jasperPrint);
 //    }
+
+
+    public List<PaidVoucherDTO> getPaidVoucher(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = voucherRowRepo.getPaidVoucher(startDate, endDate);
+        return results.stream()
+                .map(result -> new PaidVoucherDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        (String) result[2],
+                        (String) result[3],
+                        (String) result[4],
+                        (LocalDate) result[5],
+                        (Double) result[6],
+                        (String) result[7]
+                ))
+                .collect(Collectors.toList());
+    }
+
 }
