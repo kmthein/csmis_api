@@ -346,7 +346,7 @@ WHERE YEARWEEK(vr.dt) = YEARWEEK($P{reportDate})
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="14"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$F{dt}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("yyyy-MM-dd").format($F{dt})]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="0" width="70" height="30" uuid="fb1264f4-c66b-4841-bc74-a1a6f0013ac9"/>

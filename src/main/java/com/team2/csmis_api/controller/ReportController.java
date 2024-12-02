@@ -355,5 +355,12 @@ public class ReportController {
             return ResponseEntity.status(500).body("Error generating report".getBytes());
         }
     }
+
+    @PutMapping("/paid-voucher-list")
+    public ResponseEntity<List<PaidVoucherDTO>> getPaidVoucher(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                                                          @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<PaidVoucherDTO> results = reportService.getPaidVoucher(startDate,endDate);
+        return ResponseEntity.ok(results);
+    }
 }
 
