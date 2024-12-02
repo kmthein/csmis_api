@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface SuggestionRepository extends JpaRepository<Suggestion, Integer> {
 
-    @Query("SELECT s FROM Suggestion s WHERE s.isDeleted = false")
+    @Query("SELECT s FROM Suggestion s JOIN FETCH s.user WHERE s.isDeleted = false")
     public List<Suggestion> getAllSuggestions();
 
     @Modifying

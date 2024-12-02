@@ -66,9 +66,19 @@ public class SuggestionService {
 
 
     public List<SuggestionDTO> getAllSuggestions() {
-        return suggestionRepository.findAll().stream()
-                .map(suggestion -> modelMapper.map(suggestion, SuggestionDTO.class))
-                .collect(Collectors.toList());
+        List<Suggestion> suggestions = suggestionRepository.getAllSuggestions();
+
+        // Manually map each Suggestion entity to a SuggestionDTO
+        return suggestions.stream().map(suggestion -> {
+            SuggestionDTO dto = new SuggestionDTO();
+            dto.setId(suggestion.getId());
+            dto.setDate(suggestion.getDate());
+            dto.setContent(suggestion.getContent());
+            dto.setUserId(suggestion.getUser() != null ? suggestion.getUser().getId() : null);
+            dto.setName(suggestion.getUser() != null ? suggestion.getUser().getName() : null);
+            dto.setCreatedAt(suggestion.getCreatedAt());
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     public SuggestionDTO getSuggestionByIdAndMakeSeen(Integer id, Integer userId) {

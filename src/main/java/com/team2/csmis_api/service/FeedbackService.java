@@ -9,6 +9,7 @@ import com.team2.csmis_api.repository.FeedbackRepository;
 import com.team2.csmis_api.repository.FeedbackResponseRepository;
 import com.team2.csmis_api.repository.LunchRepository;
 import com.team2.csmis_api.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +40,31 @@ public class FeedbackService {
 
     @Autowired
     private NotificationService notificationService;
+
+    public FeedbackDTO getFeedbackByUserAndDate(Integer userId, LocalDate date) {
+        Optional<Feedback> feedbackOptional = feedbackRepository.findByUserIdAndDate(userId, date);
+        if (feedbackOptional.isEmpty()) {
+            return null; // Or throw an exception based on your requirements
+        }
+
+        Feedback feedback = feedbackOptional.get();
+        FeedbackDTO dto = new FeedbackDTO();
+        dto.setId(feedback.getId());
+        dto.setUserId(feedback.getUser().getId());
+        dto.setResponseId(feedback.getResponse().getId());
+        dto.setLunchId(feedback.getLunch().getId());
+        dto.setDate(feedback.getDate());
+        dto.setComment(feedback.getComment());
+        dto.setUserName(feedback.getUser().getName()); // Assuming user has a getName() method
+        dto.setLunchMenu(feedback.getLunch().getMenu()); // Assuming lunch has a getMenu() method
+
+        return dto;
+    }
+
+    public long getFeedbackCountByResponseId(Integer responseId) {
+        return feedbackRepository.countFeedbacksByResponseId(responseId);
+    }
+
 
     public boolean hasGivenFeedback(Long userId, Long lunchId) {
         return feedbackRepository.existsByUserIdAndLunchId(userId, lunchId);
@@ -64,35 +91,40 @@ public class FeedbackService {
         return modelMapper.map(savedFeedback, FeedbackDTO.class);
     }
 
-    // Update Feedback
     @Transactional
     public FeedbackDTO updateFeedback(Integer id, FeedbackDTO feedbackDTO) {
+        System.out.println("Updating feedback with ID: " + id);
+        System.out.println("Provided responseId: " + feedbackDTO.getResponseId());
+
+        // Find the existing Feedback
         Feedback existingFeedback = feedbackRepository.findById(id)
-                .filter(feedback -> !feedback.getIsDeleted())
-                .orElse(null);
+                .orElseThrow(() -> new EntityNotFoundException("Feedback not found for ID: " + id));
 
-        if (existingFeedback == null) {
-            return null; // Handle as needed
-        }
-
+        // Update the comment field
         existingFeedback.setComment(feedbackDTO.getComment());
 
+        // Update the responseId if provided
         if (feedbackDTO.getResponseId() != null) {
-            existingFeedback.setResponse(feedbackResponseRepository.findById(feedbackDTO.getResponseId()).orElse(null));
+            FeedbackResponse response = feedbackResponseRepository.findById(feedbackDTO.getResponseId())
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "FeedbackResponse not found for ID: " + feedbackDTO.getResponseId()
+                    ));
+            existingFeedback.setResponse(response);
+        } else {
+            System.out.println("No responseId provided; skipping response update.");
         }
 
-        if (feedbackDTO.getUserId() != null) {
-            existingFeedback.setUser(userRepository.findById(feedbackDTO.getUserId()).orElse(null));
-        }
-
-        if (feedbackDTO.getLunchId() != null) {
-            existingFeedback.setLunch(lunchRepository.findById(feedbackDTO.getLunchId()).orElse(null));
-        }
-
-        existingFeedback.setDate(feedbackDTO.getDate() != null ? feedbackDTO.getDate() : existingFeedback.getDate());
-
+        // Save the updated feedback entity
         Feedback updatedFeedback = feedbackRepository.save(existingFeedback);
-        return modelMapper.map(updatedFeedback, FeedbackDTO.class);
+
+        // Map updated entity back to DTO
+        FeedbackDTO updatedFeedbackDTO = new FeedbackDTO();
+        updatedFeedbackDTO.setId(updatedFeedback.getId());
+        updatedFeedbackDTO.setComment(updatedFeedback.getComment());
+        updatedFeedbackDTO.setResponseId(updatedFeedback.getResponse() != null ? updatedFeedback.getResponse().getId() : null);
+
+        System.out.println("Feedback successfully updated: " + updatedFeedbackDTO);
+        return updatedFeedbackDTO;
     }
 
     // Logical Delete Feedback
@@ -118,9 +150,7 @@ public class FeedbackService {
                     }
 
                     // Map response
-                    if (feedback.getResponse() != null) {
-                        dto.setResponse(feedback.getResponse().getResponse());
-                    }
+
 
                     // Map lunch menu
                     if (feedback.getLunch() != null) {

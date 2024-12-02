@@ -40,7 +40,6 @@ public class SuggestionController {
         return ResponseEntity.ok(createdSuggestion);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<SuggestionDTO>> getAllSuggestions() {
         List<SuggestionDTO> suggestions = suggestionService.getAllSuggestions();
