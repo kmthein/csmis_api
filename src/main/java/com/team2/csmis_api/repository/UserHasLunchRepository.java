@@ -11,12 +11,37 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 @Repository
 public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Integer> {
+
+    @Query("SELECT SUM(ul.userCost) FROM DoorAccessRecord d " +
+            "LEFT JOIN UserHasLunch ul ON d.user.id = ul.user.id " +
+            "AND FUNCTION('DATE', d.date) = FUNCTION('DATE', ul.dt) " +
+            "WHERE FUNCTION('YEARWEEK', d.date) = FUNCTION('YEARWEEK', CURRENT_DATE) " +
+            "AND d.user.id = :userId")
+    BigDecimal getWeeklyTotalUserCostByUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT SUM(ul.userCost) FROM UserHasLunch ul " +
+            "LEFT JOIN DoorAccessRecord d ON ul.user.id = d.user.id " +
+            "AND FUNCTION('DATE', ul.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE FUNCTION('MONTH', ul.dt) = FUNCTION('MONTH', CURRENT_DATE) " +
+            "AND FUNCTION('YEAR', ul.dt) = FUNCTION('YEAR', CURRENT_DATE) " +
+            "AND ul.user.id = :userId")
+    BigDecimal getMonthlyTotalUserCostByUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT SUM(ul.userCost) FROM UserHasLunch ul " +
+            "LEFT JOIN DoorAccessRecord d ON ul.user.id = d.user.id " +
+            "AND FUNCTION('DATE', ul.dt) = FUNCTION('DATE', d.date) " +
+            "WHERE FUNCTION('YEAR', ul.dt) = FUNCTION('YEAR', CURRENT_DATE) " +
+            "AND ul.user.id = :userId")
+    BigDecimal getYearlyTotalUserCostByUserId(@Param("userId") Integer userId);
+
+
     @Query("SELECT new com.team2.csmis_api.dto.DateCountDTO(u.dt, COUNT(u), u.total_cost) " +
             "FROM UserHasLunch u " +
             "WHERE u.dt BETWEEN :startDate AND :endDate " +
@@ -370,4 +395,20 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
 
     @Query("SELECT u.total_cost FROM UserHasLunch u WHERE u.dt = :date")
     Double getTotalByDate(@Param("date") Date date);
+
+    @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = MONTH(CURRENT_DATE) AND YEAR(u.dt) = YEAR(CURRENT_DATE)")
+    int countRegisterDaysForMonth(@Param("userId") Integer userId);
+    @Query("SELECT COUNT(u.dt) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = :monthValue AND YEAR(u.dt) = :year")
+    List<LocalDate> findRegisterDatesByUserIdAndMonth(@Param("userId") Integer userId, @Param("monthValue") int monthValue, @Param("year") int year);
+
+    @Query("SELECT COUNT(u.dt) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = :monthValue AND YEAR(u.dt) = :year")
+    int countRegisteredDatesForMonth(Integer userId, int monthValue, int year);
+    @Query("SELECT COUNT(u.dt) FROM UserHasLunch u " +
+            "WHERE u.user.id = :userId " +
+            "AND u.dt >= :startOfMonth " +
+            "AND u.dt < :endOfMonth")
+    int countRegisterDatesForMonth(@Param("userId") Integer userId,
+                                   @Param("startOfMonth") Date startOfMonth,
+                                   @Param("endOfMonth") Date endOfMonth);
+
 }

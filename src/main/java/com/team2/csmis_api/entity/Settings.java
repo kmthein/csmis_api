@@ -17,10 +17,10 @@ public class Settings extends Base {
     private Integer id;
 
     @Column(name = "last_register_day")
-    private String lastRegisterDay;
+    private String lastRegisterDay = "Friday";
 
     @Column(name = "last_register_time")
-    private String lastRegisterTime;
+    private String lastRegisterTime = "16:00";
 
     @Column(name = "company_rate")
     private Double companyRate;

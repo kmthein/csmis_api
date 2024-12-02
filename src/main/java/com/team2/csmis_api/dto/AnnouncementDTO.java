@@ -17,4 +17,5 @@ public class AnnouncementDTO {
     private List<FileDTO> files;
     private boolean isSeen;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

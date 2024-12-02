@@ -17,4 +17,12 @@ public interface VoucherRowRepository extends JpaRepository<VoucherRow, Integer>
     Optional<VoucherRow> findById(Integer id);
     @Query("SELECT v FROM PaymentVoucher v WHERE v.isDeleted = false")
     List<PaymentVoucher> findAllNonDeleted();
+
+
+    @Query("SELECT v FROM VoucherRow v WHERE v.dt BETWEEN :startDate AND :endDate")
+    List<VoucherRow> findByDtBetween(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT v FROM VoucherRow v WHERE v.dt BETWEEN :startDate AND :endDate")
+    List<VoucherRow> findVoucherRowsByDateRange(String startDate, String endDate);
+
 }

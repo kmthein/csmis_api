@@ -2,6 +2,8 @@ package com.team2.csmis_api.repository;
 
 import com.team2.csmis_api.entity.Announcement;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -16,7 +18,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement,Integ
 
     @Query("SELECT a FROM Announcement a WHERE a.isDeleted <> true ORDER BY a.updatedAt DESC")
     public List<Announcement> getAllAnnouncementsWithFiles();
-
+    Page<Announcement> findAll(Pageable pageable);
     @Modifying
     @Transactional
     @Query("update Announcement a set a.isDeleted=true where a.id=:id")

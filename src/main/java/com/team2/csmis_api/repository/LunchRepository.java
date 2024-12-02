@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Repository
 public interface LunchRepository extends JpaRepository<Lunch, Integer> {
-    @Query("SELECT l FROM Lunch l WHERE l.isDeleted = false ORDER BY l.date DESC")
+    @Query("SELECT l FROM Lunch l WHERE l.isDeleted = false ORDER BY l.updatedAt DESC")
     public List<Lunch> findAll();
 
     @Query("SELECT l FROM Lunch l WHERE DATE(l.date) = CURDATE()")

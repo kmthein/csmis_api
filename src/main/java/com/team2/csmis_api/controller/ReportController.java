@@ -1,7 +1,9 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.*;
+import com.team2.csmis_api.entity.VoucherRow;
 import com.team2.csmis_api.repository.UserHasLunchRepository;
+import com.team2.csmis_api.repository.VoucherRowRepository;
 import com.team2.csmis_api.service.JasperReportService;
 import jakarta.servlet.http.HttpServletResponse;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -11,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.Month;
 import java.text.ParseException;
@@ -27,6 +30,9 @@ public class ReportController {
 
     @Autowired
     private JasperReportService reportService;
+
+    @Autowired
+    private VoucherRowRepository voucherRowRepository;
 
     @GetMapping("mail-on")
     public List<UserDTO> getMailOnUsers() {
@@ -333,5 +339,21 @@ public class ReportController {
         return ResponseEntity.ok(results);
     }
 
+    @GetMapping("/paid-voucher")
+    public ResponseEntity<byte[]> getPaidVoucherReport() throws IOException {
+        try {
+            // Generate the report
+            byte[] reportData = reportService.generatePaidVoucherReport();
+
+            // Return the PDF as a response
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=paid_voucher_report.pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(reportData);
+        } catch (Exception e) {
+            // Handle exceptions
+            return ResponseEntity.status(500).body("Error generating report".getBytes());
+        }
+    }
 }
 

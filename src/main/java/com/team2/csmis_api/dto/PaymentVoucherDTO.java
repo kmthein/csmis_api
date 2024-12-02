@@ -17,5 +17,5 @@ public class PaymentVoucherDTO {
     private String status;  // Payment status (Paid/Unpaid)
     private Double totalAmount;
     private List<VoucherRowDTO> rows;  // List of VoucherRowDTO for rows
-
+    private String paymentMethod = "Cash";
 }

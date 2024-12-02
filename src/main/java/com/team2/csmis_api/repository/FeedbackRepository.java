@@ -13,6 +13,15 @@ import java.util.Optional;
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
 
+    boolean existsByUserIdAndLunchId(Long userId, Long lunchId);
+
+    @Query("SELECT f FROM Feedback f " +
+            "LEFT JOIN FETCH f.user u " +
+            "LEFT JOIN FETCH f.response r " +
+            "LEFT JOIN FETCH f.lunch l " +
+            "WHERE f.isDeleted = false")
+    List<Feedback> findAllActiveFeedbacksWithDetails();
+
     // Fetch all feedbacks where isDeleted is false
     @Query("SELECT f FROM Feedback f WHERE f.isDeleted = false")
     List<Feedback> findAllActiveFeedbacks();

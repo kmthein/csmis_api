@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LunchDetailsDTO {
-    private int registeredDays;
+    private int registeredDates;
     private double lunchPrice;
     private double companyRate;
     private double userCostPerDay;

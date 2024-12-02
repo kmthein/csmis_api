@@ -8,6 +8,8 @@ import com.team2.csmis_api.service.AnnouncementService;
 import com.team2.csmis_api.service.LunchService;
 import com.team2.csmis_api.service.UserHasAnnouncementService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,8 +62,9 @@ public class AnnouncementController {
     }
 
     @GetMapping("")
-    public List<AnnouncementDTO> showAllAnnouncements() {
-        return announcementService.getAllAnnouncementsWithFiles();
+    public ResponseEntity<Page<AnnouncementDTO>> showAllAnnouncements(@RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(announcementService.getAllAnnouncementsWithFiles(page, size));
     }
 
     @GetMapping("{id}")
