@@ -241,7 +241,8 @@ public interface LunchRepository extends JpaRepository<Lunch, Integer> {
         WITH calculated_data AS (
             SELECT 
                 u.name AS name, 
-                u.staff_id AS staff_id, 
+                u.staff_id AS staff_id,
+ 
                 SUM(l.price - (l.company_rate / 100) * l.price) AS amount
             FROM (
                 SELECT dar.user_id AS user_id, dar.date AS date 
