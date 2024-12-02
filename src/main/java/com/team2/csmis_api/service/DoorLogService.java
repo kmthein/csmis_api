@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +37,18 @@ public class DoorLogService {
 
     @Autowired
     private ModelMapper mapper;
+
+    public BigDecimal getUserWeeklyTotalCost(int userId) {
+        return doorLogRepo.getWeeklyTotalUserCostByUserId(userId);
+    }
+
+    public BigDecimal getUserMonthlyTotalCost(int userId) {
+        return doorLogRepo.getMonthlyTotalUserCostByUserId(userId);
+    }
+
+    public BigDecimal getUserYearlyTotalCost(int userId) {
+        return doorLogRepo.getYearlyTotalUserCostByUserId(userId);
+    }
 
     @Transactional
     public List<DoorAccessRecord> saveDoorLogToDatabase(MultipartFile file, Integer adminId) {

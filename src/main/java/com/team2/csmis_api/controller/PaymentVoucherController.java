@@ -2,9 +2,12 @@ package com.team2.csmis_api.controller;
 
 
 import com.team2.csmis_api.dto.PaymentVoucherDTO;
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.entity.PaymentVoucher;
+import com.team2.csmis_api.service.JasperReportService;
 import com.team2.csmis_api.service.PaymentVoucherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,20 +22,27 @@ import java.util.List;
 public class PaymentVoucherController {
 
     private final PaymentVoucherService paymentVoucherService;
+    private final JasperReportService reportService;
+
+    @GetMapping
+    public List<PaymentVoucher> getAllPaymentVouchers() {
+        return paymentVoucherService.getAllPaymentVoucher();
+    }
 
     @PostMapping("/from-date")
     public ResponseEntity<Void> createPaymentVoucherByDate(
-            @RequestParam("selectedDate") LocalDate selectedDate,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate selectedDate,
             @RequestBody PaymentVoucherDTO requestDTO) {
         paymentVoucherService.createPaymentVoucherByDate(selectedDate, requestDTO);
         return ResponseEntity.ok().build();
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updatePaymentVoucher(
+    public ResponseDTO updatePaymentVoucher(
             @PathVariable Integer id,
             @RequestBody PaymentVoucherDTO requestDTO) {
-        paymentVoucherService.updatePaymentVoucher(id, requestDTO);
-        return ResponseEntity.ok().build();
+        ResponseDTO res = paymentVoucherService.updatePaymentVoucher(id, requestDTO);
+        return res;
     }
 
     // Delete Payment Voucher by ID
@@ -48,9 +58,12 @@ public class PaymentVoucherController {
         PaymentVoucher voucher = paymentVoucherService.getPaymentVoucherById(id);
         return ResponseEntity.ok(voucher);
     }
-
-    @GetMapping("/non-deleted")
-    public List<PaymentVoucher> getAllNonDeletedPaymentVouchers() {
-        return paymentVoucherService.getAllNonDeletedPaymentVouchers();
+    @GetMapping("/by-date-range")
+    public ResponseEntity<List<PaymentVoucher>> getPaymentVouchersByDateRange(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<PaymentVoucher> vouchers = paymentVoucherService.getPaymentVouchersByDateRange(startDate, endDate);
+        return ResponseEntity.ok(vouchers);
     }
+
 }

@@ -5,13 +5,11 @@ import com.team2.csmis_api.entity.DoorAccessRecord;
 import com.team2.csmis_api.entity.Restaurant;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.entity.UserHasLunch;
-import com.team2.csmis_api.repository.DoorLogRepository;
-import com.team2.csmis_api.repository.RestaurantRepository;
-import com.team2.csmis_api.repository.UserHasLunchRepository;
-import com.team2.csmis_api.repository.UserRepository;
+import com.team2.csmis_api.repository.*;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.engine.util.JRLoader;
 import net.sf.jasperreports.export.SimpleExporterInput;
 import net.sf.jasperreports.export.SimpleOutputStreamExporterOutput;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -48,6 +47,9 @@ public class JasperReportService {
 
     @Autowired
     private DoorLogRepository doorLogRepo;
+
+    @Autowired
+    private LunchRepository lunchRepo;
 
     @Autowired
     private UserHasLunchRepository userHasLunchRepo;
@@ -154,23 +156,6 @@ public class JasperReportService {
         } else {
             throw new IllegalArgumentException("Unsupported file type: " + fileType);
         }
-    }
-
-    public byte[] generateRestaurantReport() throws Exception {
-        // Load the Jasper report template from resources
-        InputStream reportStream = new ClassPathResource("reports/restaurant2.jrxml").getInputStream();
-
-        // Compile the report
-        JasperReport jasperReport = JasperCompileManager.compileReport(reportStream);
-
-        // Set report parameters if needed (useful for dynamic data)
-        Map<String, Object> parameters = new HashMap<>();
-
-        // Fill the report with data from the database
-        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, dataSource.getConnection());
-
-        // Export the report to a PDF
-        return JasperExportManager.exportReportToPdf(jasperPrint);
     }
 
     public List<Restaurant> fetchData(int month, int year) {
@@ -334,4 +319,127 @@ public class JasperReportService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public List<CostDTO> getDailyCompanyCosting(LocalDate date) {
+        List<Object[]> results = lunchRepo.getDailyCompanyCosting(date);
+        return results.stream()
+                .map(result -> new CostDTO(
+                        (Date) result[0],
+                        (Integer) result[1],
+                        (Long) result[2],
+                        (Double) result[3],
+                        (Double) result[4],
+                        (Double) result[5],
+                        (Double) result[6]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<CostDTO> getWeeklyCompanyCosting(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = lunchRepo.getWeeklyCompanyCosting(startDate,endDate);
+        return results.stream()
+                .map(result -> new CostDTO(
+                        (Date) result[0],
+                        (Integer) result[1],
+                        (Long) result[2],
+                        (Double) result[3],
+                        (Double) result[4],
+                        (Double) result[5],
+                        (Double) result[6]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<CostDTO> getMonthlyCompanyCosting(int month, int year) {
+        List<Object[]> results = lunchRepo.getMonthlyCompanyCosting(month,year);
+        return results.stream()
+                .map(result -> new CostDTO(
+                        (Date) result[0],
+                        (Integer) result[1],
+                        (Long) result[2],
+                        (Double) result[3],
+                        (Double) result[4],
+                        (Double) result[5],
+                        (Double) result[6]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<EmployeeCostDTO> getDailyEmployeeOwnCost(LocalDate date) {
+        List<Object[]> results = lunchRepo.getDailyEmployeeOwnCost(date);
+        return results.stream()
+                .map(result -> new EmployeeCostDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        (Double) result[2],
+                        (Double) result[3]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<EmployeeCostDTO> getWeeklyEmployeeOwnCost(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = lunchRepo.getWeeklyEmployeeOwnCost(startDate, endDate);
+        return results.stream()
+                .map(result -> new EmployeeCostDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        (Double) result[2],
+                        (Double) result[3]
+                ))
+                .collect(Collectors.toList());
+    }
+
+    public List<EmployeeCostDTO> getMonthlyEmployeeOwnCost(int month, int year) {
+        List<Object[]> results = lunchRepo.getMonthlyEmployeeOwnCost(month,year);
+        return results.stream()
+                .map(result -> new EmployeeCostDTO(
+                        (String) result[0],
+                        (String) result[1],
+                        (Double) result[2],
+                        (Double) result[3]
+                ))
+                .collect(Collectors.toList());
+    }
+    public byte[] generatePaidVoucherReport() {
+        try {
+            // Load the compiled Jasper report
+            InputStream reportStream = getClass().getResourceAsStream("/reports/PaidVoucherListReport.jasper");
+
+            // Ensure the report file is found
+            if (reportStream == null) {
+                throw new RuntimeException("Jasper report file not found");
+            }
+
+            // Set parameters if any
+            Map<String, Object> parameters = new HashMap<>();
+            // Example: parameters.put("ReportTitle", "Paid Voucher Report");
+
+            // DataSource setup, assuming you're using a JDBC connection or other data source
+            JRDataSource dataSource = new JREmptyDataSource();  // Replace with your actual data source
+
+            // Fill the report
+            JasperPrint jasperPrint = JasperFillManager.fillReport(reportStream, parameters, dataSource);
+
+            // Export the report to PDF
+            byte[] pdfData = JasperExportManager.exportReportToPdf(jasperPrint);
+            return pdfData;
+        } catch (JRException e) {
+            throw new RuntimeException("Error generating report", e);
+        }
+    }
+
+//    public byte[] generatePaidVoucherReport() throws JRException, IOException {
+//        // Load the compiled .jasper report
+//        JasperReport jasperReport = (JasperReport) JRLoader.loadObject(new ClassPathResource("reports/PaidVoucherListReport.jasper").getInputStream());
+//
+//        // Create parameters for the report (empty or with dynamic values)
+//        Map<String, Object> parameters = new HashMap<>();
+//        // You can add parameters to the report, e.g., parameters.put("date", new Date());
+//
+//        // Fill the report with data (using a data source, for example)
+//        JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
+//
+//        // Export the report to a byte array (PDF format in this case)
+//        return JasperExportManager.exportReportToPdf(jasperPrint);
+//    }
 }

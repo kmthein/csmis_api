@@ -1,9 +1,12 @@
 package com.team2.csmis_api.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.team2.csmis_api.entity.PaymentVoucher;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,6 +17,7 @@ public class ResponseDTO {
     private String status;
     private Integer id;
     private UserDTO userDetails;
+    private List<PaymentVoucher> paymentVouchers; // Updated to include list of PaymentVouchers
     public ResponseDTO(String message) {
         this.message = message;
     }
@@ -27,5 +31,8 @@ public class ResponseDTO {
         this.message = message;
         this.status = status;
         this.id = id;
+    }
+
+    public ResponseDTO(String success, String ok, List<PaymentVoucher> paymentVouchers) {
     }
 }

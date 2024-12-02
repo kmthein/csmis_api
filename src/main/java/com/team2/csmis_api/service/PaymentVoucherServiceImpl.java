@@ -1,8 +1,10 @@
 package com.team2.csmis_api.service;
 
 import com.team2.csmis_api.dto.PaymentVoucherDTO;
+import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.VoucherRowDTO;
 import com.team2.csmis_api.entity.*;
+import com.team2.csmis_api.exception.ResourceNotFoundException;
 import com.team2.csmis_api.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,11 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
     private final UserRepository userRepository;
     private final VoucherRowRepository voucherRowRepository;
 
+    @Override
+    public List<PaymentVoucher> getAllPaymentVoucher() {
+        return paymentVoucherRepository.findAll();
+    }
+
     @Transactional
     public String createPaymentVoucherByDate(LocalDate selectedDate, PaymentVoucherDTO requestDTO) {
         // Get weekdays from the selected date
@@ -49,6 +56,20 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         Map<Integer, List<OrderRow>> groupedOrderRows = orderRows.stream()
                 .collect(Collectors.groupingBy(orderRow -> orderRow.getOrder().getId()));
 
+        // Calculate the Monday and Friday of the selected week
+        List<LocalDate> weekdaysList = getWeekdaysFromSelectedDate(selectedDate);
+        LocalDate monday = weekdaysList.get(0);
+        LocalDate friday = weekdaysList.get(4);
+
+        // Format the dates as DDMMYYYY
+        String invoiceFor = String.format("%s~%s", formatDate(monday), formatDate(friday));
+
+        // Check if a PaymentVoucher already exists for this invoiceFor
+        Optional<PaymentVoucher> existingVoucher = paymentVoucherRepository.findByInvoiceFor(invoiceFor);
+        if (existingVoucher.isPresent()) {
+            throw new RuntimeException("A PaymentVoucher already exists for the invoice period: " + invoiceFor);
+        }
+
         // Process each order to create PaymentVoucher
         for (Integer orderId : groupedOrderRows.keySet()) {
             Order order = orderRepository.findById(orderId)
@@ -65,6 +86,45 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         Optional<String> latestVoucherNo = paymentVoucherRepository.findLatestVoucherNo(year, month);
         return latestVoucherNo.orElseThrow(() -> new RuntimeException("Failed to find the latest voucher number"));
     }
+
+
+//    @Transactional
+//    public String createPaymentVoucherByDate(LocalDate selectedDate, PaymentVoucherDTO requestDTO) {
+//        // Get weekdays from the selected date
+//        List<LocalDate> weekdays = getWeekdaysFromSelectedDate(selectedDate);
+//
+//        if (weekdays.isEmpty()) {
+//            throw new RuntimeException("Invalid selected date. Unable to calculate weekdays.");
+//        }
+//
+//        // Find OrderRows matching these weekdays
+//        List<OrderRow> orderRows = orderRepository.findOrderRowsByDates(weekdays);
+//
+//        // Handle case where no orders are found
+//        if (orderRows.isEmpty()) {
+//            throw new RuntimeException("No orders found for the selected date range: " + weekdays);
+//        }
+//
+//        // Group OrderRows by orderId
+//        Map<Integer, List<OrderRow>> groupedOrderRows = orderRows.stream()
+//                .collect(Collectors.groupingBy(orderRow -> orderRow.getOrder().getId()));
+//
+//        // Process each order to create PaymentVoucher
+//        for (Integer orderId : groupedOrderRows.keySet()) {
+//            Order order = orderRepository.findById(orderId)
+//                    .orElseThrow(() -> new RuntimeException("Order not found for orderId: " + orderId));
+//
+//            // Pass selectedDate to the createVoucherFromOrder method
+//            createVoucherFromOrder(order, groupedOrderRows.get(orderId), requestDTO, selectedDate);
+//        }
+//
+//        // Call the repository method with the current year and month as parameters
+//        String year = String.valueOf(LocalDate.now().getYear());
+//        String month = String.format("%02d", LocalDate.now().getMonthValue());
+//
+//        Optional<String> latestVoucherNo = paymentVoucherRepository.findLatestVoucherNo(year, month);
+//        return latestVoucherNo.orElseThrow(() -> new RuntimeException("Failed to find the latest voucher number"));
+//    }
 
     private List<LocalDate> getWeekdaysFromSelectedDate(LocalDate selectedDate) {
         if (selectedDate == null) {
@@ -94,7 +154,7 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
             throw new RuntimeException("Cashier user not found");
         }
 
-        User approvedBy = userRepository.findUserById(requestDTO.getApprovedByUserId());
+        User approvedBy = userRepository.findByName(requestDTO.getApprovedByName());
         if (approvedBy == null) {
             throw new RuntimeException("ApprovedBy user (ADMIN) not found");
         }
@@ -104,6 +164,8 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         voucher.setVoucherNo(newVoucherNo);
         voucher.setPaymentDate(LocalDate.now());
         voucher.setRestaurantName(order.getRestaurant().getName());
+        voucher.setTotalAmount(requestDTO.getTotalAmount());
+        voucher.setPaymentMethod(requestDTO.getPaymentMethod() != null ? requestDTO.getPaymentMethod() : "Cash");
 
         // Calculate the Monday and Friday of the selected week
         List<LocalDate> weekdays = getWeekdaysFromSelectedDate(selectedDate);
@@ -119,11 +181,13 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         voucher.setReceivedBy(requestDTO.getReceivedBy());
         voucher.setApprovedBy(approvedBy.getName());
         voucher.setStatus(PaymentVoucher.PaymentStatus.valueOf(requestDTO.getStatus()));
+        voucher.setPaymentMethod(requestDTO.getPaymentMethod() != null ? requestDTO.getPaymentMethod() : "Cash");
 
         // Create VoucherRows for each OrderRow
         List<VoucherRow> voucherRows = orderRows.stream().map(orderRow -> {
             // Get the lunch date for the current order row
             LocalDate lunchDate = orderRow.getLunchDate();
+            System.out.println(orderRow.getLunchDate());
 
             // Check if lunch exists for the selected date; if not, find another date in the same week
             Lunch lunch = getLunchForWeek(lunchDate, weekdays);
@@ -202,7 +266,8 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
     //*****************************UPDATE****************************//
 
     @Transactional
-    public void updatePaymentVoucher(Integer id, PaymentVoucherDTO requestDTO) {
+    public ResponseDTO updatePaymentVoucher(Integer id, PaymentVoucherDTO requestDTO) {
+        ResponseDTO res = new ResponseDTO();
         // Fetch the existing PaymentVoucher by ID
         PaymentVoucher existingVoucher = paymentVoucherRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("PaymentVoucher with id " + id + " not found")
@@ -217,10 +282,11 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         }
 
         // Update Approved By
-        if (requestDTO.getApprovedByUserId() != null) {
-            User approvedBy = userRepository.findById(requestDTO.getApprovedByUserId()).orElseThrow(
-                    () -> new RuntimeException("Approved By User with id " + requestDTO.getApprovedByUserId() + " not found")
-            );
+        if (requestDTO.getApprovedByName() != null) {
+            User approvedBy = userRepository.findByName(requestDTO.getApprovedByName());
+            if(approvedBy == null) {
+                throw new ResourceNotFoundException("Approve id not found");
+            }
             existingVoucher.setApprovedBy(approvedBy.getName()); // Assuming 'username' is the field to set
         }
 
@@ -250,7 +316,15 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
         }
 
         // Save the updated PaymentVoucher
-        paymentVoucherRepository.save(existingVoucher);
+        PaymentVoucher voucher = paymentVoucherRepository.save(existingVoucher);
+        if(voucher != null) {
+            res.setMessage("Payment updated successfully");
+            res.setStatus("200");
+        } else {
+            res.setMessage("Payment can't be updated");
+            res.setStatus("401");
+        }
+        return res;
     }
     //****************************************************************//
     //****************************************************************//
@@ -273,10 +347,25 @@ public class PaymentVoucherServiceImpl implements PaymentVoucherService {
                 .filter(voucher -> !voucher.getIsDeleted()) // Exclude soft-deleted voucher
                 .orElseThrow(() -> new RuntimeException("Payment Voucher with id " + id + " not found or has been deleted"));
     }
+    //*************************************************//
+    @Transactional
+    public List<PaymentVoucher> getPaymentVouchersByDateRange(LocalDate startDate, LocalDate endDate) {
+        // Fetch VoucherRows within the date range
+        List<VoucherRow> voucherRows = voucherRowRepository.findByDtBetween(startDate, endDate);
 
-    @Override
-    public List<PaymentVoucher> getAllNonDeletedPaymentVouchers() {
-        return paymentVoucherRepository.findAllNonDeleted();
+        // Check if voucher rows are found
+        if (voucherRows.isEmpty()) {
+            throw new RuntimeException("No VoucherRows found within the given date range");
+        }
+
+        // Extract PaymentVoucher IDs from the found VoucherRows
+        List<PaymentVoucher> paymentVouchers = voucherRows.stream()
+                .map(VoucherRow::getPaymentVoucher) // Get PaymentVoucher from each VoucherRow
+                .distinct() // Remove duplicates (if any)
+                .collect(Collectors.toList());
+
+        return paymentVouchers;
     }
+
 
 }

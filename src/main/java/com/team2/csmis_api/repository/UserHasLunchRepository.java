@@ -2,6 +2,7 @@ package com.team2.csmis_api.repository;
 
 
 import com.team2.csmis_api.dto.AvoidMeatDTO;
+import com.team2.csmis_api.dto.DateCountDTO;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.dto.LunchSummaryDTO;
 import com.team2.csmis_api.entity.UserHasLunch;
@@ -16,6 +17,13 @@ import java.util.List;
 import java.util.Optional;
 @Repository
 public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Integer> {
+    @Query("SELECT new com.team2.csmis_api.dto.DateCountDTO(u.dt, COUNT(u), u.total_cost) " +
+            "FROM UserHasLunch u " +
+            "WHERE u.dt BETWEEN :startDate AND :endDate " +
+            "GROUP BY u.dt, u.total_cost " +
+            "ORDER BY u.dt")
+    List<DateCountDTO> getLunchCounts(@Param("startDate") Date startDate, @Param("endDate") Date endDate);
+
     @Query(value = """
         SELECT 
             d.name AS departmentName, 
@@ -271,7 +279,11 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
     List<UserHasLunch> findUserHasLunchForMonth(@Param("month") int month, @Param("year") int year);
 
     @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE uhl.dt BETWEEN :startOfWeek AND :endOfWeek AND u.department.id = :departmentId")
-    List<UserHasLunch> findUserHasLunchForPreviousWeekByDepartment(@Param("startOfWeek") Date startOfWeek, @Param("endOfWeek") Date endOfWeek, @Param("departmentId") Integer departmentId);
+    List<UserHasLunch> findUserHasLunchForPreviousWeekByDepartment(
+            @Param("startOfWeek") Date startOfWeek,
+            @Param("endOfWeek") Date endOfWeek,
+            @Param("departmentId") Integer departmentId
+    );
 
     @Query("SELECT uhl FROM UserHasLunch uhl JOIN uhl.user u WHERE MONTH(uhl.dt) = :month AND YEAR(uhl.dt) = :year AND u.department.id = :departmentId")
     List<UserHasLunch> findUserHasLunchForMonthAndDepartment(@Param("month") int month, @Param("year") int year, @Param("departmentId") int departmentId);

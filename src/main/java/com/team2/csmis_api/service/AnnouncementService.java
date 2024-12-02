@@ -101,6 +101,18 @@ public class AnnouncementService {
     public AnnouncementDTO getAnnouncementById(Integer id) {
         Announcement announcement = announcementRepo.getAnnouncementById(id);
         AnnouncementDTO announcementDTO = convertToAnnouncementDto(announcement);
+        List<FileDTO> files = new ArrayList<>();
+        for (FileData file : announcement.getFileData()) {
+            if (!file.getIsDeleted()) {
+                FileDTO fileDTO = new FileDTO();
+                fileDTO.setId(file.getId());
+                fileDTO.setFilePath(file.getFilePath());
+                fileDTO.setFiletype(file.getFileType());
+                fileDTO.setIsDeleted(file.getIsDeleted());
+                files.add(fileDTO);
+            }
+        }
+        announcementDTO.setFiles(files);
         return announcementDTO;
     }
 

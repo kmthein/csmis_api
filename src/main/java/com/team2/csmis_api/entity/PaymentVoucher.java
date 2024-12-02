@@ -33,7 +33,6 @@ public class PaymentVoucher extends Base{
     @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<VoucherRow> rows;
 
-
     @Column(name = "cashier", nullable = false)
     private String cashier;
 
@@ -43,14 +42,21 @@ public class PaymentVoucher extends Base{
     @Column(name = "approvedBy", nullable = false)
     private String approvedBy;
 
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private PaymentStatus status; // Using Enum instead of String
 
+    @Column(name = "total_amount")
+    private Double totalAmount;
 
     public enum PaymentStatus {
         PAID,
         UNPAID
     }
+
+    @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'Cash'")
+    private String paymentMethod = "Cash";
+
+
+
 }

@@ -7,12 +7,37 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface DoorLogRepository extends JpaRepository<DoorAccessRecord,Integer> {
+
+    @Query("SELECT SUM(ul.userCost) FROM DoorAccessRecord d " +
+            "LEFT JOIN UserHasLunch ul ON d.user.id = ul.user.id " +
+            "AND FUNCTION('DATE', d.date) = FUNCTION('DATE', ul.dt) " +
+            "WHERE FUNCTION('YEARWEEK', d.date) = FUNCTION('YEARWEEK', CURRENT_DATE) " +
+            "AND d.user.id = :userId")
+    BigDecimal getWeeklyTotalUserCostByUserId(@Param("userId") Integer userId);
+
+    @Query("SELECT SUM(ul.userCost) FROM DoorAccessRecord d " +
+            "LEFT JOIN UserHasLunch ul ON d.user.id = ul.user.id " +
+            "AND FUNCTION('DATE', d.date) = FUNCTION('DATE', ul.dt) " +
+            "WHERE FUNCTION('MONTH', d.date) = FUNCTION('MONTH', CURRENT_DATE) " +
+            "AND FUNCTION('YEAR', d.date) = FUNCTION('YEAR', CURRENT_DATE) " +
+            "AND d.user.id = :userId")
+    BigDecimal getMonthlyTotalUserCostByUserId(@Param("userId") Integer userId);
+
+
+    @Query("SELECT SUM(ul.userCost) FROM DoorAccessRecord d " +
+            "LEFT JOIN UserHasLunch ul ON d.user.id = ul.user.id " +
+            "AND FUNCTION('DATE', d.date) = FUNCTION('DATE', ul.dt) " +
+            "WHERE FUNCTION('YEAR', d.date) = FUNCTION('YEAR', CURRENT_DATE) " +
+            "AND d.user.id = :userId")
+    BigDecimal getYearlyTotalUserCostByUserId(@Param("userId") Integer userId);
+
     @Query("SELECT d FROM DoorAccessRecord d")
     public List<DoorAccessRecord> getAllDoorAccessRecords();
 

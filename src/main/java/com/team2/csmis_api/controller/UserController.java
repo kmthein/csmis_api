@@ -3,6 +3,7 @@ package com.team2.csmis_api.controller;
 import com.team2.csmis_api.dto.DietaryPreferenceDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.dto.UserDTO;
+import com.team2.csmis_api.dto.UserImageDTO;
 import com.team2.csmis_api.entity.Holiday;
 import com.team2.csmis_api.entity.User;
 import com.team2.csmis_api.service.UserService;
@@ -39,6 +40,11 @@ public class UserController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Something went wrong"));
         }
+    }
+
+    @PutMapping("profile-image")
+    public ResponseDTO updateProfileImage(@ModelAttribute UserImageDTO userImageDTO) {
+        return userService.updateUserProfile(userImageDTO);
     }
 
     @PostMapping("")
@@ -85,5 +91,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while retrieving preferences");
         }
+    }
+
+    @GetMapping("/getAllAdmins")
+    public List<User> getAllAdmins() {
+        return userService.getAllAdmins();
     }
 }

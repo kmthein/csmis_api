@@ -39,6 +39,11 @@ public class ForgotPasswordController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @PutMapping("/users/change-password")
+    public ResponseDTO changeNewPassword(@RequestParam("userId") Integer userId, @RequestParam("oldPassword") String oldPassword , @RequestParam("newPassword") String newPassword) {
+        return userService.changeNewPassword(userId, oldPassword, newPassword);
+    }
+
     @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
