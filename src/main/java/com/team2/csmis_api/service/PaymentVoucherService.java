@@ -20,4 +20,7 @@ public interface PaymentVoucherService {
     void deletePaymentVoucher(Integer id);
 
     PaymentVoucher getPaymentVoucherById(Integer id);
+    public List<PaymentVoucher> getPaymentVouchersByDateRange(LocalDate startDate, LocalDate endDate);
+
+
 }

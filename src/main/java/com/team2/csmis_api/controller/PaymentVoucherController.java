@@ -5,6 +5,7 @@ import com.team2.csmis_api.dto.PaymentVoucherDTO;
 import com.team2.csmis_api.dto.ResponseDTO;
 import com.team2.csmis_api.entity.PaymentVoucher;
 import com.team2.csmis_api.entity.VoucherRow;
+import com.team2.csmis_api.service.JasperReportService;
 import com.team2.csmis_api.service.PaymentVoucherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,6 +23,7 @@ import java.util.List;
 public class PaymentVoucherController {
 
     private final PaymentVoucherService paymentVoucherService;
+    private final JasperReportService reportService;
 
     @GetMapping
     public List<PaymentVoucher> getAllPaymentVouchers() {
@@ -40,6 +42,7 @@ public class PaymentVoucherController {
         paymentVoucherService.createPaymentVoucherByDate(selectedDate, requestDTO);
         return ResponseEntity.ok().build();
     }
+
     @PutMapping("/{id}")
     public ResponseDTO updatePaymentVoucher(
             @PathVariable Integer id,
@@ -61,4 +64,12 @@ public class PaymentVoucherController {
         PaymentVoucher voucher = paymentVoucherService.getPaymentVoucherById(id);
         return ResponseEntity.ok(voucher);
     }
+    @GetMapping("/by-date-range")
+    public ResponseEntity<List<PaymentVoucher>> getPaymentVouchersByDateRange(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        List<PaymentVoucher> vouchers = paymentVoucherService.getPaymentVouchersByDateRange(startDate, endDate);
+        return ResponseEntity.ok(vouchers);
+    }
+
 }

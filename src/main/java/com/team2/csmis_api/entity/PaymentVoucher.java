@@ -33,7 +33,6 @@ public class PaymentVoucher extends Base{
     @OneToMany(mappedBy = "paymentVoucher", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<VoucherRow> rows;
 
-
     @Column(name = "cashier", nullable = false)
     private String cashier;
 
@@ -54,4 +53,10 @@ public class PaymentVoucher extends Base{
         PAID,
         UNPAID
     }
+
+    @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'Cash'")
+    private String paymentMethod = "Cash";
+
+
+
 }
