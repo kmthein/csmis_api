@@ -178,7 +178,13 @@ public class UserHasLunchServices {
     }
 
     public LunchDetailsDTO getLunchDetails(Integer userId) {
-        int registeredDays = userHasLunchRepository.countRegisteredDaysForMonth(userId);
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, 1);  // Set to the first day of the month
+        Date startOfMonth = cal.getTime();
+
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));  // Set to the last day of the month
+        Date endOfMonth = cal.getTime();
+        int registeredDates = userHasLunchRepository.countRegisterDatesForMonth(userId, startOfMonth, endOfMonth);
         Settings settings = settingsRepository.findLatestSettings();
         if (settings == null) {
             throw new RuntimeException("Settings not found!");
@@ -190,12 +196,12 @@ public class UserHasLunchServices {
 
         double userCostPerDay = (lunchPrice * userSharePercentage) / 100;
         double companyCostPerDay = (lunchPrice * companyRate) / 100;
-        double userMonthlyCost = userCostPerDay * registeredDays;
-        double companyMonthlyCost = companyCostPerDay * registeredDays;
-        double estMonthlyCost = lunchPrice * registeredDays;
+        double userMonthlyCost = userCostPerDay * registeredDates;
+        double companyMonthlyCost = companyCostPerDay * registeredDates;
+        double estMonthlyCost = lunchPrice * registeredDates;
 
         LunchDetailsDTO details = new LunchDetailsDTO();
-        details.setRegisteredDays(registeredDays);
+        details.setRegisteredDates(registeredDates);  // Registered days count (number)
         details.setLunchPrice(lunchPrice);
         details.setCompanyRate(companyRate);
         details.setUserCostPerDay(userCostPerDay);
@@ -206,7 +212,6 @@ public class UserHasLunchServices {
 
         return details;
     }
-
 
     //User
     public Map<String, Object> calculateTotalCostAndDateCountForPreviousWeek(Integer departmentId) throws Exception {

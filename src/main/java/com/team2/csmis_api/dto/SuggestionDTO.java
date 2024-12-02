@@ -12,6 +12,7 @@ public class SuggestionDTO {
     private String content;
     private Integer userId;
     private boolean isSeen;
-    private String username;
+    private String name;
+    private String userImg;
     private LocalDateTime createdAt;
 }

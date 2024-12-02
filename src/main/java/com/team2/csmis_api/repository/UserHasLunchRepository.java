@@ -395,4 +395,20 @@ public interface UserHasLunchRepository extends JpaRepository<UserHasLunch, Inte
 
     @Query("SELECT u.total_cost FROM UserHasLunch u WHERE u.dt = :date")
     Double getTotalByDate(@Param("date") Date date);
+
+    @Query("SELECT COUNT(u) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = MONTH(CURRENT_DATE) AND YEAR(u.dt) = YEAR(CURRENT_DATE)")
+    int countRegisterDaysForMonth(@Param("userId") Integer userId);
+    @Query("SELECT COUNT(u.dt) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = :monthValue AND YEAR(u.dt) = :year")
+    List<LocalDate> findRegisterDatesByUserIdAndMonth(@Param("userId") Integer userId, @Param("monthValue") int monthValue, @Param("year") int year);
+
+    @Query("SELECT COUNT(u.dt) FROM UserHasLunch u WHERE u.user.id = :userId AND MONTH(u.dt) = :monthValue AND YEAR(u.dt) = :year")
+    int countRegisteredDatesForMonth(Integer userId, int monthValue, int year);
+    @Query("SELECT COUNT(u.dt) FROM UserHasLunch u " +
+            "WHERE u.user.id = :userId " +
+            "AND u.dt >= :startOfMonth " +
+            "AND u.dt < :endOfMonth")
+    int countRegisterDatesForMonth(@Param("userId") Integer userId,
+                                   @Param("startOfMonth") Date startOfMonth,
+                                   @Param("endOfMonth") Date endOfMonth);
+
 }

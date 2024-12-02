@@ -43,15 +43,17 @@ public class MeatController {
     public ResponseEntity<?> updateMeat(@PathVariable Integer id, @RequestBody Meat meat) {
         meat.setId(id);
 
-        if (meatService.isNameUnique(meat.getName())) {
-            Meat updatedMeat = meatService.save(meat);
-            return new ResponseEntity<>(updatedMeat, HttpStatus.OK);
-        } else {
+        if (!meatService.isNameUnique(meat.getName())) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body("A meat with the name '" + meat.getName() + "' already exists.");
         }
+
+        Meat updatedMeat = meatService.save(meat);
+        return new ResponseEntity<>(updatedMeat, HttpStatus.OK);
     }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> softDeleteMeat(@PathVariable Integer id) {

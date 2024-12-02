@@ -35,4 +35,15 @@ public class VoucherRow {
     @JoinColumn(name = "payment_voucher_id")
     private PaymentVoucher paymentVoucher;  // Reference to PaymentVoucher
 
+    // Constructors, Getters, and Setters
+
+    public VoucherRow() {}
+
+    public VoucherRow(String dt, int qty, double price, double amount) {
+        this.dt = LocalDate.parse(dt);
+        this.qty = qty;
+        this.price = price;
+        this.amount = amount;
+    }
+
 }
