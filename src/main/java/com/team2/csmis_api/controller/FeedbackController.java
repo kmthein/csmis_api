@@ -1,11 +1,13 @@
 package com.team2.csmis_api.controller;
 
 import com.team2.csmis_api.dto.FeedbackDTO;
+import com.team2.csmis_api.entity.Feedback;
 import com.team2.csmis_api.service.FeedbackService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @CrossOrigin
@@ -15,6 +17,20 @@ public class FeedbackController {
 
     @Autowired
     private FeedbackService feedbackService;
+
+    @GetMapping("/for-update")
+    public FeedbackDTO getFeedbackByUserAndDate(
+            @RequestParam Integer userId,
+            @RequestParam LocalDate date) {
+        return feedbackService.getFeedbackByUserAndDate(userId, date);
+    }
+
+    @GetMapping("/count/{responseId}")
+    public ResponseEntity<Long> getFeedbackCount(@PathVariable Integer responseId) {
+        long count = feedbackService.getFeedbackCountByResponseId(responseId);
+        return ResponseEntity.ok(count);
+    }
+
 
     @GetMapping("/has-feedback")
     public ResponseEntity<Boolean> hasGivenFeedback(

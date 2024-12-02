@@ -5,13 +5,23 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedback, Integer> {
+
+    Optional<Feedback> findByUserIdAndDate(Integer userId, LocalDate date);
+
+//    @Query("SELECT f FROM Feedback f WHERE f.user.id = :userId AND f.date = :date")
+//    List<Feedback> findByUserIdAndDate(Integer userId, LocalDate date);
+
+    @Query(value = "SELECT COUNT(*) FROM feedback WHERE feedback_response_id = :responseId", nativeQuery = true)
+    long countFeedbacksByResponseId(@Param("responseId") Integer responseId);
 
     boolean existsByUserIdAndLunchId(Long userId, Long lunchId);
 

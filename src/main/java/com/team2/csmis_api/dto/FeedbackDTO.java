@@ -14,5 +14,4 @@ public class FeedbackDTO {
     private String comment;
     private String userName;
     private String lunchMenu;
-    private String response;
 }
