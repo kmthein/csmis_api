@@ -16,6 +16,15 @@ public class FeedbackController {
     @Autowired
     private FeedbackService feedbackService;
 
+    @GetMapping("/has-feedback")
+    public ResponseEntity<Boolean> hasGivenFeedback(
+            @RequestParam Long userId,
+            @RequestParam Long lunchId
+    ) {
+        boolean result = feedbackService.hasGivenFeedback(userId, lunchId);
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping
     public ResponseEntity<FeedbackDTO> createFeedback(@RequestBody FeedbackDTO feedbackDTO) {
         FeedbackDTO createdFeedback = feedbackService.createFeedback(feedbackDTO);

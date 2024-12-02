@@ -39,6 +39,10 @@ public class FeedbackService {
     @Autowired
     private NotificationService notificationService;
 
+    public boolean hasGivenFeedback(Long userId, Long lunchId) {
+        return feedbackRepository.existsByUserIdAndLunchId(userId, lunchId);
+    }
+
     // Create Feedback
     @Transactional
     public FeedbackDTO createFeedback(FeedbackDTO feedbackDTO) {
